@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<meta name="description" content="Agent Skill Registry — on-chain AI agent skills. Powered by $KRN on Base."/>
+<title>KERNAL — Agent Skill Registry</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#EDE8DF}
+#app{height:100%}
+a,button{cursor:pointer;font-family:inherit}
+button{border:none;background:none}
+button:focus,a:focus{outline:none}
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-track{background:#EDE8DF}
+::-webkit-scrollbar-thumb{background:#C0BAA8}
+
+/* Fonts fallback */
+.sf{font-family:'Cormorant Garamond',Georgia,serif}
+.sn{font-family:'DM Sans',system-ui,sans-serif}
+.sm{font-family:'JetBrains Mono','Courier New',monospace}
+
+@keyframes blink    {50%{opacity:0}}
+@keyframes ticker   {to{transform:translateX(-50%)}}
+@keyframes fadeUp   {from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideUp  {from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scaleIn  {from{opacity:0;transform:scale(.93)}to{opacity:1;transform:scale(1)}}
+@keyframes lineIn   {from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:translateX(0)}}
+@keyframes ovIn     {from{opacity:0}to{opacity:1}}
+@keyframes soonPop  {from{opacity:0;transform:scale(.88) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes pulse    {0%,100%{opacity:.5}50%{opacity:1}}
+
+.afu{animation:fadeUp .32s cubic-bezier(.22,.68,0,1.1) both}
+.asu{animation:slideUp .36s cubic-bezier(.22,.68,0,1.1) both}
+.asc{animation:scaleIn .26s cubic-bezier(.22,.68,0,1.1) both}
+
+/* Hover effects */
+.bh{transition:opacity .14s,transform .12s}
+.bh:hover{opacity:.8}
+.bh:active{opacity:.6;transform:scale(.98)}
+.rh{transition:background .13s}
+.rh:hover{background:#E0D8C8!important}
+.win-b:hover{background:rgba(255,255,255,.05)!important}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<!-- SOON overlay - always present, toggled via display -->
+<div id="soon-overlay" onclick="hideSoon()" style="display:none;position:fixed;inset:0;z-index:9999;align-items:flex-end;justify-content:center;background:rgba(20,20,16,.75);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);animation:ovIn .2s ease">
+  <div id="soon-box" onclick="event.stopPropagation()" style="width:100%;max-width:520px;background:#141410;border-top:1px solid #2E2D26;padding:36px 28px 44px;text-align:center;padding-bottom:max(44px,calc(44px + env(safe-area-inset-bottom)));animation:soonPop .28s cubic-bezier(.22,.68,0,1.1) both">
+    <div style="display:flex;justify-content:center;margin-bottom:22px">
+      <div style="animation:pulse 2s ease infinite">
+        <svg width="50" height="50" viewBox="0 0 100 100"><rect width="100" height="100" fill="transparent"/><line x1="26" y1="13" x2="26" y2="87" stroke="#B87420" stroke-width="13" stroke-linecap="square"/><line x1="26" y1="50" x2="84" y2="14" stroke="#B87420" stroke-width="13" stroke-linecap="square"/><line x1="26" y1="50" x2="84" y2="86" stroke="#B87420" stroke-width="13" stroke-linecap="square"/><rect x="22" y="46" width="9" height="9" fill="#EDE8DF" transform="rotate(45 26.5 50.5)"/></svg>
+      </div>
+    </div>
+    <div class="sf" style="font-size:52px;font-weight:300;color:#EDE8DF;letter-spacing:-1px;line-height:1;margin-bottom:8px;font-style:italic">Soon.</div>
+    <div class="sn" style="font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#B87420;margin-bottom:20px">Premium Skill — Token Required</div>
+    <div class="sn" style="font-size:14px;color:rgba(255,255,255,.4);line-height:1.7;margin-bottom:28px">This skill requires holding <strong style="color:#B87420">10,000,000 $KRN</strong> on Base. Token launch coming soon.</div>
+    <div style="display:flex;border-top:1px solid #2E2D26;padding-top:18px;margin-bottom:22px">
+      <div style="flex:1;text-align:center;border-right:1px solid #2E2D26;padding:0 10px"><div class="sf" style="font-size:17px;color:#B87420;margin-bottom:3px">10M $KRN</div><div class="sn" style="font-size:9px;color:rgba(255,255,255,.28);letter-spacing:1px;text-transform:uppercase">Premium Access</div></div>
+      <div style="flex:1;text-align:center;border-right:1px solid #2E2D26;padding:0 10px"><div class="sf" style="font-size:17px;color:#B87420;margin-bottom:3px">100M $KRN</div><div class="sn" style="font-size:9px;color:rgba(255,255,255,.28);letter-spacing:1px;text-transform:uppercase">Priority Access</div></div>
+      <div style="flex:1;text-align:center;padding:0 10px"><div class="sf" style="font-size:17px;color:#B87420;margin-bottom:3px">Stake</div><div class="sn" style="font-size:9px;color:rgba(255,255,255,.28);letter-spacing:1px;text-transform:uppercase">Fee Revenue</div></div>
+    </div>
+    <button onclick="hideSoon()" class="bh sn" style="width:100%;padding:13px;background:transparent;border:1px solid #2E2D26;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.32)">Close</button>
+  </div>
+</div>
+
+<script>
+/* ── Data ───────────────────────────────────────────────────────────────── */
+var BOOT=[
+  {t:'KERNAL OS v1.0.0',d:0},{t:'\u00A9 2025 Kernal Registry \u00B7 Base Network',d:150},
+  {t:'',d:240},{t:'[    0.000000] Initializing skill registry kernel...',d:380},
+  {t:'[    0.041820] Loading $KRN token module...',d:520},
+  {t:'[    0.103441] Mounting skill filesystem \u2014 8 skills loaded',d:660},
+  {t:'[    0.198203] Agent compatibility layer: active',d:800},
+  {t:'[    0.251007] Connecting to Base RPC... done',d:940},
+  {t:'[    0.309841] Token gate: active',d:1070},
+  {t:'',d:1180},{t:'kernal login: root',d:1320},
+  {t:'Password: \u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022',d:1490},
+  {t:'',d:1590},{t:'System ready. Welcome to KERNAL.',d:1750}
+];
+
+var SK=[
+  {id:'wallet-digest',name:'wallet-digest',tier:'free',v:'1.2.3',cat:'Monitoring',
+   desc:'Summarize wallet activity and balance changes across tracked addresses',
+   long:'Polls tracked wallet addresses via Alchemy RPC, computes 24h PnL, groups transactions by type (swap, transfer, NFT), and sends a clean digest. Supports multi-wallet aggregation and custom time windows.',
+   installs:'2,441',by:'kernal-labs',upd:'2 days ago',
+   deps:['alchemy-rpc','notify'],compat:['aeon','claude-code','cursor']},
+  {id:'token-alert',name:'token-alert',tier:'free',v:'1.0.5',cat:'Monitoring',
+   desc:'Alert on price and volume anomalies for tracked tokens via CoinGecko',
+   long:'Monitors token prices and 24h volume on a configurable interval. Triggers alerts when price moves \u00B1X% or volume spikes above Y\u00D7 the 7-day average.',
+   installs:'3,102',by:'kernal-labs',upd:'5 days ago',
+   deps:['coingecko-api','notify'],compat:['aeon','claude-code']},
+  {id:'defi-monitor',name:'defi-monitor',tier:'free',v:'1.1.0',cat:'DeFi',
+   desc:'Monitor DeFi positions: pool health, IL, and yield rates',
+   long:'Checks LP positions across Uniswap v3, Aerodrome, and Curve. Computes impermanent loss, current APR, and health factor. Alerts if IL exceeds threshold.',
+   installs:'1,837',by:'kernal-labs',upd:'1 week ago',
+   deps:['alchemy-rpc','coingecko-api'],compat:['aeon','claude-code','cursor','codex']},
+  {id:'sniper-skill',name:'sniper-skill',tier:'premium',v:'2.1.0',cat:'Trading',
+   desc:'Detect and execute token snipes on new Base/Uniswap pool launches',
+   long:'Monitors Uniswap v3 factory for new pool creation events on Base. Runs configurable filters (liquidity threshold, contract verification, honeypot check) then executes an immediate swap at launch.',
+   installs:'891',by:'kernal-labs',upd:'3 days ago',
+   deps:['alchemy-rpc','uniswap-v3','wallet-signer'],compat:['aeon','claude-code']},
+  {id:'copy-trader',name:'copy-trader',tier:'premium',v:'1.5.2',cat:'Trading',
+   desc:'Mirror smart money wallets with configurable delay and position sizing',
+   long:'Watches smart money addresses for new swap transactions. After a configurable delay (0\u201360 min), executes a proportional copy trade. Supports position size caps and token blacklists.',
+   installs:'1,204',by:'kernal-labs',upd:'1 day ago',
+   deps:['alchemy-rpc','uniswap-v3','wallet-signer'],compat:['aeon','claude-code']},
+  {id:'alpha-digest',name:'alpha-digest',tier:'premium',v:'1.0.2',cat:'Research',
+   desc:'Aggregate alpha from CT, on-chain data, and whale wallet moves',
+   long:'Combines X/Twitter search, whale wallet tracking, and on-chain event monitoring into a daily alpha digest. AI synthesizes signal vs noise and ranks by confidence score.',
+   installs:'743',by:'kernal-labs',upd:'6 hours ago',
+   deps:['xai-api','alchemy-rpc','coingecko-api'],compat:['aeon','claude-code']},
+  {id:'mev-guard',name:'mev-guard',tier:'premium',v:'1.3.0',cat:'Protection',
+   desc:'Protect outgoing transactions from MEV sandwich and front-run attacks',
+   long:'Routes all agent-initiated swaps through private mempools (Flashbots Protect or MEV Blocker). Simulates transactions before execution and aborts if sandwich risk is detected.',
+   installs:'612',by:'kernal-labs',upd:'4 days ago',
+   deps:['flashbots-rpc','alchemy-rpc'],compat:['aeon','claude-code','codex']},
+  {id:'arbitrage-scanner',name:'arbitrage-scanner',tier:'premium',v:'2.0.0',cat:'Trading',
+   desc:'Scan price deltas across DEXs and flag atomic arb opportunities',
+   long:'Polls Uniswap v3, Aerodrome, Curve, and Velodrome every block for price discrepancies. Computes net profit after gas. Optional: auto-execute via flash loan.',
+   installs:'534',by:'kernal-labs',upd:'2 days ago',
+   deps:['alchemy-rpc','uniswap-v3','aero-router'],compat:['aeon','claude-code']}
+];
+
+var ART=[
+  {h:null,b:"There's a gap forming in the AI agent ecosystem, and most people haven't noticed it yet.\n\nOn one side: agent frameworks — Aeon, Claude Code, Cursor, Codex. Powerful and autonomous. On the other: the on-chain world — DeFi protocols, token markets, MEV. Raw, complex, constantly moving.\n\nBetween them? A skill gap. That's where KERNAL comes in."},
+  {h:'What Is KERNAL?',b:"KERNAL is an agent skill registry built for on-chain execution. Install skills into your AI agent and let it operate autonomously on-chain.\n\nEvery skill is a markdown file (SKILL.md) with structured instructions any compatible agent can read and execute. No SDK, no wrapper, no vendor lock-in."},
+  {h:'Skills That Drive Real Value',b:"Free tier: wallet-digest, token-alert, defi-monitor.\n\nPremium tier (gated by $KRN):\n\u00B7 sniper-skill: New pool launches \u2192 immediate swap execution.\n\u00B7 copy-trader: Mirror smart money with configurable delay.\n\u00B7 alpha-digest: Ranked daily digest from CT + whale wallets.\n\u00B7 mev-guard: Route swaps through Flashbots Protect.\n\u00B7 arbitrage-scanner: Price delta detection across DEXs."},
+  {h:'The $KRN Token',b:"Every on-chain execution via a KERNAL skill carries a 0.2% fee \u2192 $KRN treasury \u2192 distributed to stakers.\n\n\u00B7 Hold 10,000,000 $KRN \u2192 Access all premium skills\n\u00B7 Hold 100,000,000 $KRN \u2192 Priority updates + early access\n\u00B7 Stake $KRN \u2192 Proportional execution fee revenue\n\nTotal supply: 100,000,000,000 $KRN on Base."},
+  {h:'Getting Started',b:"1. Browse skills in SKILLS.db\n2. Click Install on any free skill\n3. Drop SKILL.md into your agent's skills/ folder\n4. Set enabled: true in aeon.yml\n5. For premium skills: acquire 10M+ $KRN after launch"}
+];
+
+/* ── State ───────────────────────────────────────────────────────────────── */
+var S={
+  phase:'boot',
+  isMob:window.innerWidth<768,
+  view:'home',
+  filter:'all',
+  mobSkill:null,
+  termLines:[],
+  wins:[],
+  activeWin:null,
+  selSkill:null
+};
+
+/* ── SVG ─────────────────────────────────────────────────────────────────── */
+function km(sz,fill,acc,bg,r){
+  sz=sz||28;fill=fill||'#EDE8DF';acc=acc||'#B87420';bg=bg||'transparent';r=r||0;
+  var rect=r>0?'<rect width="100" height="100" rx="'+r+'" ry="'+r+'" fill="'+bg+'"/>':'<rect width="100" height="100" fill="'+bg+'"/>';
+  return '<svg width="'+sz+'" height="'+sz+'" viewBox="0 0 100 100" style="display:block;flex-shrink:0">'+rect+'<line x1="26" y1="13" x2="26" y2="87" stroke="'+fill+'" stroke-width="13" stroke-linecap="square"/><line x1="26" y1="50" x2="84" y2="14" stroke="'+fill+'" stroke-width="13" stroke-linecap="square"/><line x1="26" y1="50" x2="84" y2="86" stroke="'+fill+'" stroke-width="13" stroke-linecap="square"/><rect x="22" y="46" width="9" height="9" fill="'+acc+'" transform="rotate(45 26.5 50.5)"/></svg>';
+}
+
+/* ── HTML helpers ────────────────────────────────────────────────────────── */
+var C={bg:'#EDE8DF',bg2:'#E5DED0',bg3:'#D8D0BE',dark:'#141410',darkB:'#2E2D26',text:'#1C1C17',mid:'#6B6655',light:'#9B9585',ghost:'#C0BAA8',amber:'#B87420',green:'#2A481A',greenM:'#3D6B28'};
+
+function lbl(t,extra){return '<div class="sn" style="font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:'+C.light+';'+(extra||'')+'">'+t+'</div>';}
+function hr(extra){return '<div style="height:1px;background:'+C.bg3+';'+(extra||'')+'"></div>';}
+function pill(tier){var p=tier==='premium';return '<span class="sn" style="font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;background:'+(p?'rgba(184,116,32,0.12)':'rgba(42,72,26,0.1)')+';color:'+(p?C.amber:C.green)+';border:1px solid '+(p?'rgba(184,116,32,0.25)':'rgba(42,72,26,0.2)')+';">'+(p?'$KRN':'Free')+'</span>';}
+function srow(label,val,sub,last,green){return '<div>'+
+  '<div style="display:flex;align-items:baseline;justify-content:space-between;padding:14px 0;gap:12px;">'+lbl(label)+
+  '<div style="text-align:right;"><span class="sf" style="font-size:20px;font-weight:400;color:'+(green?C.greenM:C.text)+';">'+val+'</span>'+(sub?'<span class="sn" style="font-size:11px;color:'+C.light+';margin-left:6px;">'+sub+'</span>':'')+
+  '</div></div>'+(last?'':hr())+'</div>';}
+function dbtn(txt,action,val,outline){return '<button onclick="'+action+'(\''+val+'\')" class="bh sn" style="display:flex;align-items:center;justify-content:space-between;width:100%;padding:15px 18px;background:'+(outline?'transparent':C.dark)+';border:1px solid '+(outline?C.bg3:C.dark)+';font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:'+(outline?C.mid:C.bg)+'"><span>'+txt+'</span><span style="font-size:14px;opacity:.6">\u25ba</span></button>';}
+
+/* ── Boot ────────────────────────────────────────────────────────────────── */
+function bootHTML(){
+  return '<div style="background:'+C.dark+';min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:\'JetBrains Mono\',monospace;padding:24px;">'+
+    '<div style="width:min(560px,100%)">'+
+      '<div style="margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid '+C.darkB+'">'+
+        '<div style="display:flex;align-items:center;gap:12px;margin-bottom:4px;">'+km(34,C.amber,C.bg)+'<span class="sf" style="font-size:clamp(18px,4vw,26px);color:'+C.amber+';font-weight:300;letter-spacing:2px;font-style:italic">kernal</span></div>'+
+        '<div class="sm" style="font-size:9px;color:'+C.darkB+';letter-spacing:4px">AGENT SKILL REGISTRY</div>'+
+      '</div>'+
+      '<div id="boot-lines" class="sm" style="font-size:clamp(9px,2.2vw,11px);line-height:2.2"></div>'+
+    '</div>'+
+  '</div>';
+}
+
+function startBoot(){
+  document.getElementById('app').innerHTML=bootHTML();
+  var container=document.getElementById('boot-lines');
+  BOOT.forEach(function(b,i){
+    setTimeout(function(){
+      if(!document.getElementById('boot-lines'))return;
+      var d=document.createElement('div');
+      d.textContent=b.t||'\u00A0';
+      d.style.cssText='color:'+(b.t.startsWith('[')?'#2A2A24':b.t.startsWith('kernal')?C.amber:b.t.startsWith('System')?C.mid:'#363630')+';animation:lineIn .18s ease '+(i*.04)+'s both;';
+      container.appendChild(d);
+      // cursor
+      var cur=document.getElementById('boot-cursor');
+      if(!cur){var c=document.createElement('span');c.id='boot-cursor';c.textContent='\u2588';c.style.cssText='animation:blink 1s step-end infinite;color:'+C.amber;container.appendChild(c);}
+    },b.d);
+  });
+  setTimeout(function(){
+    S.phase='os';
+    if(S.isMob){renderMobile();}else{S.wins=['skills'];S.activeWin='skills';renderDesktop();}
+  },2600);
+}
+
+/* ── Mobile nav + tabs ───────────────────────────────────────────────────── */
+function mobNavHTML(){
+  return '<div style="height:52px;background:'+C.bg+';border-bottom:1px solid '+C.bg3+';display:flex;align-items:center;justify-content:space-between;padding:0 16px;position:sticky;top:0;z-index:50;flex-shrink:0">'+
+    '<div style="display:flex;align-items:center;gap:10px">'+km(26,C.dark,C.amber)+'<span class="sf" style="font-size:18px;font-weight:400;color:'+C.text+';font-style:italic">kernal</span></div>'+
+    '<button class="bh sn" style="height:34px;padding:0 14px;border:1px solid '+C.bg3+';font-size:11px;font-weight:600;letter-spacing:1px;color:'+C.mid+';display:flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:50%;background:'+C.ghost+';display:inline-block"></span>Connect</button>'+
+  '</div>';
+}
+
+function mobTabsHTML(active){
+  var tabs=[{id:'home',l:'Home',i:'\u229e'},{id:'skills',l:'Skills',i:'\u25c8'},{id:'token',l:'Token',i:'\u25c9'},{id:'terminal',l:'Run',i:'\u25b8'},{id:'article',l:'Article',i:'\u2726'},{id:'docs',l:'Docs',i:'\u25fb'}];
+  return '<div style="position:fixed;bottom:0;left:0;right:0;z-index:100;background:'+C.bg+';border-top:1px solid '+C.bg3+';display:flex;padding-bottom:env(safe-area-inset-bottom,4px)">'+
+    tabs.map(function(t){
+      var a=active===t.id||(active==='sd'&&t.id==='skills');
+      return '<button onclick="go(\''+t.id+'\')" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 4px;background:none;border:none;font-family:\'DM Sans\',system-ui,sans-serif">'+
+        '<span style="font-size:18px;color:'+(a?C.amber:C.ghost)+';transition:color .15s">'+t.i+'</span>'+
+        '<span style="font-size:8px;font-weight:'+(a?600:400)+';color:'+(a?C.amber:C.ghost)+';transition:color .15s;white-space:nowrap">'+t.l+'</span>'+
+      '</button>';
+    }).join('')+
+  '</div>';
+}
+
+/* ── Mobile views ────────────────────────────────────────────────────────── */
+function viewHome(){
+  var recent=SK.slice(0,3).map(function(s,i){
+    return '<div>'+
+      '<button onclick="goSkill(\''+s.id+'\')" class="rh" style="width:100%;background:none;border:none;padding:12px 0;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer">'+
+        '<div style="text-align:left"><div class="sf" style="font-size:18px;font-weight:400;color:'+C.text+';margin-bottom:2px">'+s.name+'</div><div class="sn" style="font-size:12px;color:'+C.light+'">'+s.cat+' \u00b7 '+s.upd+'</div></div>'+
+        '<div style="display:flex;align-items:center;gap:8px">'+pill(s.tier)+'<span style="color:'+C.ghost+';font-size:16px">\u203a</span></div>'+
+      '</button>'+(i<2?hr():'')+'</div>';
+  }).join('');
+  return '<div class="asu" style="padding:0 0 90px">'+
+    '<div style="padding:28px 20px 20px">'+lbl('Agent Skill Registry \u00b7 Base','margin-bottom:8px')+'<div class="sf" style="font-size:52px;font-weight:300;color:'+C.text+';line-height:1;letter-spacing:-1px;margin-bottom:6px">kernal</div>'+hr()+'</div>'+
+    '<div style="padding:0 20px">'+srow('Skills','8','available',false)+srow('Installs','5.8k','total',false)+srow('Supply','100B','$KRN',false)+srow('Network','Base',null,false)+srow('Status','Soon','\u25aa launch',true,true)+'</div>'+
+    hr('margin-bottom:24px')+
+    '<div style="padding:0 20px 24px"><p class="sn" style="font-size:15px;line-height:1.72;color:'+C.mid+'">An open registry of AI agent skills for on-chain execution. Install skills into your agent and let it operate autonomously on <strong style="color:'+C.text+';font-weight:500">Base Network</strong>.</p></div>'+
+    '<div style="padding:0 20px;display:flex;flex-direction:column;gap:8px;margin-bottom:28px">'+dbtn('Browse Skills','go','skills')+dbtn('Read the Article','go','article',true)+'</div>'+
+    '<div style="padding:0 20px;border-top:1px solid '+C.bg3+';padding-top:20px">'+lbl('Recently Updated','margin-bottom:14px')+recent+'</div>'+
+    tickerHTML()+
+  '</div>';
+}
+
+function viewSkills(){
+  var list=S.filter==='all'?SK:SK.filter(function(s){return s.tier===S.filter;});
+  var filters=['all','free','premium'].map(function(f){
+    var a=S.filter===f;
+    return '<button onclick="setFilter(\''+f+'\')" class="bh sn" style="padding:6px 14px;border:1px solid '+(a?C.dark:C.bg3)+';background:'+(a?C.dark:'transparent')+';font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:'+(a?C.bg:C.mid)+'">'+
+      (f==='all'?'All':f==='free'?'Free':'Premium')+'</button>';
+  }).join('');
+  var rows=list.map(function(s,i){
+    return '<div>'+
+      '<button onclick="goSkill(\''+s.id+'\')" class="rh" style="width:100%;background:none;border:none;padding:15px 0;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;cursor:pointer">'+
+        '<div style="text-align:left;flex:1">'+lbl(s.cat+' \u00b7 v'+s.v,'margin-bottom:4px')+'<div class="sf" style="font-size:22px;font-weight:400;color:'+C.text+';margin-bottom:4px;line-height:1.1">'+s.name+'</div><div class="sn" style="font-size:12px;color:'+C.light+';line-height:1.4">'+(s.desc.length>60?s.desc.slice(0,60)+'\u2026':s.desc)+'</div></div>'+
+        '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">'+pill(s.tier)+'<span class="sm" style="font-size:10px;color:'+C.ghost+'">'+s.installs+'</span></div>'+
+      '</button>'+(i<list.length-1?hr():'')+'</div>';
+  }).join('');
+  return '<div class="asu" style="padding:0 0 90px">'+
+    '<div style="padding:20px 20px 0"><button onclick="go(\'home\')" class="bh sn" style="font-size:12px;color:'+C.amber+';font-weight:500;padding:0 0 10px">\u2039 Home</button>'+
+    '<div class="sf" style="font-size:38px;font-weight:300;color:'+C.text+';letter-spacing:-.5px;margin-bottom:4px">Skills</div>'+lbl('Skill Registry','margin-bottom:14px')+hr()+'</div>'+
+    '<div style="padding:12px 20px;display:flex;gap:6px;flex-wrap:wrap">'+filters+'<span class="sm" style="align-self:center;margin-left:auto;font-size:10px;color:'+C.ghost+'">'+list.length+'</span></div>'+
+    hr('margin:0 20px')+
+    '<div style="padding:0 20px">'+rows+'</div>'+
+  '</div>';
+}
+
+function viewDetail(s){
+  var deps=s.deps.map(function(d){return '<span class="sm" style="font-size:11px;padding:4px 10px;background:'+C.bg2+';border:1px solid '+C.bg3+';color:'+C.mid+'">'+d+'</span>';}).join('');
+  var compat=s.compat.map(function(c){return '<span class="sn" style="font-size:11px;font-weight:500;padding:4px 10px;background:'+C.bg2+';border:1px solid '+C.bg3+';color:'+C.text+'">'+c+'</span>';}).join('');
+  return '<div class="asu" style="padding:0 0 90px">'+
+    '<div style="padding:20px 20px 0"><button onclick="go(\'skills\')" class="bh sn" style="font-size:12px;color:'+C.amber+';font-weight:500;padding:0 0 10px">\u2039 Skills</button>'+
+    lbl(s.cat+' \u00b7 '+(s.tier==='premium'?'Premium':'Free'),'margin-bottom:5px')+
+    '<div class="sf" style="font-size:34px;font-weight:300;color:'+C.text+';letter-spacing:-.5px;line-height:1.1;margin-bottom:14px">'+s.name+'</div>'+
+    hr('margin-bottom:18px')+
+    '<p class="sn" style="font-size:15px;line-height:1.75;color:'+C.mid+';margin-bottom:22px">'+s.long+'</p></div>'+
+    '<div style="padding:0 20px">'+srow('Installs',s.installs,null,false)+srow('Version','v'+s.v,null,false)+srow('Author',s.by,null,false)+srow('Updated',s.upd,null,true)+'</div>'+
+    hr('margin:4px 20px 18px')+
+    '<div style="padding:0 20px;margin-bottom:18px">'+lbl('Dependencies','margin-bottom:8px')+'<div style="display:flex;flex-wrap:wrap;gap:6px">'+deps+'</div></div>'+
+    '<div style="padding:0 20px;margin-bottom:24px">'+lbl('Compatible Agents','margin-bottom:8px')+'<div style="display:flex;flex-wrap:wrap;gap:6px">'+compat+'</div></div>'+
+    '<div style="padding:0 20px">'+
+      (s.tier==='premium'
+        ?'<button onclick="showSoon()" class="bh sn" style="display:flex;align-items:center;justify-content:space-between;width:100%;padding:15px 18px;background:'+C.dark+';border:1px solid '+C.dark+';font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:'+C.bg+'"><span>Install \u2014 Requires $KRN</span><span style="font-size:14px;opacity:.6">\u25ba</span></button>'
+        :'<button onclick="installFree(\''+s.id+'\')" class="bh sn" style="display:flex;align-items:center;justify-content:space-between;width:100%;padding:15px 18px;background:'+C.dark+';border:1px solid '+C.dark+';font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:'+C.bg+'"><span>Install Free Skill</span><span style="font-size:14px;opacity:.6">\u25ba</span></button>'
+      )+
+    '</div>'+
+  '</div>';
+}
+
+function viewToken(){
+  var util=[['Hold 10,000,000 $KRN','Access all premium skills'],['Hold 100,000,000 $KRN','Priority + early access'],['Stake $KRN','Revenue share from fees'],['0.2% execution fee','On all on-chain transactions']];
+  var urows=util.map(function(u,i){
+    return '<div>'+
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:12px 0">'+
+        '<div class="sn" style="font-size:13px;font-weight:500;color:'+C.text+'">'+u[0]+'</div>'+
+        '<div class="sn" style="font-size:12px;color:'+C.light+';text-align:right;max-width:150px">'+u[1]+'</div>'+
+      '</div>'+(i<util.length-1?hr():'')+'</div>';
+  }).join('');
+  return '<div class="asu" style="padding:0 0 90px">'+
+    '<div style="background:'+C.dark+';padding:30px 20px">'+lbl('Token \u00b7 Base Network','color:#B87420;margin-bottom:8px')+'<div class="sf" style="font-size:52px;font-weight:300;color:'+C.bg+';letter-spacing:-1px;line-height:1;margin-bottom:8px;font-style:italic">$KRN</div>'+
+    '<div class="sn" style="font-size:14px;color:rgba(255,255,255,.4);line-height:1.5">Token not yet deployed. Launch coming soon on Base.</div></div>'+
+    '<div style="padding:0 20px">'+srow('Token','$KRN',null,false)+srow('Network','Base',null,false)+srow('Total Supply','100,000,000,000',null,false)+srow('Circulating','TBA',null,false)+srow('Status','Soon',null,true,true)+'</div>'+
+    hr('margin:8px 20px 22px')+
+    '<div style="padding:0 20px;margin-bottom:22px">'+lbl('Token Utility','margin-bottom:12px')+urows+'</div>'+
+    '<div style="padding:0 20px;display:flex;flex-direction:column;gap:8px">'+
+      '<button class="bh sn" style="display:flex;align-items:center;justify-content:space-between;width:100%;padding:15px 18px;background:'+C.dark+';border:1px solid '+C.dark+';font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:'+C.bg+'"><span>Buy $KRN on Uniswap</span><span style="font-size:14px;opacity:.6">\u25ba</span></button>'+
+      '<button class="bh sn" style="display:flex;align-items:center;justify-content:space-between;width:100%;padding:15px 18px;background:transparent;border:1px solid '+C.bg3+';font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:'+C.mid+'"><span>View Contract on BaseScan</span><span style="font-size:14px;opacity:.6">\u25ba</span></button>'+
+    '</div>'+
+  '</div>';
+}
+
+function viewTerminal(){
+  var linesHTML=S.termLines.length===0
+    ?'<div class="sm" style="font-size:11px;color:#2A2A24;line-height:2.2"><div>No command running.</div><div>Select a skill \u2192 Install to see output.</div><br><span style="animation:blink 1s step-end infinite;color:#B87420">\u2588</span></div>'
+    :S.termLines.map(function(line,i){
+        var col=line.startsWith('\u2713')?'#3D9142':line.startsWith('\u2192')?C.mid:line.startsWith('$')?C.amber:'#363630';
+        return '<div class="sm" style="font-size:11px;color:'+col+';white-space:pre-wrap;word-break:break-all;animation:lineIn .12s ease '+(i*.06)+'s both">'+(line||'\u00A0')+'</div>';
+      }).join('')+'<span style="animation:blink 1s step-end infinite;color:#B87420" class="sm">\u2588</span>';
+  return '<div class="asu" style="padding:0 0 90px">'+
+    '<div style="background:'+C.dark+';padding:22px 20px 18px;border-bottom:1px solid '+C.darkB+'">'+lbl('Execution Log','color:'+C.light+';margin-bottom:6px')+'<div class="sf" style="font-size:30px;font-weight:300;color:'+C.bg+';letter-spacing:-.5px">Terminal</div></div>'+
+    '<div style="background:'+C.dark+';min-height:50vh;padding:18px 20px">'+
+      '<div class="sm" style="font-size:9px;color:'+C.darkB+';margin-bottom:12px;letter-spacing:1px">kernal@base:~$ \u2014 session open</div>'+
+      '<div id="term-out">'+linesHTML+'</div>'+
+    '</div>'+
+  '</div>';
+}
+
+function viewArticle(){
+  var secs=ART.map(function(s,i){
+    return '<div style="margin-bottom:28px">'+(s.h?'<div class="sf" style="font-size:24px;font-weight:400;color:'+C.text+';margin-bottom:10px;line-height:1.2">'+s.h+'</div>':'')+
+      '<div class="sn" style="font-size:15px;color:'+C.mid+';line-height:1.75;white-space:pre-line">'+s.b+'</div>'+
+      (i<ART.length-1?hr('margin-top:24px'):'')+'</div>';
+  }).join('');
+  return '<div class="asu" style="padding:0 0 90px">'+
+    '<div style="background:'+C.dark+';padding:32px 20px 28px">'+lbl('Article \u00b7 2025','color:#B87420;margin-bottom:10px')+
+    '<div class="sf" style="font-size:clamp(22px,5vw,32px);font-weight:300;color:'+C.bg+';line-height:1.15;letter-spacing:-.5px;margin-bottom:14px">KERNAL: The Skill Registry That Turns Any AI Agent Into an On-Chain Operator</div>'+
+    '<p class="sn" style="font-size:14px;color:rgba(255,255,255,.42);line-height:1.6;font-style:italic">The next layer of crypto infrastructure isn\'t a chain, a bridge, or a DEX. It\'s the skill.</p></div>'+
+    '<div style="padding:28px 20px">'+secs+'</div>'+
+    '<div style="margin:0 20px 20px;padding:14px;background:'+C.bg2+';border:1px solid '+C.bg3+'"><div class="sn" style="font-size:11px;color:'+C.light+';line-height:1.6;font-style:italic">KERNAL is infrastructure for autonomous on-chain agents. Not financial advice.</div></div>'+
+  '</div>';
+}
+
+function viewDocs(){
+  var secs=[
+    {l:'Overview',h:'What is KERNAL?',b:'An open registry of AI agent skills for on-chain execution. Compatible with Aeon, Claude Code, Cursor, and Codex.'},
+    {l:'Setup',h:'Quick Start',b:'1. Browse the skill registry\n2. Tap Install \u2014 output in Terminal\n3. Paste SKILL.md into skills/ folder\n4. Premium: 10,000,000+ $KRN required'},
+    {l:'Revenue',h:'Revenue Model',b:'0.2% execution fee \u2192 treasury \u2192 $KRN stakers. More usage = more yield.'},
+    {l:'Contribute',h:'Submit a Skill',b:'Open a PR to kernal-registry on GitHub.\nAccepted skills earn 50% of execution fee revenue.\nListing fee: 5,000,000 $KRN.'}
+  ];
+  return '<div class="asu" style="padding:0 0 90px">'+
+    '<div style="padding:22px 20px 0">'+lbl('Documentation','margin-bottom:8px')+'<div class="sf" style="font-size:38px;font-weight:300;color:'+C.text+';letter-spacing:-.5px;margin-bottom:4px">README</div>'+hr()+'</div>'+
+    secs.map(function(s){
+      return '<div><div style="padding:18px 20px">'+lbl(s.l,'margin-bottom:7px')+'<div class="sf" style="font-size:24px;font-weight:400;color:'+C.text+';margin-bottom:10px;line-height:1.2">'+s.h+'</div><p class="sn" style="font-size:14px;color:'+C.mid+';line-height:1.7;white-space:pre-line">'+s.b+'</p></div>'+hr()+'</div>';
+    }).join('')+
+  '</div>';
+}
+
+function tickerHTML(){
+  var utc=new Date().toISOString().slice(11,19);
+  var msg='\u25a0 LIVE  \u00b7  '+utc+'Z  \u00b7  KERNAL v1.0.0  \u00b7  BASE NETWORK  \u00b7  8 SKILLS ACTIVE  \u00b7  $KRN LAUNCH SOON  \u00b7  ';
+  return '<div style="background:'+C.dark+';height:30px;overflow:hidden;display:flex;align-items:center;flex-shrink:0">'+
+    '<div style="display:flex;animation:ticker 26s linear infinite;white-space:nowrap">'+
+      '<span class="sm" id="tick1" style="font-size:9px;color:'+C.amber+';letter-spacing:1.5px;padding-right:60px">'+msg+'</span>'+
+      '<span class="sm" style="font-size:9px;color:'+C.amber+';letter-spacing:1.5px;padding-right:60px">'+msg+'</span>'+
+    '</div>'+
+  '</div>';
+}
+
+/* ── Mobile render ───────────────────────────────────────────────────────── */
+function renderMobile(){
+  var content='';
+  if(S.view==='home')content=viewHome();
+  else if(S.view==='skills')content=viewSkills();
+  else if(S.view==='sd'&&S.mobSkill)content=viewDetail(S.mobSkill);
+  else if(S.view==='token')content=viewToken();
+  else if(S.view==='terminal')content=viewTerminal();
+  else if(S.view==='article')content=viewArticle();
+  else if(S.view==='docs')content=viewDocs();
+  document.getElementById('app').innerHTML=
+    '<div style="background:'+C.bg+';height:100vh;display:flex;flex-direction:column;overflow:hidden">'+
+      mobNavHTML()+
+      '<div id="mob-scroll" style="flex:1;overflow-y:auto;overflow-x:hidden">'+content+'</div>'+
+      mobTabsHTML(S.view)+
+    '</div>';
+}
+
+/* ── Desktop ─────────────────────────────────────────────────────────────── */
+function deskWinContent(wid){
+  if(wid==='skills')return deskSkills();
+  if(wid==='token')return deskToken();
+  if(wid==='terminal')return deskTerminal();
+  if(wid==='article')return deskArticle();
+  if(wid==='docs')return deskDocs();
+  return '';
+}
+function deskWin(wid){
+  var a=S.activeWin===wid;
+  var lbl2={skills:'SKILLS.db',token:'$KRN.token',terminal:'TERMINAL',article:'ARTICLE.md',docs:'README.md'};
+  return '<div onclick="focusWin(\''+wid+'\')" class="asc" style="border:1px solid '+(a?C.bg3:'transparent')+';background:'+C.bg+';overflow:hidden;box-shadow:'+(a?'0 2px 24px rgba(0,0,0,.09)':'none')+';transition:box-shadow .2s,border-color .15s">'+
+    '<div style="height:32px;background:'+(a?C.bg2:C.bg)+';border-bottom:1px solid '+C.bg3+';display:flex;align-items:center;padding:0 12px;gap:10px;user-select:none">'+
+      '<div style="display:flex;gap:6px">'+
+        '<button onclick="event.stopPropagation();closeWin(\''+wid+'\')" style="width:11px;height:11px;border-radius:50%;background:'+(a?'#FF5F57':C.bg3)+';border:none;padding:0;transition:background .12s"></button>'+
+        '<div style="width:11px;height:11px;border-radius:50%;background:'+(a?'#FFBD2E':C.bg3)+';transition:background .12s"></div>'+
+        '<div style="width:11px;height:11px;border-radius:50%;background:'+(a?'#28CA41':C.bg3)+';transition:background .12s"></div>'+
+      '</div>'+
+      '<div class="sn" style="flex:1;text-align:center;font-size:10px;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:'+(a?C.light:C.ghost)+'">'+lbl2[wid]+'</div>'+
+    '</div>'+
+    deskWinContent(wid)+
+  '</div>';
+}
+
+function deskSkills(){
+  var list=S.filter==='all'?SK:SK.filter(function(s){return s.tier===S.filter;});
+  var filt=['all','free','premium'].map(function(f){
+    var a=S.filter===f;
+    return '<button onclick="setFilter(\''+f+'\')" style="background:none;border:none;border-bottom:2px solid '+(a?C.amber:'transparent')+';color:'+(a?C.text:C.ghost)+';padding:10px 10px;font-family:\'DM Sans\',system-ui,sans-serif;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;transition:color .15s">'+f+'</button>';
+  }).join('');
+  var rows=list.map(function(s){
+    var sel=S.selSkill&&S.selSkill.id===s.id;
+    return '<div>'+
+      '<button onclick="selSkillFn(\''+s.id+'\')" class="rh" style="width:100%;background:'+(sel?C.bg2:'none')+';border:none;border-left:2px solid '+(sel?C.amber:'transparent')+';padding:11px 14px;text-align:left;cursor:pointer;transition:background .13s,border-left-color .13s">'+
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:3px"><span class="sf" style="font-size:15px;font-weight:400;color:'+C.text+'">'+s.name+'</span>'+pill(s.tier)+'</div>'+
+        '<div class="sn" style="font-size:10px;color:'+C.light+';line-height:1.4">'+(s.desc.length>52?s.desc.slice(0,52)+'\u2026':s.desc)+'</div>'+
+      '</button>'+hr()+'</div>';
+  }).join('');
+  var detail=S.selSkill?function(){
+    var s=S.selSkill;
+    var deps=s.deps.map(function(d){return '<span class="sm" style="font-size:10px;padding:3px 8px;background:'+C.bg2+';border:1px solid '+C.bg3+';color:'+C.mid+'">'+d+'</span>';}).join('');
+    return '<div class="afu" style="padding:22px">'+
+      lbl(s.cat+' \u00b7 v'+s.v,'margin-bottom:5px')+'<div class="sf" style="font-size:28px;font-weight:400;color:'+C.text+';margin-bottom:10px;line-height:1">'+s.name+'</div>'+hr('margin-bottom:14px')+
+      '<p class="sn" style="font-size:13px;color:'+C.mid+';line-height:1.75;margin-bottom:18px">'+s.long+'</p>'+
+      '<div style="margin-bottom:18px">'+
+        [['Installs',s.installs],['Author',s.by],['Updated',s.upd]].map(function(r){return '<div><div style="display:flex;justify-content:space-between;padding:8px 0">'+lbl(r[0])+'<span class="sf" style="font-size:14px;color:'+C.text+'">'+r[1]+'</span></div>'+hr()+'</div>';}).join('')+
+      '</div>'+
+      '<div style="margin-bottom:14px">'+lbl('Dependencies','margin-bottom:7px')+'<div style="display:flex;flex-wrap:wrap;gap:5px">'+deps+'</div></div>'+
+      (s.tier==='premium'
+        ?'<button onclick="showSoon()" class="bh sn" style="background:'+C.dark+';border:none;padding:10px 18px;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:'+C.bg+';display:flex;align-items:center;gap:8px"><span>Install Skill</span><span>\u25ba</span></button><div class="sn" style="margin-top:10px;padding:10px 12px;background:rgba(184,116,32,.07);border:1px solid rgba(184,116,32,.18);font-size:11px;color:'+C.amber+';line-height:1.5">\u26a0 Requires 10,000,000 $KRN on Base.</div>'
+        :'<button onclick="installFree(\''+s.id+'\')" class="bh sn" style="background:'+C.dark+';border:none;padding:10px 18px;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:'+C.bg+';display:flex;align-items:center;gap:8px"><span>Install Skill</span><span>\u25ba</span></button>'
+      )+
+    '</div>';
+  }():'<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px">'+km(44,C.bg3,C.bg2)+lbl('Select a skill','color:'+C.ghost)+'</div>';
+  return '<div style="display:flex;height:500px">'+
+    '<div style="width:272px;border-right:1px solid '+C.bg3+';display:flex;flex-direction:column;flex-shrink:0">'+
+      '<div style="display:flex;border-bottom:1px solid '+C.bg3+';padding:0 12px">'+filt+'<div style="flex:1"></div><span class="sm" style="align-self:center;font-size:9px;color:'+C.ghost+'">'+list.length+'</span></div>'+
+      '<div style="flex:1;overflow:auto">'+rows+'</div>'+
+    '</div>'+
+    '<div style="flex:1;overflow:auto">'+detail+'</div>'+
+  '</div>';
+}
+
+function deskTerminal(){
+  var linesHTML=S.termLines.length===0
+    ?'<div class="sm" style="font-size:10px;color:#2A2A24;line-height:2.2"><div>No command running.</div><div>Select a skill and click Install.</div><br><span style="animation:blink 1s step-end infinite;color:'+C.amber+'">\u2588</span></div>'
+    :S.termLines.map(function(l,i){
+        var col=l.startsWith('\u2713')?'#3D9142':l.startsWith('\u2192')?C.mid:l.startsWith('$')?C.amber:'#363630';
+        return '<div class="sm" style="font-size:10px;color:'+col+';white-space:pre-wrap;animation:lineIn .11s ease '+(i*.05)+'s both">'+(l||'\u00A0')+'</div>';
+      }).join('')+'<span class="sm" style="animation:blink 1s step-end infinite;color:'+C.amber+'">\u2588</span>';
+  return '<div style="background:'+C.dark+';height:500px;overflow:auto;padding:20px">'+
+    '<div class="sm" style="font-size:9px;color:'+C.darkB+';margin-bottom:12px;letter-spacing:1px">kernal@base:~$ \u2014 session open</div>'+
+    '<div id="term-out">'+linesHTML+'</div>'+
+  '</div>';
+}
+
+function deskToken(){
+  return '<div style="height:500px;overflow:auto;display:flex">'+
+    '<div style="width:210px;background:'+C.dark+';padding:22px 18px;flex-shrink:0;display:flex;flex-direction:column;justify-content:space-between">'+
+      '<div>'+lbl('Token','color:'+C.amber+';margin-bottom:8px')+'<div class="sf" style="font-size:42px;font-weight:300;color:'+C.bg+';letter-spacing:-1px;font-style:italic;line-height:1;margin-bottom:8px">$KRN</div><div class="sn" style="font-size:11px;color:rgba(255,255,255,.28);line-height:1.5">Token not yet deployed. Launch coming soon on Base.</div></div>'+
+      '<button class="bh sn" style="background:transparent;border:1px solid '+C.darkB+';padding:8px 12px;font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.35);display:flex;align-items:center;justify-content:space-between"><span>View Contract</span><span>\u25ba</span></button>'+
+    '</div>'+
+    '<div style="flex:1;padding:20px 22px;overflow:auto">'+
+      lbl('Token Info','margin-bottom:4px')+hr('margin-bottom:0')+
+      [['Token','$KRN',null,false],['Network','Base',null,false],['Total Supply','100,000,000,000',null,false],['Circulating','TBA',null,false],['Status','Soon',null,true,true]].map(function(r){return srow(r[0],r[1],r[2],r[3],r[4]);}).join('')+
+      hr('margin:8px 0 14px')+lbl('Utility','margin-bottom:8px')+
+      [['Hold 10,000,000 $KRN','Access all premium skills'],['Hold 100,000,000 $KRN','Priority + early access'],['Stake $KRN','Fee revenue share'],['0.2% fee per tx','On-chain executions']].map(function(item,i,a){
+        return '<div><div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;gap:10px"><span class="sn" style="font-size:11px;font-weight:500;color:'+C.amber+'">'+item[0]+'</span><span class="sn" style="font-size:11px;color:'+C.light+';text-align:right">'+item[1]+'</span></div>'+(i<a.length-1?hr():'')+'</div>';
+      }).join('')+
+    '</div>'+
+  '</div>';
+}
+
+function deskArticle(){
+  var secs=ART.map(function(s,i){
+    return '<div style="margin-bottom:24px">'+(s.h?'<div class="sf" style="font-size:20px;font-weight:400;color:'+C.text+';margin-bottom:8px;line-height:1.2">'+s.h+'</div>':'')+
+      '<div class="sn" style="font-size:13px;color:'+C.mid+';line-height:1.8;white-space:pre-line">'+s.b+'</div>'+
+      (i<ART.length-1?hr('margin-top:20px'):'')+'</div>';
+  }).join('');
+  return '<div style="height:500px;overflow:auto;display:flex">'+
+    '<div style="width:230px;background:'+C.dark+';padding:22px 18px;flex-shrink:0;display:flex;flex-direction:column;justify-content:space-between;border-right:1px solid '+C.darkB+'">'+
+      '<div>'+lbl('Article \u00b7 2025','color:'+C.amber+';margin-bottom:10px')+'<div class="sf" style="font-size:18px;font-weight:300;color:'+C.bg+';line-height:1.35;margin-bottom:14px">KERNAL: The Skill Registry That Turns Any AI Agent Into an On-Chain Operator</div><div class="sn" style="font-size:11px;color:rgba(255,255,255,.32);line-height:1.6;font-style:italic">The next layer of crypto infrastructure isn\'t a chain. It\'s the skill.</div></div>'+
+      '<div>'+hr('background:'+C.darkB+';margin-bottom:12px')+'<div class="sm" style="font-size:9px;color:'+C.darkB+';letter-spacing:1px;line-height:1.8"><div>KERNAL \u00b7 kernal.io</div><div>$KRN \u00b7 Base Network</div></div></div>'+
+    '</div>'+
+    '<div style="flex:1;padding:24px 26px;overflow:auto">'+secs+'<div style="padding:12px;background:'+C.bg2+';border:1px solid '+C.bg3+';font-family:\'DM Sans\',system-ui,sans-serif;font-size:11px;color:'+C.light+';line-height:1.6;font-style:italic;margin-top:8px">Not financial advice.</div></div>'+
+  '</div>';
+}
+
+function deskDocs(){
+  var secs=[
+    {l:'Overview',h:'KERNAL',b:'Agent skill registry for on-chain AI. Compatible with Aeon, Claude Code, Cursor, and Codex.'},
+    {l:'Setup',h:'Quick Start',b:'1. Browse SKILLS.db \u2192 select \u2192 Install\n2. Paste SKILL.md into skills/ folder\n3. Premium: 10,000,000+ $KRN required'},
+    {l:'Revenue',h:'Revenue Model',b:'0.2% execution fee \u2192 treasury \u2192 $KRN stakers.'},
+    {l:'Contribute',h:'Submit a Skill',b:'PR to kernal-registry. Earn 50% of execution fee revenue.\nListing fee: 5,000,000 $KRN.'}
+  ];
+  return '<div style="height:500px;overflow:auto;padding:22px">'+
+    secs.map(function(s,i){
+      return '<div style="margin-bottom:20px">'+lbl(s.l,'margin-bottom:5px')+'<div class="sf" style="font-size:20px;font-weight:400;color:'+C.text+';margin-bottom:7px">'+s.h+'</div><p class="sn" style="font-size:13px;color:'+C.mid+';line-height:1.75;white-space:pre-line">'+s.b+'</p>'+(i<secs.length-1?hr('margin-top:16px'):'')+'</div>';
+    }).join('')+
+  '</div>';
+}
+
+function renderDesktop(){
+  var utc=new Date().toISOString().slice(11,19);
+  var icons=[{id:'skills',l:'SKILLS.db',i:'\u25c8'},{id:'token',l:'$KRN.token',i:'\u25c9'},{id:'terminal',l:'TERMINAL',i:'\u25b8'},{id:'article',l:'ARTICLE.md',i:'\u2726'},{id:'docs',l:'README.md',i:'\u25fb'}];
+  var dock=icons.map(function(ic){
+    var open=S.wins.indexOf(ic.id)>=0;
+    return '<button onclick="openWin(\''+ic.id+'\')" class="bh sn" style="background:'+(open?C.dark:'transparent')+';border:1px solid '+(open?C.dark:C.bg3)+';color:'+(open?C.bg:C.mid)+';padding:5px 12px;font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;display:flex;align-items:center;gap:7px;transition:all .14s"><span style="font-size:11px">'+ic.i+'</span><span>'+ic.l+'</span></button>';
+  }).join('');
+  var windows=S.wins.map(function(wid){return deskWin(wid);}).join('');
+  var taskbtns=S.wins.map(function(w){
+    var a=S.activeWin===w;
+    return '<button onclick="focusWin(\''+w+'\')" class="win-b sn" style="background:'+(a?'rgba(255,255,255,.06)':'transparent')+';border:1px solid '+(a?C.darkB:'transparent')+';color:'+(a?'#C0BAA8':'#363630')+';padding:3px 10px;font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;transition:all .12s">'+w+'</button>';
+  }).join('');
+  document.getElementById('app').innerHTML=
+    '<div style="background:'+C.bg+';min-height:100vh;color:'+C.text+';display:flex;flex-direction:column">'+
+      '<div style="height:44px;background:'+C.bg+';border-bottom:1px solid '+C.bg3+';display:flex;align-items:center;padding:0 20px;gap:16px;flex-shrink:0">'+
+        '<div style="display:flex;align-items:center;gap:10px">'+km(22,C.dark,C.amber)+'<span class="sf" style="font-size:18px;font-weight:400;color:'+C.text+';font-style:italic;letter-spacing:.5px">kernal</span></div>'+
+        '<div style="flex:1;height:1px;background:'+C.bg3+'"></div>'+
+        lbl('Agent Skill Registry \u00b7 Base Network','color:'+C.ghost)+
+      '</div>'+
+      '<div style="padding:10px 20px;display:flex;gap:6px;border-bottom:1px solid '+C.bg3+';flex-wrap:wrap;flex-shrink:0">'+dock+'</div>'+
+      '<div style="flex:1;padding:16px 20px;display:flex;flex-direction:column;gap:12px;padding-bottom:52px;overflow:auto">'+windows+'</div>'+
+      '<div style="position:fixed;bottom:0;left:0;right:0;height:40px;background:'+C.dark+';border-top:1px solid '+C.darkB+';display:flex;align-items:center;padding:0 20px;gap:10px;z-index:100">'+
+        km(18,'#C0BAA8',C.amber)+
+        '<div style="width:1px;height:14px;background:'+C.darkB+'"></div>'+
+        '<div style="display:flex;gap:3px;flex:1">'+taskbtns+'</div>'+
+        '<div style="display:flex;align-items:center;gap:12px;flex-shrink:0">'+
+          '<span class="sn" style="font-size:10px;color:'+C.amber+';font-weight:500">$KRN</span>'+
+          '<span class="sn" style="font-size:10px;color:#363630">Soon</span>'+
+          '<div style="width:1px;height:14px;background:'+C.darkB+'"></div>'+
+          '<span class="sn" style="font-size:10px;color:#363630">Base</span>'+
+          '<div style="width:1px;height:14px;background:'+C.darkB+'"></div>'+
+          '<button class="bh sn" style="background:transparent;border:1px solid '+C.darkB+';color:rgba(255,255,255,.3);padding:3px 10px;font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase">Connect</button>'+
+          '<span id="utc-clock" class="sm" style="font-size:9px;color:#363630;letter-spacing:1px">'+utc+'Z</span>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+}
+
+/* ── Actions ─────────────────────────────────────────────────────────────── */
+function go(v){
+  if(v==='skills'||v==='home'||v==='token'||v==='terminal'||v==='article'||v==='docs'){
+    S.view=v;renderMobile();
+  }
+}
+function goSkill(id){
+  S.mobSkill=SK.filter(function(s){return s.id===id;})[0];
+  S.view='sd';renderMobile();
+}
+function setFilter(f){
+  S.filter=f;
+  if(S.isMob)renderMobile();
+  else renderDesktop();
+}
+function selSkillFn(id){
+  S.selSkill=SK.filter(function(s){return s.id===id;})[0];
+  renderDesktop();
+}
+function openWin(id){
+  if(S.wins.indexOf(id)<0)S.wins.push(id);
+  S.activeWin=id;renderDesktop();
+}
+function closeWin(id){
+  S.wins=S.wins.filter(function(w){return w!==id;});
+  if(S.activeWin===id)S.activeWin=S.wins.length?S.wins[S.wins.length-1]:null;
+  renderDesktop();
+}
+function focusWin(id){
+  S.activeWin=id;renderDesktop();
+}
+function showSoon(){
+  var el=document.getElementById('soon-overlay');
+  el.style.display='flex';
+  el.style.animation='ovIn .2s ease';
+}
+function hideSoon(){
+  document.getElementById('soon-overlay').style.display='none';
+}
+function installFree(id){
+  var skill=SK.filter(function(s){return s.id===id;})[0];
+  if(!skill||skill.tier==='premium'){showSoon();return;}
+  var lines=[
+    '$ kernal install '+skill.name,
+    '\u2192 Resolving '+skill.name+'@'+skill.v+'...',
+    '\u2192 Free tier \u2014 no token required',
+    '\u2192 Fetching from registry.kernal.io...',
+    '\u2192 Verifying checksum (sha256)... \u2713',
+    '\u2192 Writing skills/'+skill.name+'/SKILL.md',
+    '\u2192 Registering entry in aeon.yml...',
+    '',
+    '\u2713 '+skill.name+' v'+skill.v+' installed successfully.',
+    '  Set enabled: true in aeon.yml to activate.'
+  ];
+  S.termLines=[];
+  if(S.isMob){S.view='terminal';renderMobile();}
+  else{
+    if(S.wins.indexOf('terminal')<0)S.wins.push('terminal');
+    S.activeWin='terminal';renderDesktop();
+  }
+  lines.forEach(function(l,i){
+    setTimeout(function(){
+      S.termLines.push(l);
+      var el=document.getElementById('term-out');
+      if(!el)return;
+      var col=l.startsWith('\u2713')?'#3D9142':l.startsWith('\u2192')?C.mid:l.startsWith('$')?C.amber:'#363630';
+      var d=document.createElement('div');
+      d.className='sm';
+      d.style.cssText='font-size:'+(S.isMob?'11':'10')+'px;color:'+col+';white-space:pre-wrap;word-break:break-all;animation:lineIn .12s ease both';
+      d.textContent=l||'\u00A0';
+      // remove cursor
+      var cur=el.querySelector('#tcur');if(cur)cur.remove();
+      el.appendChild(d);
+      // re-add cursor at end
+      var cursor=document.createElement('span');cursor.id='tcur';cursor.className='sm';
+      cursor.style.cssText='animation:blink 1s step-end infinite;color:'+C.amber;cursor.textContent='\u2588';
+      el.appendChild(cursor);
+      // scroll
+      var parent=el.parentElement;if(parent)parent.scrollTop=parent.scrollHeight;
+    },i*150);
+  });
+}
+
+/* ── Clock ───────────────────────────────────────────────────────────────── */
+setInterval(function(){
+  var el=document.getElementById('utc-clock');
+  if(el)el.textContent=new Date().toISOString().slice(11,19)+'Z';
+},1000);
+
+/* ── Resize ──────────────────────────────────────────────────────────────── */
+window.addEventListener('resize',function(){
+  var mob=window.innerWidth<768;
+  if(mob!==S.isMob){
+    S.isMob=mob;
+    if(S.phase==='os'){
+      if(mob)renderMobile();
+      else{if(!S.wins.length){S.wins=['skills'];S.activeWin='skills';}renderDesktop();}
+    }
+  }
+});
+
+/* ── Init ─────────────────────────────────────────────────────────────────── */
+startBoot();
+</script>
+</body>
+</html>
