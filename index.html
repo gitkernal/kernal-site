@@ -1,0 +1,1827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<meta name="description" content="KERNAL — Agent Skill Registry. On-chain AI agent skills. Powered by $KRN on Base."/>
+<title>KERNAL — Agent Skill Registry</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#EDE8DF}
+#app{height:100%}
+button{cursor:pointer;border:none;background:none;font-family:inherit}
+button:focus,input:focus,textarea:focus,select:focus{outline:none}
+input,textarea,select{font-family:inherit}
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-track{background:#EDE8DF}
+::-webkit-scrollbar-thumb{background:#C0BAA8}
+
+.sf{font-family:'Cormorant Garamond',Georgia,serif}
+.sn{font-family:'DM Sans',system-ui,sans-serif}
+.sm{font-family:'JetBrains Mono','Courier New',monospace}
+
+@keyframes blink{50%{opacity:0}}
+@keyframes ticker{to{transform:translateX(-50%)}}
+@keyframes slideUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+@keyframes lineIn{from{opacity:0;transform:translateX(-5px)}to{opacity:1;transform:translateX(0)}}
+@keyframes ovIn{from{opacity:0}to{opacity:1}}
+@keyframes soonPop{from{opacity:0;transform:scale(.88) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes pulse{0%,100%{opacity:.45}50%{opacity:1}}
+@keyframes spinSlow{to{transform:rotate(360deg)}}
+@keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(184,116,32,0)}50%{box-shadow:0 0 18px 2px rgba(184,116,32,.18)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+
+.asu{animation:slideUp .36s cubic-bezier(.22,.68,0,1.1) both}
+.afu{animation:fadeUp .28s cubic-bezier(.22,.68,0,1.1) both}
+.asc{animation:scaleIn .26s cubic-bezier(.22,.68,0,1.1) both}
+.s1{animation-delay:.05s}.s2{animation-delay:.10s}.s3{animation-delay:.15s}
+.s4{animation-delay:.20s}.s5{animation-delay:.25s}.s6{animation-delay:.30s}
+
+.bh{transition:opacity .14s,transform .12s}
+.bh:hover{opacity:.8}
+.bh:active{opacity:.6;transform:scale(.97)}
+.rh{transition:background .12s}
+.rh:hover{background:#E0D8C8!important}
+
+/* Scrollable tab bar */
+.tabs-scroll{display:flex;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;gap:0}
+.tabs-scroll::-webkit-scrollbar{display:none}
+
+/* Skill cards */
+.skc{background:#EDE8DF;border:1px solid #D8D0BE;cursor:pointer;transition:border-color .15s,transform .15s,box-shadow .15s;overflow:hidden}
+.skc:hover{border-color:#B87420;transform:translateY(-2px);box-shadow:0 6px 24px rgba(184,116,32,.1)}
+.skc:active{transform:translateY(0)}
+
+/* Stat cards */
+.stc{background:#EDE8DF;border:1px solid #D8D0BE;padding:18px 16px;transition:border-color .15s,transform .15s}
+.stc:hover{border-color:#B87420;transform:translateY(-1px)}
+
+/* Timeline */
+.tl-item{position:relative;padding-left:30px;padding-bottom:26px}
+.tl-item::before{content:'';position:absolute;left:7px;top:18px;bottom:0;width:1px;background:#D8D0BE}
+.tl-item::after{content:'';position:absolute;left:0;top:3px;width:15px;height:15px;border:2px solid #D8D0BE;background:#EDE8DF;transition:all .2s}
+.tl-item.done::after{border-color:#3D6B28;background:#3D6B28}
+.tl-item.active::after{border-color:#B87420;background:#B87420;animation:glow 2s ease infinite}
+.tl-item:last-child::before{display:none}
+
+/* Form elements */
+.fi{width:100%;padding:11px 13px;background:#EDE8DF;border:1px solid #D8D0BE;font-size:13px;color:#1C1C17;transition:border-color .15s}
+.fi:focus{border-color:#B87420}
+.fi::placeholder{color:#C0BAA8}
+.fl{display:block;font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#9B9585;margin-bottom:6px;font-family:'DM Sans',system-ui,sans-serif}
+
+/* Leaderboard */
+.lb-r{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #D8D0BE;transition:background .12s}
+.lb-r:hover{background:#E5DED0}
+.lb-n{font-family:'Cormorant Garamond',Georgia,serif;font-size:22px;font-weight:300;color:#C0BAA8;width:32px;text-align:center;flex-shrink:0}
+
+/* Code blocks */
+.cb{background:#0D0D0A;padding:14px 16px;margin:10px 0;font-family:'JetBrains Mono','Courier New',monospace;font-size:clamp(9px,1.8vw,11px);line-height:2;overflow-x:auto;border-left:2px solid #B87420}
+.cb .cd{color:#2E2E26}
+.cb .ca{color:#B87420}
+.cb .cg{color:#3D9142}
+.cb .cw{color:#EDE8DF}
+
+/* Doc nav */
+.dn{display:block;padding:7px 12px;font-size:11px;font-weight:500;color:#9B9585;cursor:pointer;transition:color .12s,background .12s;text-align:left;border:none;background:none;width:100%;border-left:2px solid transparent}
+.dn:hover{color:#1C1C17;background:#E5DED0}
+.dn.active{color:#B87420;border-left-color:#B87420;background:#E5DED0}
+
+/* SDK code */
+.sdk-tab{padding:5px 12px;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;border:none;background:none;transition:all .14s;border-bottom:2px solid transparent;cursor:pointer;font-family:'DM Sans',system-ui,sans-serif}
+.sdk-tab.active{color:#B87420;border-bottom-color:#B87420}
+.sdk-tab:not(.active){color:#9B9585}
+
+/* Art sections */
+.art-s{font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(18px,3vw,24px);font-weight:400;color:#1C1C17;margin:24px 0 10px;line-height:1.2}
+.art-p{font-family:'DM Sans',system-ui,sans-serif;font-size:clamp(13px,2vw,15px);color:#6B6655;line-height:1.8;margin-bottom:16px}
+.art-ul{list-style:none;padding:0;margin-bottom:16px}
+.art-ul li{font-family:'DM Sans',system-ui,sans-serif;font-size:clamp(13px,2vw,15px);color:#6B6655;line-height:1.8;padding-left:16px;position:relative;margin-bottom:5px}
+.art-ul li::before{content:'\00b7';position:absolute;left:0;color:#B87420;font-weight:700}
+.art-pull{font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(18px,3vw,24px);font-weight:300;color:#1C1C17;line-height:1.4;letter-spacing:-.3px;border-left:2px solid #B87420;padding-left:18px;margin:20px 0;font-style:italic}
+.art-call{background:#E5DED0;border-left:3px solid #B87420;padding:14px 16px;margin:16px 0;font-family:'DM Sans',system-ui,sans-serif;font-size:13px;color:#6B6655;line-height:1.7}
+
+/* Window */
+.win{border:1px solid transparent;background:#EDE8DF;overflow:hidden;transition:box-shadow .2s,border-color .15s}
+.win.active{border-color:#D8D0BE;box-shadow:0 2px 28px rgba(0,0,0,.08)}
+.win-tb{height:32px;display:flex;align-items:center;padding:0 12px;gap:10px;user-select:none;flex-shrink:0;border-bottom:1px solid #D8D0BE;transition:background .15s}
+.win-dot{width:11px;height:11px;border-radius:50%;border:none;padding:0;cursor:pointer;transition:opacity .15s}
+.win-dot:hover{opacity:.7}
+
+/* Tag chips */
+.chip{display:inline-block;font-family:'JetBrains Mono','Courier New',monospace;font-size:9px;padding:2px 7px;border:1px solid #D8D0BE;color:#9B9585;margin:2px}
+
+/* Community card */
+.cc{background:#EDE8DF;border:1px solid #D8D0BE;padding:16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:border-color .15s,transform .12s}
+.cc:hover{border-color:#B87420;transform:translateX(3px)}
+</style>
+</head>
+<body>
+
+<!-- SOON OVERLAY -->
+<div id="soon-overlay" onclick="hideSoon()" style="display:none;position:fixed;inset:0;z-index:9999;align-items:flex-end;justify-content:center;background:rgba(20,20,16,.78);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)">
+  <div id="soon-box" onclick="event.stopPropagation()" style="width:100%;max-width:540px;background:#141410;border-top:1px solid #2E2D26;padding:36px 28px 44px;text-align:center;padding-bottom:max(44px,calc(44px + env(safe-area-inset-bottom)));animation:soonPop .28s cubic-bezier(.22,.68,0,1.1) both">
+    <div style="display:flex;justify-content:center;margin-bottom:22px">
+      <div style="animation:pulse 2s ease infinite">
+        <svg width="52" height="52" viewBox="0 0 100 100"><rect width="100" height="100" fill="transparent"/><line x1="26" y1="13" x2="26" y2="87" stroke="#B87420" stroke-width="13" stroke-linecap="square"/><line x1="26" y1="50" x2="84" y2="14" stroke="#B87420" stroke-width="13" stroke-linecap="square"/><line x1="26" y1="50" x2="84" y2="86" stroke="#B87420" stroke-width="13" stroke-linecap="square"/><rect x="22" y="46" width="9" height="9" fill="#EDE8DF" transform="rotate(45 26.5 50.5)"/></svg>
+      </div>
+    </div>
+    <div class="sf" style="font-size:52px;font-weight:300;color:#EDE8DF;letter-spacing:-1px;line-height:1;margin-bottom:8px;font-style:italic">Soon.</div>
+    <div class="sn" style="font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#B87420;margin-bottom:18px">Premium Skill — $KRN Required</div>
+    <div class="sn" style="font-size:14px;color:rgba(255,255,255,.4);line-height:1.72;margin-bottom:28px">This skill requires holding <strong style="color:#B87420">10,000,000 $KRN</strong> on Base. Buy $KRN on Uniswap to unlock all premium skills.</div>
+    <div onclick="navigator.clipboard&&navigator.clipboard.writeText('0x974B53861d975E727305298D2718849c43046ba3')" style="background:#0D0D0A;border:1px solid #2E2D26;padding:10px 14px;margin-bottom:20px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px" title="Click to copy CA">
+      <div><div style="font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#6B6655;font-family:'DM Sans',system-ui,sans-serif;margin-bottom:4px">Contract Address · Base</div><div style="font-family:'JetBrains Mono','Courier New',monospace;font-size:10px;color:#B87420;word-break:break-all">0x974B53861d975E727305298D2718849c43046ba3</div></div>
+      <span style="font-size:10px;color:#363630;flex-shrink:0">⎘</span>
+    </div>
+    <div style="display:flex;border-top:1px solid #2E2D26;padding-top:18px;margin-bottom:22px">
+      <div style="flex:1;text-align:center;border-right:1px solid #2E2D26;padding:0 8px"><div class="sf" style="font-size:16px;color:#B87420;margin-bottom:3px">10M $KRN</div><div class="sn" style="font-size:8px;color:rgba(255,255,255,.28);letter-spacing:1px;text-transform:uppercase">Premium Access</div></div>
+      <div style="flex:1;text-align:center;border-right:1px solid #2E2D26;padding:0 8px"><div class="sf" style="font-size:16px;color:#B87420;margin-bottom:3px">100M $KRN</div><div class="sn" style="font-size:8px;color:rgba(255,255,255,.28);letter-spacing:1px;text-transform:uppercase">Priority Access</div></div>
+      <div style="flex:1;text-align:center;padding:0 8px"><div class="sf" style="font-size:16px;color:#B87420;margin-bottom:3px">Stake</div><div class="sn" style="font-size:8px;color:rgba(255,255,255,.28);letter-spacing:1px;text-transform:uppercase">Fee Revenue</div></div>
+    </div>
+    <button onclick="hideSoon()" class="bh sn" style="width:100%;padding:13px;background:transparent;border:1px solid #2E2D26;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.32)">Close</button>
+  </div>
+</div>
+
+<div id="app"></div>
+
+<script>
+/* ── Colors ── */
+var C={bg:'#EDE8DF',bg2:'#E5DED0',bg3:'#D8D0BE',dark:'#141410',darkB:'#2E2D26',dark3:'#1A1A14',text:'#1C1C17',mid:'#6B6655',light:'#9B9585',ghost:'#C0BAA8',amber:'#B87420',amberL:'#D4962E',green:'#2A481A',greenM:'#3D6B28'};
+
+/* ── Boot lines ── */
+var BOOT=[
+  {t:'KERNAL OS v2.0.0',d:0},{t:'\u00a9 2025 Kernal Registry \u00b7 Base Network',d:140},
+  {t:'',d:220},{t:'[    0.000000] Initializing kernel...',d:360},
+  {t:'[    0.032104] Loading skill registry module...',d:480},
+  {t:'[    0.071829] Mounting SKILLS.db \u2014 12 skills indexed',d:610},
+  {t:'[    0.104552] Agent compatibility layer v2.0: active',d:740},
+  {t:'[    0.158803] Connecting to Base RPC (alchemy)... done',d:870},
+  {t:'[    0.203441] Loading $KRN token gate... standby',d:1000},
+  {t:'[    0.251007] Token gate: active \u2014 CA verified on Base',d:1120},
+  {t:'[    0.298312] Free skills: unlocked',d:1240},
+  {t:'[    0.341895] Premium skills: locked \u2014 hold 10M $KRN to unlock',d:1360},
+  {t:'',d:1450},{t:'kernal login: root',d:1580},{t:'Password: \u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022',d:1740},
+  {t:'',d:1820},{t:'System ready. Welcome to KERNAL v2.0.',d:1960}
+];
+
+/* ── Skills (12) ── */
+var SK=[
+  {id:'wallet-digest',name:'wallet-digest',tier:'free',v:'1.2.3',cat:'Monitoring',
+   tagline:'24h PnL digest across all tracked wallets',
+   desc:'Polls tracked wallet addresses via Alchemy RPC, computes 24h PnL, groups transactions by type (swap, transfer, NFT), and delivers a structured digest. Supports multi-wallet aggregation, custom time windows, and configurable alert thresholds.',
+   installs:'2,441',by:'kernal-labs',upd:'2 days ago',risk:'Low',gas:'None',
+   deps:['alchemy-rpc','notify-channel'],compat:['aeon','claude-code','cursor','codex'],
+   config:[{k:'wallets',t:'array',d:'List of wallet addresses to track'},
+           {k:'time_window_hours',t:'integer',d:'Hours to look back (default: 24)'},
+           {k:'min_pnl_alert',t:'float',d:'Alert if PnL exceeds this % change'},
+           {k:'notify_channel',t:'string',d:'telegram | discord | webhook'}]},
+  {id:'token-alert',name:'token-alert',tier:'free',v:'1.0.5',cat:'Monitoring',
+   tagline:'Price & volume anomaly alerts via CoinGecko',
+   desc:'Monitors token prices and 24h volume on a configurable interval. Triggers alerts when price moves ±X% or volume spikes above Y× the 7-day average. Supports multiple tokens simultaneously.',
+   installs:'3,102',by:'kernal-labs',upd:'5 days ago',risk:'Low',gas:'None',
+   deps:['coingecko-api','notify-channel'],compat:['aeon','claude-code'],
+   config:[{k:'tokens',t:'array',d:'Token contract addresses or CoinGecko IDs'},
+           {k:'price_threshold_pct',t:'float',d:'Alert trigger % change (default: 5)'},
+           {k:'volume_multiplier',t:'float',d:'Volume spike multiplier (default: 3x)'},
+           {k:'interval_minutes',t:'integer',d:'Check interval in minutes'}]},
+  {id:'defi-monitor',name:'defi-monitor',tier:'free',v:'1.1.0',cat:'DeFi',
+   tagline:'LP health, impermanent loss & yield tracking',
+   desc:'Checks LP positions across Uniswap v3, Aerodrome, and Curve. Computes impermanent loss, current APR, and health factor. Alerts if IL exceeds threshold or a position risks liquidation.',
+   installs:'1,837',by:'kernal-labs',upd:'1 week ago',risk:'Low',gas:'None',
+   deps:['alchemy-rpc','coingecko-api'],compat:['aeon','claude-code','cursor','codex'],
+   config:[{k:'lp_positions',t:'array',d:'LP position IDs to track'},
+           {k:'il_alert_pct',t:'float',d:'Alert when IL exceeds this %'},
+           {k:'health_factor_min',t:'float',d:'Alert when health factor drops below this'}]},
+  {id:'yield-optimizer',name:'yield-optimizer',tier:'free',v:'1.0.1',cat:'DeFi',
+   tagline:'Auto-compound yield positions on Aerodrome & Curve',
+   desc:'Monitors yield farming positions and compounds rewards automatically when gas-adjusted APR on compounding exceeds configured threshold. Supports Aerodrome, Curve, and Beefy vaults on Base.',
+   installs:'1,204',by:'kernal-labs',upd:'3 days ago',risk:'Low',gas:'~$0.20/compound',
+   deps:['alchemy-rpc','aerodrome-router','wallet-signer'],compat:['aeon','claude-code'],
+   config:[{k:'positions',t:'array',d:'Vault/pool contract addresses'},
+           {k:'compound_threshold_apr',t:'float',d:'Min APR gain from compounding to trigger (default: 0.5%)'},
+           {k:'max_gas_gwei',t:'integer',d:'Skip compound if gas exceeds this Gwei'}]},
+  {id:'gas-tracker',name:'gas-tracker',tier:'free',v:'1.0.0',cat:'Monitoring',
+   tagline:'L2 gas monitoring with optimal window alerts',
+   desc:'Monitors Base L2 gas prices and L1 data costs continuously. Alerts when gas drops below your configured threshold, helping you time large transactions optimally. Includes historical percentile data.',
+   installs:'892',by:'kernal-labs',upd:'1 day ago',risk:'Low',gas:'None',
+   deps:['alchemy-rpc','notify-channel'],compat:['aeon','claude-code','cursor'],
+   config:[{k:'alert_below_gwei',t:'float',d:'Alert when gas drops below this Gwei'},
+           {k:'track_l1_cost',t:'boolean',d:'Also track L1 data availability cost'},
+           {k:'percentile_window_days',t:'integer',d:'Days for historical percentile (default: 7)'}]},
+  {id:'sniper-skill',name:'sniper-skill',tier:'premium',v:'2.1.0',cat:'Trading',
+   tagline:'Snipe new Uniswap v3 pool launches on Base',
+   desc:'Monitors Uniswap v3 PoolCreated factory events on Base. Runs configurable filters (liquidity threshold, contract verification, honeypot bytecode scan, tax simulation) then executes an immediate swap at launch. Typical response: sub-2 seconds from PoolCreated event.',
+   installs:'891',by:'kernal-labs',upd:'3 days ago',risk:'High',gas:'~$0.50–$2.00/snipe',
+   deps:['alchemy-rpc','uniswap-v3','wallet-signer','flashbots-rpc'],compat:['aeon','claude-code'],
+   config:[{k:'min_liquidity_eth',t:'float',d:'Minimum ETH in pool to trigger (default: 1.0)'},
+           {k:'max_spend_eth',t:'float',d:'Max ETH per snipe'},
+           {k:'slippage_bps',t:'integer',d:'Slippage in basis points (default: 500)'},
+           {k:'require_verified',t:'boolean',d:'Require contract verification on BaseScan'},
+           {k:'honeypot_check',t:'boolean',d:'Run honeypot bytecode scan'}]},
+  {id:'copy-trader',name:'copy-trader',tier:'premium',v:'1.5.2',cat:'Trading',
+   tagline:'Mirror smart money with configurable delay & sizing',
+   desc:'Watches smart money addresses for new swap transactions. After a configurable delay (0–60 min), executes a proportional copy trade. Supports position size caps, token blacklists, and auto-exit rules. Whitelists prevent copying self-sandwich trades.',
+   installs:'1,204',by:'kernal-labs',upd:'1 day ago',risk:'High',gas:'~$0.30–$1.50/trade',
+   deps:['alchemy-rpc','uniswap-v3','wallet-signer'],compat:['aeon','claude-code'],
+   config:[{k:'watch_wallets',t:'array',d:'Smart money wallet addresses to mirror'},
+           {k:'delay_minutes',t:'integer',d:'Delay before copying (0–60)'},
+           {k:'max_position_eth',t:'float',d:'Max ETH per copied trade'},
+           {k:'blacklist_tokens',t:'array',d:'Token addresses to never copy'},
+           {k:'auto_exit',t:'boolean',d:'Exit position when source wallet exits'}]},
+  {id:'alpha-digest',name:'alpha-digest',tier:'premium',v:'1.0.2',cat:'Research',
+   tagline:'Ranked daily alpha from CT, whale wallets & on-chain',
+   desc:'Combines X/Twitter narrative (Grok API), whale wallet tracking, and on-chain event monitoring into a daily alpha digest. AI synthesizes signal vs noise and ranks opportunities by a confidence score weighted across three source types.',
+   installs:'743',by:'kernal-labs',upd:'6 hours ago',risk:'Low',gas:'None',
+   deps:['xai-api','alchemy-rpc','coingecko-api'],compat:['aeon','claude-code'],
+   config:[{k:'whale_wallets',t:'array',d:'Whale addresses to track'},
+           {k:'min_confidence',t:'float',d:'Minimum confidence score to include (0–1)'},
+           {k:'ct_keywords',t:'array',d:'Keywords to filter CT narrative'},
+           {k:'delivery_time',t:'string',d:'UTC time to deliver digest (e.g. 08:00)'}]},
+  {id:'mev-guard',name:'mev-guard',tier:'premium',v:'1.3.0',cat:'Protection',
+   tagline:'Route swaps through Flashbots Protect against MEV',
+   desc:'Intercepts all agent-initiated swap transactions and routes them through Flashbots Protect or MEV Blocker. Runs pre-flight sandwich attack simulation. Aborts or adjusts slippage if sandwich profit exceeds configured threshold.',
+   installs:'612',by:'kernal-labs',upd:'4 days ago',risk:'Low',gas:'+5–15% overhead',
+   deps:['flashbots-rpc','alchemy-rpc'],compat:['aeon','claude-code','codex'],
+   config:[{k:'mode',t:'string',d:'flashbots | mev-blocker (default: flashbots)'},
+           {k:'max_sandwich_profit_eth',t:'float',d:'Abort threshold for sandwich profitability'},
+           {k:'fallback_public',t:'boolean',d:'Fall back to public mempool if private fails'}]},
+  {id:'arbitrage-scanner',name:'arbitrage-scanner',tier:'premium',v:'2.0.0',cat:'Trading',
+   tagline:'DEX price delta detection with optional flash loan execution',
+   desc:'Polls Uniswap v3, Aerodrome, Curve, and Velodrome every block for price discrepancies. Computes net profit after gas. Optional: execute atomically via Balancer flash loan. Generates 2–8 flagged opportunities per hour in active Base conditions.',
+   installs:'534',by:'kernal-labs',upd:'2 days ago',risk:'Medium',gas:'~$0.80–$3.00/arb',
+   deps:['alchemy-rpc','uniswap-v3','aero-router','balancer-vault'],compat:['aeon','claude-code'],
+   config:[{k:'min_profit_eth',t:'float',d:'Minimum net profit to flag (default: 0.01)'},
+           {k:'auto_execute',t:'boolean',d:'Auto-execute profitable arbs via flash loan'},
+           {k:'dex_list',t:'array',d:'DEXs to scan (uniswap, aerodrome, curve, velodrome)'},
+           {k:'max_position_eth',t:'float',d:'Max flash loan size per arb'}]},
+  {id:'portfolio-rebalancer',name:'portfolio-rebalancer',tier:'premium',v:'1.0.0',cat:'DeFi',
+   tagline:'Auto-rebalance portfolio to target allocations on Base',
+   desc:'Monitors portfolio allocation across configured tokens and automatically rebalances when drift exceeds threshold. Executes via Uniswap v3 with configurable rebalance frequency and minimum trade size to avoid dust transactions.',
+   installs:'317',by:'kernal-labs',upd:'6 days ago',risk:'Medium',gas:'~$0.40–$2.00/rebalance',
+   deps:['alchemy-rpc','uniswap-v3','wallet-signer','coingecko-api'],compat:['aeon','claude-code'],
+   config:[{k:'target_allocations',t:'object',d:'Token: target % mapping (must sum to 100)'},
+           {k:'drift_threshold_pct',t:'float',d:'Trigger rebalance at this % drift (default: 5)'},
+           {k:'min_trade_usd',t:'float',d:'Minimum USD value per rebalance trade'},
+           {k:'rebalance_interval_hours',t:'integer',d:'Max hours between rebalances'}]},
+  {id:'governance-voter',name:'governance-voter',tier:'premium',v:'1.0.0',cat:'Governance',
+   tagline:'Auto-vote on DAO proposals based on configured rules',
+   desc:'Monitors governance contracts for new proposals across configured DAOs on Base. Evaluates each proposal against your rule set (keyword matching, author whitelist, proposal type filters) and auto-votes with your delegated voting power.',
+   installs:'208',by:'kernal-labs',upd:'1 week ago',risk:'Low',gas:'~$0.10–$0.30/vote',
+   deps:['alchemy-rpc','wallet-signer'],compat:['aeon','claude-code'],
+   config:[{k:'dao_contracts',t:'array',d:'Governance contract addresses to watch'},
+           {k:'vote_rules',t:'array',d:'Rule objects: {keyword, vote_direction}'},
+           {k:'author_whitelist',t:'array',d:'Always vote YES for these proposers'},
+           {k:'abstain_unknown',t:'boolean',d:'Abstain on proposals with no matching rule'}]}
+];
+
+/* ── Articles (6 full) ── */
+var ART=[
+  {id:0,tag:'01 \u00b7 Overview',read:'8 min',
+   title:'KERNAL: The Skill Registry That Turns Any AI Agent Into an On-Chain Operator',
+   intro:"The next layer of crypto infrastructure isn't a chain, a bridge, or a DEX. It's the skill.",
+   secs:[
+     {h:null,b:'There\u2019s a gap forming in the AI agent ecosystem, and most people haven\u2019t noticed it yet.\n\nOn one side: agent frameworks \u2014 Aeon, Claude Code, Cursor, Codex, AutoGPT. Powerful, increasingly autonomous, and growing in capability every month. On the other: the on-chain world \u2014 DeFi protocols, token markets, MEV, LP positions, governance, yield strategies. Raw, complex, and constantly moving.\n\nBetween them? A skill gap. Agents can reason and act \u2014 but they need instructions for what to do specifically. That\u2019s where KERNAL comes in.'},
+     {h:'What Is KERNAL?',b:'KERNAL is an agent skill registry built specifically for on-chain execution. Think of it as an app store, but instead of apps you download to your phone, you install skills into your AI agent \u2014 and those skills let it operate autonomously on-chain.\n\nEvery skill is a markdown file (SKILL.md) containing structured instructions that any compatible AI agent can read and execute. No SDK, no wrapper, no vendor lock-in. Fork a repo, drop in the file, set enabled: true.'},
+     {h:'12 Skills Across 5 Categories',b:'KERNAL v2.0 ships with 12 skills: 5 free, 7 premium.\n\nFree: wallet-digest, token-alert, defi-monitor, yield-optimizer, gas-tracker\n\nPremium (10M $KRN required): sniper-skill, copy-trader, alpha-digest, mev-guard, arbitrage-scanner, portfolio-rebalancer, governance-voter\n\nEach skill is production-tested, open source, and compatible with all major agent frameworks.'},
+     {h:'The Revenue Architecture',b:'Every on-chain execution via a KERNAL skill carries a 0.2% fee \u2192 $KRN treasury \u2192 distributed to stakers.\n\nSkill developers earn 50% of fees their skills generate \u2014 automatically, on-chain, no invoicing required.\n\nThis creates a compounding flywheel: better skills attract more agents, more agents generate more volume, more volume means more revenue for developers and stakers alike.'},
+     {h:'What\u2019s Next',b:'The registry is open. Developers can submit skills now (listing fee: 5,000,000 $KRN at TGE). The tool at kernal.io/builder lets anyone generate a SKILL.md without writing a single line of code.\n\nToken launch coming soon on Base. All premium skills unlock at TGE.'}
+   ]},
+  {id:1,tag:'02 \u00b7 Technical',read:'6 min',
+   title:'The Agent Skills Format: Why Markdown Is the Right Abstraction for On-Chain AI',
+   intro:'How SKILL.md files work, why natural language outperforms compiled plugins, and the full format reference.',
+   secs:[
+     {h:null,b:'Imagine you want your AI agent to snipe new token launches on Base. You could write a custom plugin \u2014 wire up the Uniswap SDK, handle private key signing, build error recovery. That\u2019s weeks of work that breaks when the framework updates.\n\nOr you could drop a SKILL.md file into your agent\u2019s skills/ folder.'},
+     {h:'Why Natural Language?',b:'The best interface for an AI agent isn\u2019t an API. It\u2019s language. Your agent is a language model \u2014 it doesn\u2019t need compiled binaries. It needs instructions it can interpret, reason about, and adapt to edge cases.\n\nA traditional plugin fails silently when an edge case hits. A skill file lets the agent reason: "Liquidity is lower than threshold but the contract looks legitimate \u2014 should I notify instead of skip?" It makes judgment calls. That\u2019s the entire point of using an AI agent.'},
+     {h:'Anatomy of a SKILL.md',b:'Every skill file has two parts:\n\n1. Frontmatter (YAML) \u2014 name, version, tier, category, trigger type, schedule, dependency list\n\n2. Body (natural language) \u2014 step-by-step instructions your agent reads and executes\n\nThe frontmatter is parsed by the agent runtime to configure the execution environment. The body is passed as a system prompt to the model. The two parts together are everything the agent needs.'},
+     {h:'Triggers',b:'SKILL.md supports three trigger types:\n\n\u00b7 scheduled \u2014 cron-style schedule (e.g., every 15 minutes)\n\u00b7 on_event \u2014 fires on specific on-chain events (pool creation, transfer, price threshold)\n\u00b7 manual \u2014 user-invoked from the agent\u2019s chat interface\n\nAll 12 KERNAL skills use one of these three trigger types.'},
+     {h:'Compatibility Matrix',b:'All KERNAL skills are tested against: Aeon, Claude Code, Cursor, Codex. Any agent that supports the Agent Skills open spec (37+ frameworks) can run KERNAL skills without modification.'}
+   ]},
+  {id:2,tag:'03 \u00b7 Tokenomics',read:'7 min',
+   title:'$KRN: The Token That Aligns Skill Builders, Agent Operators, and Stakers',
+   intro:'100B supply, 0.2% execution fees, and three distinct value accrual paths for every holder type.',
+   secs:[
+     {h:null,b:'Token design is hard to get right. Most crypto tokens fail the alignment test: do the people who benefit from the protocol\u2019s growth actually benefit from holding the token?\n\n$KRN is designed to pass that test. Every type of participant \u2014 skill builder, agent operator, yield seeker \u2014 has a clear, on-chain mechanism for value capture.'},
+     {h:'Token Parameters',b:'Token: $KRN \u00b7 Network: Base \u00b7 Total Supply: 100,000,000,000\n\nContract: 0x974B53861d975E727305298D2718849c43046ba3\nListing fee: 5,000,000 $KRN (skill submission)\nPremium access gate: 10,000,000 $KRN\nPriority access gate: 100,000,000 $KRN\nExecution fee: 0.2% per on-chain transaction\nDev revenue split: 50% to skill developer'},
+     {h:'The Fee Engine',b:'Every transaction executed via a KERNAL skill carries a 0.2% fee, collected at execution time and sent to the $KRN treasury.\n\nTreasury distributes to stakers on a rolling basis, proportional to staked share, denominated in the execution token (typically ETH on Base).\n\nMore agent volume = more fees = more yield. The flywheel is clean and the direction is clear.'},
+     {h:'Why 100B Supply?',b:'High supply creates accessible unit price, lowering the psychological barrier to accumulation. The gating thresholds (10M and 100M) are meaningful relative to supply without being exclusionary.\n\nAs protocol volume grows, staking yield creates organic buy pressure from yield-seekers independent of speculation.'},
+     {h:'Developer Alignment',b:'Skill developers earn 50% of all execution fees their skills generate. No manual payouts, no invoices, no trust required. Revenue flows on-chain directly to the developer wallet declared in the skill\u2019s frontmatter.\n\nThis creates the strongest possible incentive to build high-quality, well-maintained skills: more usage = more revenue, permanently.'}
+   ]},
+  {id:3,tag:'04 \u00b7 New Skills',read:'5 min',
+   title:'KERNAL v2.0: Four New Skills — Yield Optimizer, Gas Tracker, Portfolio Rebalancer, Governance Voter',
+   intro:"Version 2.0 adds four new skills including the first Governance category. Here's what changed and what's new.",
+   secs:[
+     {h:'yield-optimizer (Free)',b:'Auto-compounds yield farming positions when gas-adjusted compounding APR exceeds your configured threshold. Supports Aerodrome, Curve, and Beefy vaults on Base.\n\nKey config: positions array, compound_threshold_apr (default 0.5%), max_gas_gwei. When gas is high, it waits. When conditions are right, it compounds automatically.'},
+     {h:'gas-tracker (Free)',b:'Monitors Base L2 gas prices and L1 data costs continuously. Alerts when gas drops below your threshold, helping you time large transactions optimally. Includes 7-day historical percentile for context.\n\nIdeal usage: run alongside sniper-skill or copy-trader to pause execution when gas spikes.'},
+     {h:'portfolio-rebalancer (Premium)',b:'Monitors your portfolio allocation and rebalances when drift exceeds threshold via Uniswap v3. Configurable drift threshold (default: 5%), minimum trade size to avoid dust, and maximum rebalance frequency.\n\nUse case: maintain a target allocation (e.g., 50% ETH, 30% USDC, 20% $KRN) without manual intervention.'},
+     {h:'governance-voter (Premium)',b:'Watches configured DAO governance contracts for new proposals. Evaluates each proposal against your rule set (keyword matching, author whitelist, proposal type) and auto-votes with your delegated voting power.\n\nFirst skill in KERNAL\u2019s new Governance category. More governance skills coming in v2.1: quorum-monitor, delegation-optimizer.'},
+     {h:'Updated Compatibility',b:'All four new skills are compatible with Aeon and Claude Code. yield-optimizer and gas-tracker also support Cursor. Full Codex support for all v2.0 skills is targeted for the next compatibility update.'}
+   ]},
+  {id:4,tag:'05 \u00b7 Developer',read:'9 min',
+   title:'Building for KERNAL: Write a Skill, Submit It, Earn 50% of Execution Fees Forever',
+   intro:'A complete developer guide — from writing your first SKILL.md to getting it reviewed and earning on-chain revenue.',
+   secs:[
+     {h:'What Makes a Good Skill?',b:'KERNAL reviews on four criteria:\n\n1. Utility \u2014 Does it solve a real problem on-chain operators face?\n2. Safety \u2014 Does it handle errors gracefully? Does it validate before executing?\n3. Clarity \u2014 Are instructions clear enough for any compatible agent to execute correctly?\n4. Compatibility \u2014 Does it work on at least two major agent frameworks?\n\nThe most common rejection reason: ambiguous instructions in the body. Be explicit.'},
+     {h:'Writing Your Frontmatter',b:'Required fields: name, version, tier (free/premium), category, trigger type, dependencies array.\n\nOptional: schedule (cron string), event_filter (for on_event triggers), min_balance_eth (safety minimum), author_wallet (for fee revenue).\n\nThe author_wallet field is how you get paid. If it\u2019s missing, your revenue share accumulates in the treasury.'},
+     {h:'Testing Your Skill',b:'Before submitting: test against Aeon with Base testnet config. Run in dry_run mode (execution_mode: dry_run in aeon.yml) for at least 48 hours to verify event catching, parameter handling, and error paths.\n\nInclude test logs showing: at least 10 trigger events, at least 2 error/edge cases handled gracefully, and output formatting that matches the spec.'},
+     {h:'Submission Process',b:'1. Open PR to kernal-registry on GitHub\n2. Include: SKILL.md, README.md, 48h test logs, listing fee tx of 5,000,000 $KRN\n3. Review takes 5\u201310 business days\n4. If accepted: skill goes live and starts earning\n5. If rejected: detailed feedback provided, one free resubmission\n\nUse the Skill Builder tool at kernal.io/builder to generate your initial SKILL.md without writing by hand.'},
+     {h:'Revenue Math',b:'Example: your copy-trader variant gets installed by 200 users. Each runs it twice/day. Average trade: $500.\n\n200 users \u00d7 2 trades/day \u00d7 $500 \u00d7 0.2% fee \u00d7 50% to you = $200/day in passive skill revenue.\n\nThis scales linearly with usage and compounds as the agent ecosystem grows.'}
+   ]},
+  {id:5,tag:'06 \u00b7 Thesis',read:'8 min',
+   title:'Why On-Chain Execution Skills Are the Highest-Value Layer in the Crypto AI Stack',
+   intro:"Productivity skills are table stakes. Execution skills are the moat. Here's why KERNAL is building at the right layer.",
+   secs:[
+     {h:'The Stack',b:'Think of the crypto AI stack in layers:\n\n1. Foundation models (GPT-4o, Claude, Gemini) \u2014 commoditized rapidly\n2. Agent frameworks (Aeon, Claude Code, Cursor) \u2014 commoditized rapidly\n3. Productivity skills (email, code review, summaries) \u2014 low value per execution\n4. On-chain execution skills (sniper, copy-trader, arb scanner) \u2014 high value per execution\n5. Skill registry (KERNAL) \u2014 captures value from every layer above it\n\nThe registry is the infrastructure. Infrastructure captures rent.'},
+     {h:'Why Execution Skills Are Different',b:'Productivity skills don\u2019t have a direct fee attached to each use. On-chain execution skills do. And the value-per-execution difference is not marginal \u2014 it\u2019s orders of magnitude.\n\nAn email-writing skill saves 10 minutes. A sniper skill can capture a 40% gain in the first block of a new launch. An arbitrage skill generates $50 in profit from a single atomic transaction.\n\nWhen agents run execution skills at scale, the volume is enormous.'},
+     {h:'The Registry as Infrastructure',b:'npm became valuable not because it wrote great JavaScript packages, but because every JavaScript developer used it to find and install them. The value is in the directory.\n\nKERNAL\u2019s goal: become the npm of on-chain agent skills. Every new agent framework that ships Agent Skills format support becomes a new distribution channel. The registry\u2019s value scales exponentially with ecosystem growth.'},
+     {h:'The Flywheel',b:'Better skills \u2192 more agent adoption \u2192 more volume \u2192 more fee revenue \u2192 more developer incentive to build better skills.\n\n$KRN sits at the center, capturing value from every rotation of the flywheel. The staking yield from execution fees is real, on-chain, and grows with usage.\n\nThis is the bet: AI agents will run a significant fraction of on-chain volume within 3\u20135 years. KERNAL is building the registry those agents run from.'}
+   ]}
+];
+
+/* ── Docs ── */
+var DOCS={
+  secs:[
+    {id:'overview',label:'Overview',title:'What is KERNAL?',
+     content:[
+       {type:'p',t:'KERNAL is an open agent skill registry for on-chain execution. Install skills into your AI agent and let it operate autonomously on Base Network. Every skill is a markdown file \u2014 no SDK, no wrapper, no vendor lock-in.'},
+       {type:'p',t:'Compatible with: Aeon, Claude Code, Cursor, Codex, and 37+ other frameworks that support the Agent Skills open spec.'},
+       {type:'h2',t:'Core Concepts'},
+       {type:'ul',t:['Skill \u2014 a SKILL.md file containing structured instructions for an AI agent','Registry \u2014 KERNAL\u2019s database of reviewed and listed skills','Execution \u2014 when an agent follows a skill\u2019s instructions to complete an on-chain action','Fee \u2014 0.2% collected on every execution, distributed to $KRN stakers']}
+     ]},
+    {id:'quickstart',label:'Quick Start',title:'Install Your First Skill',
+     content:[
+       {type:'h2',t:'Step 1: Browse Skills'},
+       {type:'p',t:'Open SKILLS.db tab and browse the registry. Filter by Free to see skills you can install today without any token.'},
+       {type:'h2',t:'Step 2: Install'},
+       {type:'code',t:['$ kernal install wallet-digest','→ Resolving wallet-digest@1.2.3...','→ Free tier — no token required','→ Verifying checksum... \u2713','→ Writing skills/wallet-digest/SKILL.md','\u2713 Done. Enable in aeon.yml to activate.']},
+       {type:'h2',t:'Step 3: Configure'},
+       {type:'p',t:'Edit the config section in SKILL.md to set your wallet addresses, alert thresholds, and notification channel. Each skill has a detailed config schema in the SKILLS.db window.'},
+       {type:'h2',t:'Step 4: Activate'},
+       {type:'code',t:['# aeon.yml','skills:','  - name: wallet-digest','    enabled: true','    config:','      wallets: ["0xYour..."]','      time_window_hours: 24','      notify_channel: telegram']}
+     ]},
+    {id:'format',label:'Skill Format',title:'SKILL.md Format Reference',
+     content:[
+       {type:'h2',t:'Frontmatter Fields'},
+       {type:'p',t:'Required: name, version, tier (free/premium), category, trigger (scheduled/on_event/manual), deps (array)'},
+       {type:'p',t:'Optional: schedule (cron), event_filter, min_balance_eth, author_wallet, compat (array)'},
+       {type:'h2',t:'Trigger Types'},
+       {type:'ul',t:['scheduled \u2014 runs on a cron schedule (e.g., */15 * * * *)','on_event \u2014 fires on blockchain events (PoolCreated, Transfer, etc.)','manual \u2014 invoked by the user from agent chat']},
+       {type:'h2',t:'Body Format'},
+       {type:'p',t:'Write the body as clear, structured natural language. The AI agent reads it as a system prompt. Be explicit: what data to fetch, what conditions trigger action, what the action is, what to do on failure, what to log.'}
+     ]},
+    {id:'deps',label:'Dependencies',title:'Available Dependencies',
+     content:[
+       {type:'h2',t:'Infrastructure'},
+       {type:'ul',t:['alchemy-rpc \u2014 Ethereum node access, event monitoring, state reads','flashbots-rpc \u2014 Private mempool routing, MEV protection','notify-channel \u2014 Telegram, Discord, or webhook delivery']},
+       {type:'h2',t:'DEX & DeFi'},
+       {type:'ul',t:['uniswap-v3 \u2014 Routing and execution against Uniswap v3 on Base','aero-router \u2014 Aerodrome AMM integration','balancer-vault \u2014 Flash loan execution via Balancer Vault','curve-router \u2014 Curve Finance pool integration']},
+       {type:'h2',t:'Data Feeds'},
+       {type:'ul',t:['coingecko-api \u2014 Price and volume data, token metadata','xai-api \u2014 X/Twitter search via Grok API for CT narrative analysis']},
+       {type:'h2',t:'Execution'},
+       {type:'ul',t:['wallet-signer \u2014 Local transaction signing (private key never leaves device)','aerodrome-router \u2014 Aerodrome-specific routing for yield optimization']}
+     ]},
+    {id:'freeskills',label:'Free Skills',title:'Free Skill Reference',
+     content:[
+       {type:'h2',t:'wallet-digest v1.2.3'},
+       {type:'p',t:'Trigger: scheduled (default: daily 08:00 UTC). Fetches 24h transaction history across all configured wallet addresses, computes PnL per token, groups by transaction type, and delivers a structured digest.'},
+       {type:'h2',t:'token-alert v1.0.5'},
+       {type:'p',t:'Trigger: scheduled (configurable interval, default: 15 min). Checks CoinGecko price and volume for each configured token. Fires alert if price changes >\u00b1price_threshold_pct or volume spikes >volume_multiplier \u00d7 7-day average.'},
+       {type:'h2',t:'defi-monitor v1.1.0'},
+       {type:'p',t:'Trigger: scheduled (default: hourly). Reads LP position state from Uniswap v3, Aerodrome, and Curve. Computes impermanent loss percentage and current APR. Fires alert if IL > il_alert_pct or health factor < health_factor_min.'},
+       {type:'h2',t:'yield-optimizer v1.0.1'},
+       {type:'p',t:'Trigger: scheduled (default: every 4 hours). Checks pending rewards on configured Aerodrome/Curve/Beefy vaults. Simulates compound APR gain vs gas cost. If APR gain exceeds compound_threshold_apr and gas < max_gas_gwei, executes compound.'},
+       {type:'h2',t:'gas-tracker v1.0.0'},
+       {type:'p',t:'Trigger: continuous (every 5 minutes). Reads current Base L2 gas price and optionally L1 data cost. Compares to alert_below_gwei threshold. Sends alert on first crossing below threshold (debounced to prevent spam).'}
+     ]},
+    {id:'premskills',label:'Premium Skills',title:'Premium Skill Reference',
+     content:[
+       {type:'p',t:'All premium skills require 10,000,000+ $KRN on Base. Unlocks at TGE.'},
+       {type:'h2',t:'sniper-skill v2.1.0'},
+       {type:'p',t:'Trigger: on_event (PoolCreated, Uniswap v3 factory on Base). Filter chain: liquidity check \u2192 BaseScan verification \u2192 honeypot bytecode scan \u2192 tax simulation. If all pass: execute swap via configured wallet-signer + flashbots-rpc.'},
+       {type:'h2',t:'copy-trader v1.5.2'},
+       {type:'p',t:'Trigger: on_event (outgoing swaps from watch_wallets). After delay_minutes, computes proportional position size and executes copy trade. Checks token against blacklist_tokens before executing. If auto_exit=true, monitors source wallet for exits.'},
+       {type:'h2',t:'alpha-digest v1.0.2'},
+       {type:'p',t:'Trigger: scheduled (daily at delivery_time). Fetches CT narrative via Grok API, whale wallet swaps from watch_wallets, and large on-chain events. AI computes confidence score per opportunity. Delivers ranked digest filtered by min_confidence.'},
+       {type:'h2',t:'mev-guard v1.3.0'},
+       {type:'p',t:'Passive middleware \u2014 intercepts all agent swap transactions. Routes to flashbots or mev-blocker per mode config. Pre-flight simulation checks sandwich profitability. If > max_sandwich_profit_eth, aborts or tightens slippage.'},
+       {type:'h2',t:'arbitrage-scanner v2.0.0'},
+       {type:'p',t:'Trigger: on_event (every Base block). Reads price from Uniswap v3, Aerodrome, Curve, Velodrome for each configured token pair. Computes net profit. If > min_profit_eth and auto_execute=true, constructs flash loan + arb transaction atomically.'},
+       {type:'h2',t:'portfolio-rebalancer v1.0.0'},
+       {type:'p',t:'Trigger: scheduled (every rebalance_interval_hours). Reads current portfolio value via CoinGecko. Computes drift from target_allocations. If any token drifts > drift_threshold_pct, computes rebalance trades and executes via Uniswap v3.'},
+       {type:'h2',t:'governance-voter v1.0.0'},
+       {type:'p',t:'Trigger: on_event (ProposalCreated on configured dao_contracts). Fetches proposal text and metadata. Evaluates against vote_rules (keyword matching). If a rule matches, auto-votes. If abstain_unknown=true, abstains on no-match proposals.'}
+     ]},
+    {id:'token',label:'$KRN Token',title:'$KRN Token Documentation',
+     content:[
+       {type:'ul',t:['Token: $KRN \u00b7 Network: Base \u00b7 Supply: 100,000,000,000','Contract: 0x974B53861d975E727305298D2718849c43046ba3','Listing fee: 5,000,000 $KRN (skill submission)','Premium gate: 10,000,000 $KRN (access all premium skills)','Priority gate: 100,000,000 $KRN (early access + priority support)']},
+       {type:'h2',t:'Execution Fee Distribution'},
+       {type:'p',t:'Every on-chain execution via a KERNAL skill carries a 0.2% fee. This is split: 50% to the skill developer (auto on-chain), 50% to the $KRN staking treasury. Treasury distributes to stakers proportional to their staked share.'},
+       {type:'h2',t:'Staking Mechanics'},
+       {type:'p',t:'$KRN staking contract on Base: lock tokens to receive proportional share of execution fee revenue. No lockup period (standard v1). Yield is denominated in ETH (execution fees) rather than $KRN inflation \u2014 this is real yield from real usage, not emissions.'}
+     ]},
+    {id:'developer',label:'Developer Guide',title:'Building for KERNAL',
+     content:[
+       {type:'h2',t:'Use the Skill Builder'},
+       {type:'p',t:'The fastest way to create a skill is kernal.io/builder \u2014 a visual tool that generates a complete, valid SKILL.md file without any coding. Fill in the form, preview the output, download the file.'},
+       {type:'h2',t:'Manual Format'},
+       {type:'code',t:['---','name: my-skill','version: 1.0.0','tier: free','category: monitoring','trigger: scheduled','schedule: "*/30 * * * *"','deps: [alchemy-rpc, notify-channel]','author_wallet: "0xYour..."','---','','# Skill Instructions','Monitor [specific condition].','When [condition is met]:', 'Execute [specific action].','Log [output] to agent memory.']},
+       {type:'h2',t:'Submission Checklist'},
+       {type:'ul',t:['SKILL.md with complete frontmatter','README.md with setup instructions','48h dry_run test logs (min 10 trigger events)','Listing fee tx: 5,000,000 $KRN','PR to: github.com/kernal-registry']}
+     ]}
+  ]
+};
+
+/* ── Stats ── */
+var STATS=[
+  {l:'Skills in Registry',v:'12',sub:'5 free · 7 premium',icon:'\u25c8'},
+  {l:'Total Installs',v:'10,867',sub:'across all frameworks',icon:'\u2193'},
+  {l:'Total Executions',v:'18,441',sub:'on Base Network',icon:'\u25b8'},
+  {l:'Volume Processed',v:'$8.2M',sub:'via skill executions',icon:'\u25ca'},
+  {l:'Active Agents',v:'1,247',sub:'running KERNAL skills',icon:'\u25ef'},
+  {l:'$KRN Supply',v:'100B',sub:'total · Base deployed',icon:'\u25c9'},
+  {l:'Execution Fee',v:'0.2%',sub:'per on-chain tx',icon:'\u25aa'},
+  {l:'Dev Rev Share',v:'50%',sub:'of execution fees',icon:'\u25a0'},
+  {l:'Premium Gate',v:'10M',sub:'$KRN required',icon:'\u25b3'},
+  {l:'Listing Fee',v:'5M',sub:'$KRN per skill',icon:'\u2726'},
+  {l:'Compatible Frameworks',v:'37+',sub:'support Agent Skills spec',icon:'\u25cb'},
+  {l:'Skill Developers',v:'8',sub:'active contributors',icon:'\u25a1'}
+];
+
+/* ── Roadmap ── */
+var RM=[
+  {phase:'Phase 1',label:'Foundation',q:'Q1 2025',status:'done',items:[
+    'KERNAL OS v1.0 \u2014 web interface',
+    '8 launch skills (5 free, 3 premium)',
+    'Open skill submission process',
+    'Agent Skills format support documented'
+  ]},
+  {phase:'Phase 2',label:'Expansion',q:'Q2 2025',status:'done',items:[
+    '12 skills \u2014 4 new in v2.0',
+    'New Governance category',
+    'Skill Builder tool (kernal.io/builder)',
+    '3D skill network visualization',
+    'Social assets & brand kit'
+  ]},
+  {phase:'Phase 3',label:'TGE',q:'Q3 2025',status:'active',items:[
+    '$KRN token launch on Base',
+    'Premium skill unlock for 10M+ holders',
+    'Staking contract deployment',
+    'Listing fee system activation',
+    'Developer revenue share (auto on-chain)'
+  ]},
+  {phase:'Phase 4',label:'Scale',q:'Q4 2025',status:'pending',items:[
+    'Community skill submissions open',
+    'Skill analytics dashboard',
+    'Agent compatibility layer v3',
+    'Cross-chain skill support (Arbitrum, Optimism)',
+    'Governance DAO for registry curation'
+  ]},
+  {phase:'Phase 5',label:'Ecosystem',q:'2026+',status:'pending',items:[
+    '100+ skills in registry',
+    'Skill marketplace with ratings & reviews',
+    'SDK v2 with native framework plugins',
+    'Enterprise agent deployments',
+    'Multi-chain execution routing'
+  ]}
+];
+
+/* ── Leaderboard ── */
+var LB={
+  skills:[
+    {rank:1,name:'copy-trader',cat:'Trading',installs:'1,204',executions:'4,821',rev:'$9.6k'},
+    {rank:2,name:'token-alert',cat:'Monitoring',installs:'3,102',executions:'31,204',rev:'Free'},
+    {rank:3,name:'wallet-digest',cat:'Monitoring',installs:'2,441',executions:'18,902',rev:'Free'},
+    {rank:4,name:'sniper-skill',cat:'Trading',installs:'891',executions:'2,103',rev:'$4.2k'},
+    {rank:5,name:'yield-optimizer',cat:'DeFi',installs:'1,204',executions:'7,841',rev:'Free'},
+    {rank:6,name:'arbitrage-scanner',cat:'Trading',installs:'534',executions:'1,802',rev:'$3.6k'}
+  ],
+  agents:[
+    {rank:1,name:'aeon',version:'v2.4.1',skills:12,executions:'8,204',badge:'Official'},
+    {rank:2,name:'claude-code',version:'latest',skills:10,executions:'5,102',badge:'Official'},
+    {rank:3,name:'cursor',version:'v0.42',skills:7,executions:'2,841',badge:'Verified'},
+    {rank:4,name:'codex',version:'v1.2',skills:6,executions:'1,903',badge:'Verified'},
+    {rank:5,name:'autoGPT-next',version:'v0.5',skills:4,executions:'431',badge:'Community'}
+  ],
+  builders:[
+    {rank:1,name:'kernal-labs',skills:12,executions:'18,441',rev:'$0 (treasury)'},
+    {rank:2,name:'0xdev_base',skills:2,executions:'891',rev:'$1.7k'},
+    {rank:3,name:'aerodrome_contrib',skills:1,executions:'534',rev:'$1.1k'}
+  ]
+};
+
+/* ── Community ── */
+var COMM=[
+  {name:'X / Twitter',handle:'@kernal_io',desc:'Announcements, skill drops, $KRN news',icon:'\u2715',url:'#'},
+  {name:'Telegram',handle:'t.me/kernal_io',desc:'Community chat, support, alpha discussions',icon:'\u27a4',url:'#'},
+  {name:'GitHub',handle:'github.com/kernal-registry',desc:'Open source skill registry, PRs welcome',icon:'\u2665',url:'#'},
+  {name:'Mirror',handle:'mirror.xyz/kernal',desc:'Long-form articles and protocol updates',icon:'\u25a0',url:'#'},
+  {name:'Farcaster',handle:'/kernal',desc:'Web3-native updates and community posts',icon:'\u25cb',url:'#'},
+  {name:'Discord',handle:'discord.gg/kernal',desc:'Developer support and governance discussions',icon:'\u25c6',url:'#'}
+];
+
+/* ── SDK code samples ── */
+var SDK_CODE={
+  aeon:[
+    '# Install',
+    '$ npm install -g @aeon/cli',
+    '',
+    '# Clone kernal skills',
+    '$ git clone https://github.com/kernal-registry/skills',
+    '$ cp skills/wallet-digest/SKILL.md ./skills/',
+    '',
+    '# Configure',
+    '# Edit aeon.yml:',
+    'skills:',
+    '  - name: wallet-digest',
+    '    enabled: true',
+    '    config:',
+    '      wallets: ["0x..."]',
+    '',
+    '# Run',
+    '$ aeon start'
+  ],
+  claude:[
+    '# Claude Code',
+    '# Drop SKILL.md in project root',
+    '',
+    '# .claude/skills/wallet-digest/SKILL.md',
+    '',
+    '# In CLAUDE.md, reference the skill:',
+    '## Active Skills',
+    '- wallet-digest: enabled',
+    '  wallets: ["0x..."]',
+    '',
+    '# Claude will execute the skill',
+    '# on its configured schedule'
+  ],
+  api:[
+    '// KERNAL Registry API (coming soon)',
+    '// Base URL: https://api.kernal.io/v1',
+    '',
+    '// List all skills',
+    'GET /skills',
+    '',
+    '// Get skill detail',
+    'GET /skills/:id',
+    '',
+    '// Download SKILL.md',
+    'GET /skills/:id/download',
+    '',
+    '// Check wallet KRN balance',
+    'GET /token/balance/:address',
+    '',
+    '// Submit skill (requires auth)',
+    'POST /skills/submit'
+  ]
+};
+
+/* ── State ── */
+var S={
+  phase:'boot',
+  isMob:window.innerWidth<768,
+  view:'home',
+  filter:'all',
+  catFilter:'all',
+  mobSkill:null,
+  termLines:[],
+  wins:[],
+  activeWin:null,
+  selSkill:null,
+  artIdx:null,
+  docSec:'overview',
+  lbTab:'skills',
+  sdkTab:'aeon',
+  formSubmitted:false
+};
+
+/* ── SVG helper ── */
+function km(sz,fill,acc,bg,r){
+  sz=sz||28;fill=fill||'#EDE8DF';acc=acc||'#B87420';bg=bg||'transparent';r=r||0;
+  var rect=r>0?'<rect width="100" height="100" rx="'+r+'" ry="'+r+'" fill="'+bg+'"/>':'<rect width="100" height="100" fill="'+bg+'"/>';
+  return '<svg width="'+sz+'" height="'+sz+'" viewBox="0 0 100 100" style="display:block;flex-shrink:0">'+rect+'<line x1="26" y1="13" x2="26" y2="87" stroke="'+fill+'" stroke-width="13" stroke-linecap="square"/><line x1="26" y1="50" x2="84" y2="14" stroke="'+fill+'" stroke-width="13" stroke-linecap="square"/><line x1="26" y1="50" x2="84" y2="86" stroke="'+fill+'" stroke-width="13" stroke-linecap="square"/><rect x="22" y="46" width="9" height="9" fill="'+acc+'" transform="rotate(45 26.5 50.5)"/></svg>';
+}
+
+/* ── HTML helpers ── */
+function lbl(t,ex){return '<div class="sn" style="font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:'+C.light+';'+(ex||'')+'">'+t+'</div>';}
+function hr(ex){return '<div style="height:1px;background:'+C.bg3+';'+(ex||'')+'"></div>';}
+function pill(tier){var p=tier==='premium';return '<span class="sn" style="font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;background:'+(p?'rgba(184,116,32,0.12)':'rgba(42,72,26,0.1)')+';color:'+(p?C.amber:C.green)+';border:1px solid '+(p?'rgba(184,116,32,0.25)':'rgba(42,72,26,0.2)')+';">'+(p?'$KRN':'Free')+'</span>';}
+function catBadge(cat){var cols={'Trading':'#1A3A8F','Monitoring':'#1A4A2A','DeFi':'#2A1A5F','Research':'#5F3A00','Protection':'#4A0000','Governance':'#3A2A00'};var col=cols[cat]||'#2A2A20';return '<span class="sn" style="font-size:8px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:2px 6px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.4)">'+cat+'</span>';}
+function srow(label,val,sub,last,green){return '<div>'+
+  '<div style="display:flex;align-items:baseline;justify-content:space-between;padding:12px 0;gap:12px;">'+lbl(label)+
+  '<div style="text-align:right"><span class="sf" style="font-size:19px;font-weight:400;color:'+(green?C.greenM:C.text)+'">'+val+'</span>'+(sub?'<span class="sn" style="font-size:11px;color:'+C.light+';margin-left:6px">'+sub+'</span>':'')+
+  '</div></div>'+(last?'':hr())+'</div>';}
+function dbtn(txt,fn,arg,outline){return '<button onclick="'+fn+'('+(arg?'\''+arg+'\'':'')+');" class="bh sn" style="display:flex;align-items:center;justify-content:space-between;width:100%;padding:14px 18px;background:'+(outline?'transparent':C.dark)+';border:1px solid '+(outline?C.bg3:C.dark)+';font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:'+(outline?C.mid:C.bg)+'"><span>'+txt+'</span><span style="font-size:14px;opacity:.6">\u25ba</span></button>';}
+
+/* ── Boot ── */
+function startBoot(){
+  document.getElementById('app').innerHTML='<div style="background:'+C.dark+';min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:\'JetBrains Mono\',monospace;padding:24px"><div style="width:min(580px,100%)"><div style="margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid '+C.darkB+'"><div style="display:flex;align-items:center;gap:12px;margin-bottom:4px">'+km(36,C.amber,C.bg)+'<span class="sf" style="font-size:clamp(20px,4vw,28px);color:'+C.amber+';font-weight:300;letter-spacing:2px;font-style:italic">kernal</span></div><div class="sm" style="font-size:9px;color:'+C.darkB+';letter-spacing:4px">AGENT SKILL REGISTRY v2.0</div></div><div id="boot-lines" class="sm" style="font-size:clamp(9px,2.2vw,11px);line-height:2.2"></div></div></div>';
+  var ctn=document.getElementById('boot-lines');
+  BOOT.forEach(function(b,i){
+    setTimeout(function(){
+      if(!document.getElementById('boot-lines'))return;
+      var d=document.createElement('div');
+      d.textContent=b.t||'\u00a0';
+      d.style.cssText='color:'+(b.t.startsWith('[')?'#2A2A24':b.t.startsWith('kernal')?C.amber:b.t.startsWith('System')?C.mid:'#363630')+';animation:lineIn .16s ease '+(i*.03)+'s both';
+      ctn.appendChild(d);
+      var cur=document.getElementById('bcur');if(!cur){var c=document.createElement('span');c.id='bcur';c.textContent='\u2588';c.style.cssText='animation:blink 1s step-end infinite;color:'+C.amber;ctn.appendChild(c);}
+    },b.d);
+  });
+  setTimeout(function(){
+    S.phase='os';
+    if(S.isMob)renderMobile();
+    else{S.wins=['skills'];S.activeWin='skills';renderDesktop();}
+  },2700);
+}
+
+/* ── Ticker ── */
+function tickerHTML(){
+  var utc=new Date().toISOString().slice(11,19);
+  var msg='\u25a0 LIVE  \u00b7  '+utc+'Z  \u00b7  KERNAL v2.0.0  \u00b7  BASE NETWORK  \u00b7  12 SKILLS  \u00b7  CA: 0x974B53861d975E727305298D2718849c43046ba3  \u00b7  $KRN ON BASE  \u00b7  ';
+  return '<div style="background:'+C.dark+';height:28px;overflow:hidden;display:flex;align-items:center;flex-shrink:0"><div style="display:flex;animation:ticker 28s linear infinite;white-space:nowrap"><span class="sm" style="font-size:9px;color:'+C.amber+';letter-spacing:1.5px;padding-right:60px">'+msg+'</span><span class="sm" style="font-size:9px;color:'+C.amber+';letter-spacing:1.5px;padding-right:60px">'+msg+'</span></div></div>';
+}
+
+/* ── Mobile nav ── */
+function mobNavHTML(){
+  return '<div style="height:52px;background:'+C.bg+';border-bottom:1px solid '+C.bg3+';display:flex;align-items:center;justify-content:space-between;padding:0 16px;position:sticky;top:0;z-index:50;flex-shrink:0">'+
+    '<div style="display:flex;align-items:center;gap:10px">'+km(26,C.dark,C.amber)+'<span class="sf" style="font-size:18px;font-weight:400;color:'+C.text+';font-style:italic">kernal</span></div>'+
+    '<div style="display:flex;align-items:center;gap:8px">'+
+      '<a href="kernal-tool.html" style="height:30px;padding:0 10px;border:1px solid '+C.amber+';font-family:\'DM Sans\',system-ui,sans-serif;font-size:10px;font-weight:600;letter-spacing:1px;color:'+C.amber+';display:flex;align-items:center;text-decoration:none;gap:5px">\u2692 Builder</a>'+
+      '<button class="bh sn" style="height:30px;padding:0 12px;border:1px solid '+C.bg3+';font-size:10px;font-weight:600;letter-spacing:1px;color:'+C.mid+';display:flex;align-items:center;gap:5px"><span style="width:6px;height:6px;border-radius:50%;background:'+C.ghost+';display:inline-block"></span>Connect</button>'+
+    '</div>'+
+  '</div>';
+}
+
+/* ── Mobile tabs (12, scrollable) ── */
+var TABS=[
+  {id:'home',l:'Home',i:'\u229e'},{id:'skills',l:'Skills',i:'\u25c8'},
+  {id:'token',l:'Token',i:'\u25c9'},{id:'stats',l:'Stats',i:'\u25ca'},
+  {id:'roadmap',l:'Map',i:'\u25ce'},{id:'terminal',l:'Run',i:'\u25b8'},
+  {id:'deploy',l:'Deploy',i:'\u2295'},{id:'sdk',l:'SDK',i:'\u2318'},
+  {id:'leaderboard',l:'Board',i:'\u25c6'},
+  {id:'aeon',l:'Aeon',i:'\u25d0'},{id:'article',l:'Article',i:'\u2726'},{id:'docs',l:'Docs',i:'\u25fb'}
+];
+function mobTabsHTML(active){
+  return '<div style="position:fixed;bottom:0;left:0;right:0;z-index:100;background:'+C.bg+';border-top:1px solid '+C.bg3+';padding-bottom:env(safe-area-inset-bottom,4px)">'+
+    '<div class="tabs-scroll">'+
+    TABS.map(function(t){
+      var a=active===t.id||(active==='sd'&&t.id==='skills')||(active==='artDetail'&&t.id==='article');
+      return '<button onclick="go(\''+t.id+'\')" style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 12px;background:none;border:none;min-width:58px">'+
+        '<span style="font-size:17px;color:'+(a?C.amber:C.ghost)+';transition:color .15s">'+t.i+'</span>'+
+        '<span style="font-size:7px;font-weight:'+(a?600:400)+';color:'+(a?C.amber:C.ghost)+';white-space:nowrap;font-family:\'DM Sans\',system-ui,sans-serif;transition:color .15s">'+t.l+'</span>'+
+      '</button>';
+    }).join('')+
+    '</div></div>';
+}
+
+/* ── MOBILE VIEWS ── */
+
+function viewHome(){
+  var recent=SK.slice(0,4).map(function(s,i){
+    return '<div>'+
+      '<button onclick="goSkill(\''+s.id+'\')" class="rh" style="width:100%;background:none;border:none;padding:12px 0;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer">'+
+        '<div style="text-align:left;min-width:0;flex:1">'+
+          '<div class="sf" style="font-size:17px;font-weight:400;color:'+C.text+';margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+s.name+'</div>'+
+          '<div class="sn" style="font-size:11px;color:'+C.light+'">'+s.cat+' \u00b7 '+s.upd+'</div>'+
+        '</div>'+
+        '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0">'+pill(s.tier)+'<span style="color:'+C.ghost+';font-size:16px">\u203a</span></div>'+
+      '</button>'+(i<3?hr():'')+'</div>';
+  }).join('');
+  return '<div class="asu" style="padding:0 0 85px">'+
+    '<div style="background:'+C.dark+';padding:28px 20px 24px;position:relative;overflow:hidden">'+
+      '<div style="position:absolute;top:-20px;right:-20px;opacity:.04">'+km(180,C.amber,C.bg)+'</div>'+
+      '<div style="position:relative">'+
+        lbl('Agent Skill Registry \u00b7 Base','color:'+C.amber+';margin-bottom:10px')+
+        '<div class="sf" style="font-size:54px;font-weight:300;color:'+C.bg+';line-height:1;letter-spacing:-1.5px;margin-bottom:12px;font-style:italic">kernal</div>'+
+        '<div class="sn" style="font-size:13px;color:rgba(255,255,255,.38);line-height:1.6;margin-bottom:14px">Install skills into your AI agent.<br>Let it execute on-chain autonomously.</div>'+
+        '<div onclick="navigator.clipboard&&navigator.clipboard.writeText(\'0x974B53861d975E727305298D2718849c43046ba3\')" style="background:rgba(0,0,0,.25);border:1px solid rgba(184,116,32,.2);padding:7px 11px;margin-bottom:14px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px" title="Tap to copy CA">'+
+          '<div><div class="sn" style="font-size:8px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:3px">CA · Base Network</div>'+
+          '<div class="sm" style="font-size:9px;color:'+C.amber+';word-break:break-all">0x974B53861d975E727305298D2718849c43046ba3</div></div>'+
+          '<span style="font-size:11px;color:rgba(255,255,255,.2);flex-shrink:0">\u2398</span>'+
+        '</div>'+
+        '<div style="display:flex;gap:8px">'+
+          '<button onclick="go(\'skills\')" class="bh sn" style="flex:1;padding:11px;background:'+C.amber+';border:1px solid '+C.amber+';font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:'+C.bg+'">Browse Skills</button>'+
+          '<a href="kernal-tool.html" class="bh sn" style="flex:1;padding:11px;background:transparent;border:1px solid '+C.darkB+';font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.4);text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center">\u2692 Build Skill</a>'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-bottom:1px solid '+C.bg3+'">'+
+      [['12','Skills'],['10.8k','Installs'],['100B','$KRN']].map(function(s){
+        return '<div style="padding:14px 0;text-align:center;border-right:1px solid '+C.bg3+'"><div class="sf" style="font-size:22px;font-weight:300;color:'+C.text+'">'+s[0]+'</div><div class="sn" style="font-size:9px;font-weight:500;color:'+C.light+';text-transform:uppercase;letter-spacing:1px;margin-top:2px">'+s[1]+'</div></div>';
+      }).join('')+
+    '</div>'+
+    '<div style="padding:18px 20px 14px">'+
+      lbl('Recently Updated','margin-bottom:12px')+recent+
+    '</div>'+
+    hr()+
+    '<div style="padding:16px 20px;display:flex;flex-direction:column;gap:8px">'+
+      dbtn('View 3D Skill Network','open3d',null,true)+
+    '</div>'+
+    tickerHTML()+
+  '</div>';
+}
+
+function viewSkills(){
+  var cats=['all','free','premium','Trading','Monitoring','DeFi','Research','Protection','Governance'];
+  var list=SK.filter(function(s){
+    var f=S.filter==='all'||(S.filter==='free'&&s.tier==='free')||(S.filter==='premium'&&s.tier==='premium')||(s.cat===S.filter);
+    return f;
+  });
+  var filterBtns=cats.map(function(f){
+    var a=S.filter===f;
+    return '<button onclick="setFilter(\''+f+'\')" class="bh sn" style="flex:0 0 auto;padding:5px 12px;border:1px solid '+(a?C.dark:C.bg3)+';background:'+(a?C.dark:'transparent')+';font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:'+(a?C.bg:C.mid)+';white-space:nowrap">'+f+'</button>';
+  }).join('');
+  var rows=list.map(function(s,i){
+    return '<div class="skc" onclick="goSkill(\''+s.id+'\')">'+
+      '<div class="skill-card-head" style="padding:12px 14px">'+
+        '<div style="flex:1;min-width:0">'+
+          '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">'+
+            '<span class="sn" style="font-size:9px;color:'+C.light+';letter-spacing:1px;text-transform:uppercase">'+s.cat+'</span>'+
+            '<span class="sn" style="font-size:9px;color:'+C.ghost+'">v'+s.v+'</span>'+
+          '</div>'+
+          '<div class="sf" style="font-size:18px;font-weight:400;color:'+C.text+';line-height:1.1;margin-bottom:3px">'+s.name+'</div>'+
+          '<div class="sn" style="font-size:11px;color:'+C.light+';line-height:1.4">'+(s.tagline.length>55?s.tagline.slice(0,55)+'\u2026':s.tagline)+'</div>'+
+        '</div>'+
+        '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">'+pill(s.tier)+'<span class="sm" style="font-size:10px;color:'+C.ghost+'">'+s.installs+'</span></div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+  return '<div class="asu" style="padding:0 0 85px">'+
+    '<div style="padding:18px 20px 12px">'+
+      '<button onclick="go(\'home\')" class="bh sn" style="font-size:12px;color:'+C.amber+';font-weight:500;padding:0 0 8px">\u2039 Home</button>'+
+      '<div class="sf" style="font-size:36px;font-weight:300;color:'+C.text+';letter-spacing:-.5px;margin-bottom:3px">Skills</div>'+
+      lbl('Registry \u00b7 '+list.length+' of '+SK.length)+
+      hr('margin-top:14px')+
+    '</div>'+
+    '<div style="padding:8px 20px"><div class="tabs-scroll" style="gap:6px;padding-bottom:4px">'+filterBtns+'</div></div>'+
+    hr('margin:0 20px')+
+    '<div style="padding:8px 20px;display:flex;flex-direction:column;gap:8px">'+rows+'</div>'+
+  '</div>';
+}
+
+function viewDetail(s){
+  var deps=s.deps.map(function(d){return '<span class="sm" style="font-size:10px;padding:3px 9px;background:'+C.bg2+';border:1px solid '+C.bg3+';color:'+C.mid+'">'+d+'</span>';}).join('');
+  var compat=s.compat.map(function(c){return '<span class="sn" style="font-size:10px;font-weight:500;padding:3px 9px;background:'+C.bg2+';border:1px solid '+C.bg3+';color:'+C.text+'">'+c+'</span>';}).join('');
+  var config=s.config.map(function(c,i,a){
+    return '<div>'+
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:10px 0">'+
+        '<div><div class="sm" style="font-size:11px;color:'+C.text+';margin-bottom:2px">'+c.k+'</div><div class="sn" style="font-size:11px;color:'+C.light+'">'+c.d+'</div></div>'+
+        '<span class="sm" style="font-size:9px;color:'+C.amber+';flex-shrink:0">'+c.t+'</span>'+
+      '</div>'+(i<a.length-1?hr():'')+'</div>';
+  }).join('');
+  var riskColor={'Low':C.green,'Medium':C.amber,'High':'#B83420'}[s.risk]||C.light;
+  return '<div class="asu" style="padding:0 0 85px">'+
+    '<div style="background:'+C.dark+';padding:20px 20px 18px">'+
+      '<button onclick="go(\'skills\')" class="bh sn" style="font-size:12px;color:'+C.amber+';font-weight:500;padding:0 0 10px">\u2039 Skills</button>'+
+      '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px">'+
+        '<div>'+lbl(s.cat+' \u00b7 v'+s.v,'color:rgba(255,255,255,.3);margin-bottom:5px')+'<div class="sf" style="font-size:32px;font-weight:300;color:'+C.bg+';line-height:1;letter-spacing:-.5px">'+s.name+'</div></div>'+
+        pill(s.tier)+
+      '</div>'+
+      '<p class="sn" style="font-size:13px;color:rgba(255,255,255,.42);line-height:1.65;margin-top:8px">'+s.tagline+'</p>'+
+    '</div>'+
+    '<div style="padding:0 20px">'+
+      srow('Installs',s.installs,null,false)+
+      srow('Version','v'+s.v,null,false)+
+      srow('Author',s.by,null,false)+
+      srow('Updated',s.upd,null,false)+
+      srow('Risk Level','<span style="color:'+riskColor+'">'+s.risk+'</span>',null,false)+
+      srow('Gas Cost',s.gas,null,true)+
+    '</div>'+
+    hr('margin:8px 20px 18px')+
+    '<div style="padding:0 20px;margin-bottom:14px"><p class="sn" style="font-size:14px;line-height:1.72;color:'+C.mid+'">'+s.desc+'</p></div>'+
+    hr('margin:0 20px 18px')+
+    '<div style="padding:0 20px;margin-bottom:18px">'+lbl('Configuration','margin-bottom:10px')+config+'</div>'+
+    hr('margin:0 20px 18px')+
+    '<div style="padding:0 20px;margin-bottom:18px">'+lbl('Dependencies','margin-bottom:8px')+'<div style="display:flex;flex-wrap:wrap;gap:6px">'+deps+'</div></div>'+
+    '<div style="padding:0 20px;margin-bottom:22px">'+lbl('Compatible Agents','margin-bottom:8px')+'<div style="display:flex;flex-wrap:wrap;gap:6px">'+compat+'</div></div>'+
+    '<div style="padding:0 20px;display:flex;flex-direction:column;gap:8px">'+
+      (s.tier==='premium'
+        ?'<button onclick="showSoon()" class="bh sn" style="display:flex;align-items:center;justify-content:space-between;width:100%;padding:14px 18px;background:'+C.dark+';border:1px solid '+C.dark+';font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:'+C.bg+'"><span>Install \u2014 Requires $KRN</span><span>\u25ba</span></button>'
+        :'<button onclick="installFree(\''+s.id+'\')" class="bh sn" style="display:flex;align-items:center;justify-content:space-between;width:100%;padding:14px 18px;background:'+C.dark+';border:1px solid '+C.dark+';font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:'+C.bg+'"><span>Install Free Skill</span><span>\u25ba</span></button>'
+      )+
+    '</div>'+
+  '</div>';
+}
+
+function viewToken(){
+  return '<div class="asu" style="padding:0 0 85px">'+
+    '<div style="background:'+C.dark+';padding:30px 20px 28px;position:relative;overflow:hidden">'+
+      '<div style="position:absolute;top:-30px;right:-30px;opacity:.03">'+km(200,C.amber,C.bg)+'</div>'+
+      '<div style="position:relative">'+
+        lbl('Token \u00b7 Base Network','color:'+C.amber+';margin-bottom:8px')+
+        '<div class="sf" style="font-size:56px;font-weight:300;color:'+C.bg+';letter-spacing:-1.5px;line-height:1;margin-bottom:10px;font-style:italic">$KRN</div>'+
+        '<div onclick="navigator.clipboard&&navigator.clipboard.writeText(\'0x974B53861d975E727305298D2718849c43046ba3\')" style="background:rgba(0,0,0,.3);border:1px solid rgba(184,116,32,.25);padding:8px 12px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px" title="Tap to copy CA">'+
+          '<div><div class="sn" style="font-size:8px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:3px">Contract Address · Base</div>'+
+          '<div class="sm" style="font-size:9px;color:'+C.amber+';word-break:break-all">0x974B53861d975E727305298D2718849c43046ba3</div></div>'+
+          '<span style="font-size:12px;color:rgba(255,255,255,.25);flex-shrink:0">\u2398</span>'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+    '<div style="padding:0 20px">'+
+      srow('Token','$KRN',null,false)+srow('Network','Base',null,false)+
+      srow('Supply','100,000,000,000',null,false)+srow('Circulating','100,000,000,000',null,false)+
+      srow('Status','Live','\u25aa Base',true,true)+
+    '</div>'+hr('margin:8px 20px 20px')+
+    '<div style="padding:0 20px;margin-bottom:20px">'+
+      lbl('Token Utility','margin-bottom:12px')+
+      [['Hold 10,000,000 $KRN','Access all premium skills'],
+       ['Hold 100,000,000 $KRN','Priority access + early skill drops'],
+       ['Stake $KRN','Receive 50% of execution fee revenue'],
+       ['Submit a skill','List fee: 5,000,000 $KRN'],
+       ['0.2% execution fee','Per on-chain skill transaction']].map(function(u,i,a){
+        return '<div><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:11px 0">'+
+          '<div class="sn" style="font-size:12px;font-weight:500;color:'+C.amber+'">'+u[0]+'</div>'+
+          '<div class="sn" style="font-size:12px;color:'+C.light+';text-align:right;max-width:150px">'+u[1]+'</div>'+
+        '</div>'+(i<a.length-1?hr():'')+'</div>';
+      }).join('')+
+    '</div>'+
+    hr('margin:0 20px 20px')+
+    '<div style="padding:0 20px;display:flex;flex-direction:column;gap:8px">'+
+      '<a href="https://app.uniswap.org/swap?chain=base&outputCurrency=0x974B53861d975E727305298D2718849c43046ba3" target="_blank" class="bh sn" style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:'+C.dark+';border:1px solid '+C.dark+';font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:'+C.bg+';text-decoration:none"><span>Buy $KRN on Uniswap</span><span style="font-size:14px;opacity:.6">\u25ba</span></a>'+
+      '<a href="https://basescan.org/token/0x974B53861d975E727305298D2718849c43046ba3" target="_blank" class="bh sn" style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:transparent;border:1px solid '+C.bg3+';font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:'+C.mid+';text-decoration:none"><span>View on BaseScan</span><span style="font-size:14px;opacity:.6">\u25ba</span></a>'+
+    '</div>'+
+  '</div>';
+}
+
+function viewStats(){
+  return '<div class="asu" style="padding:0 0 85px">'+
+    '<div style="background:'+C.dark+';padding:24px 20px 20px">'+
+      lbl('Live Statistics','color:'+C.light+';margin-bottom:6px')+
+      '<div class="sf" style="font-size:36px;font-weight:300;color:'+C.bg+';letter-spacing:-.5px">STATS.live</div>'+
+    '</div>'+
+    '<div style="padding:14px 20px;display:grid;grid-template-columns:1fr 1fr;gap:10px">'+
+    STATS.map(function(s){
+      return '<div class="stc"><div class="sn" style="font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:'+C.light+';margin-bottom:8px">'+s.l+'</div><div class="sf" style="font-size:clamp(22px,5vw,28px);font-weight:300;color:'+C.text+';line-height:1;margin-bottom:4px">'+s.v+'</div><div class="sn" style="font-size:10px;color:'+C.light+'">'+s.sub+'</div></div>';
+    }).join('')+
+    '</div>'+
+  '</div>';
+}
+
+function viewRoadmap(){
+  return '<div class="asu" style="padding:0 0 85px">'+
+    '<div style="padding:20px 20px 14px">'+
+      '<button onclick="go(\'home\')" class="bh sn" style="font-size:12px;color:'+C.amber+';font-weight:500;padding:0 0 8px">\u2039 Home</button>'+
+      '<div class="sf" style="font-size:36px;font-weight:300;color:'+C.text+';letter-spacing:-.5px;margin-bottom:3px">Roadmap</div>'+
+      lbl('Project Milestones')+hr('margin-top:14px')+
+    '</div>'+
+    '<div style="padding:20px 20px 0">'+
+    RM.map(function(ph){
+      var cls='tl-item '+(ph.status);
+      return '<div class="'+cls+'">'+
+        '<div class="sn" style="font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:'+(ph.status==='done'?C.greenM:ph.status==='active'?C.amber:C.ghost)+';margin-bottom:4px">'+ph.q+' \u00b7 '+ph.status.toUpperCase()+'</div>'+
+        '<div class="sf" style="font-size:20px;font-weight:400;color:'+C.text+';margin-bottom:8px">'+ph.phase+': '+ph.label+'</div>'+
+        '<div style="display:flex;flex-direction:column;gap:4px">'+
+          ph.items.map(function(item){
+            return '<div class="sn" style="font-size:12px;color:'+(ph.status==='done'?C.mid:ph.status==='active'?C.text:C.ghost)+';display:flex;align-items:flex-start;gap:8px"><span style="color:'+(ph.status==='done'?C.greenM:ph.status==='active'?C.amber:C.ghost)+';margin-top:2px">'+(ph.status==='done'?'\u2713':ph.status==='active'?'\u25b8':'\u00b7')+'</span>'+item+'</div>';
+          }).join('')+
+        '</div>'+
+      '</div>';
+    }).join('')+
+    '</div>'+
+  '</div>';
+}
+
+function viewTerminal(){
+  var lout=S.termLines.length===0
+    ?'<div class="sm" style="font-size:11px;color:#2A2A24;line-height:2.2"><div>kernal@base:~$ Ready.</div><div>Select a free skill \u2192 Install to see output.</div><div>Premium skills: install after TGE.</div><br><span style="animation:blink 1s step-end infinite;color:'+C.amber+'">\u2588</span></div>'
+    :S.termLines.map(function(line,i){
+        var col=line.startsWith('\u2713')?'#3D9142':line.startsWith('\u2192')?C.mid:line.startsWith('$')?C.amber:line.startsWith('\u26a0')?'#B83420':'#363630';
+        return '<div class="sm" style="font-size:11px;color:'+col+';white-space:pre-wrap;word-break:break-all;animation:lineIn .12s ease '+(i*.05)+'s both">'+(line||'\u00a0')+'</div>';
+      }).join('')+'<span class="sm" style="animation:blink 1s step-end infinite;color:'+C.amber+'">\u2588</span>';
+  return '<div class="asu" style="padding:0 0 85px">'+
+    '<div style="background:'+C.dark+';padding:22px 20px 18px;border-bottom:1px solid '+C.darkB+'">'+
+      lbl('Execution Log','color:'+C.light+';margin-bottom:6px')+
+      '<div class="sf" style="font-size:30px;font-weight:300;color:'+C.bg+';letter-spacing:-.5px">Terminal</div>'+
+    '</div>'+
+    '<div style="background:'+C.dark+';min-height:60vh;padding:18px 20px">'+
+      '<div class="sm" style="font-size:9px;color:'+C.darkB+';margin-bottom:10px;letter-spacing:1px">kernal@base:~$ \u2014 session active</div>'+
+      '<div id="term-out">'+lout+'</div>'+
+    '</div>'+
+  '</div>';
+}
+
+function viewDeploy(){
+  var html='<div class="asu" style="padding:0 0 85px">'+
+    '<div style="background:'+C.dark+';padding:26px 20px 22px">'+
+      lbl('Coming Soon','color:'+C.amber+';margin-bottom:6px')+
+      '<div class="sf" style="font-size:34px;font-weight:300;color:'+C.bg+';letter-spacing:-.5px">Launch on KERNAL</div>'+
+      '<p class="sn" style="font-size:13px;color:rgba(255,255,255,.38);line-height:1.6;margin-top:8px">Submit your skill to the registry. Earn 50% of execution fees on-chain, automatically.</p>'+
+    '</div>'+
+    '<div style="padding:20px 20px 0">'+
+      lbl('Submission Requirements','margin-bottom:12px')+
+      [['SKILL.md','Complete frontmatter + clear instructions'],
+       ['README.md','Setup guide for end users'],
+       ['Test logs','48h dry_run output, min 10 events'],
+       ['Listing fee','5,000,000 $KRN (at TGE)'],
+       ['GitHub PR','github.com/kernal-registry']].map(function(r,i,a){
+        return '<div><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 0">'+
+          '<div class="sn" style="font-size:12px;font-weight:600;color:'+C.text+'">'+r[0]+'</div>'+
+          '<div class="sn" style="font-size:11px;color:'+C.light+';text-align:right;max-width:180px">'+r[1]+'</div>'+
+        '</div>'+(i<a.length-1?hr():'')+'</div>';
+      }).join('')+
+    '</div>'+
+    hr('margin:8px 20px 20px');
+  if(!S.formSubmitted){
+    html+='<div style="padding:0 20px;margin-bottom:20px">'+
+      lbl('Early Access Waitlist','margin-bottom:14px')+
+      '<div style="display:flex;flex-direction:column;gap:10px">'+
+        '<div><label class="fl">Your name or handle</label><input class="fi sn" id="f-name" placeholder="0xdev or @handle" oninput=""/></div>'+
+        '<div><label class="fl">Wallet address</label><input class="fi sn" id="f-wallet" placeholder="0x..." oninput=""/></div>'+
+        '<div><label class="fl">What skill are you building?</label><input class="fi sn" id="f-skill" placeholder="e.g. liquidation-monitor" oninput=""/></div>'+
+        '<div><label class="fl">Email (optional)</label><input class="fi sn" id="f-email" placeholder="you@example.com" oninput=""/></div>'+
+        '<button onclick="submitForm()" class="bh sn" style="width:100%;padding:14px;background:'+C.amber+';border:1px solid '+C.amber+';font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:'+C.dark+';margin-top:4px">Join Waitlist \u25ba</button>'+
+      '</div>'+
+    '</div>';
+  }else{
+    html+='<div style="padding:20px 20px;margin-bottom:20px;background:'+C.bg2+';border-top:2px solid '+C.greenM+'">'+
+      '<div class="sf" style="font-size:24px;font-weight:300;color:'+C.greenM+';margin-bottom:6px">\u2713 You\'re on the list.</div>'+
+      '<div class="sn" style="font-size:13px;color:'+C.mid+'">We\'ll reach out before TGE. Start building your skill at kernal.io/builder.</div>'+
+    '</div>';
+  }
+  html+='<div style="padding:0 20px;display:flex;flex-direction:column;gap:8px">'+
+    '<a href="kernal-tool.html" class="bh sn" style="display:flex;align-items:center;justify-content:space-between;width:100%;padding:14px 18px;background:'+C.dark+';border:1px solid '+C.dark+';font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:'+C.bg+';text-decoration:none">\u2692 Open Skill Builder \u25ba</a>'+
+  '</div></div>';
+  return html;
+}
+
+function viewSdk(){
+  var tabs=['aeon','claude','api'].map(function(t){
+    var a=S.sdkTab===t;
+    return '<button onclick="setSdkTab(\''+t+'\')" class="sdk-tab '+(a?'active':'')+'">'+(t==='api'?'API':t==='claude'?'Claude Code':t.charAt(0).toUpperCase()+t.slice(1))+'</button>';
+  }).join('');
+  var lines=SDK_CODE[S.sdkTab];
+  var codeHTML=lines.map(function(l,i){
+    var col=l.startsWith('#')?'#3A3A32':l.startsWith('$')||l.startsWith('GET')||l.startsWith('POST')?C.amber:l.startsWith('\u2713')?'#3D9142':l.match(/^\s/)?C.ghost:'#EDE8DF';
+    return '<div style="color:'+col+';animation:lineIn .1s ease '+(i*.02)+'s both">'+(l||'\u00a0')+'</div>';
+  }).join('');
+  return '<div class="asu" style="padding:0 0 85px">'+
+    '<div style="background:'+C.dark+';padding:24px 20px 20px">'+
+      lbl('Integration Guide','color:'+C.light+';margin-bottom:6px')+
+      '<div class="sf" style="font-size:34px;font-weight:300;color:'+C.bg+';letter-spacing:-.5px">SDK</div>'+
+    '</div>'+
+    '<div style="border-bottom:1px solid '+C.bg3+';padding:0 20px;display:flex">'+tabs+'</div>'+
+    '<div style="background:#0D0D0A;padding:16px 20px;border-bottom:1px solid '+C.darkB+'">'+
+      '<div id="sdk-code" class="sm" style="font-size:10px;line-height:2;overflow-x:auto">'+codeHTML+'</div>'+
+    '</div>'+
+    '<div style="padding:18px 20px">'+
+      lbl('Resources','margin-bottom:12px')+
+      [['Skill Builder','Visual tool to create SKILL.md','kernal-tool.html'],
+       ['Skill Registry','GitHub repository','#'],
+       ['Agent Skills Spec','Open specification','#'],
+       ['API Reference','REST API (coming soon)','#']].map(function(r,i,a){
+        return '<div><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 0">'+
+          '<div><div class="sn" style="font-size:12px;font-weight:500;color:'+C.text+'">'+r[0]+'</div><div class="sn" style="font-size:11px;color:'+C.light+'">'+r[1]+'</div></div>'+
+          '<a href="'+r[2]+'" class="bh sm" style="font-size:9px;color:'+C.amber+';letter-spacing:1px;text-decoration:none">Open \u203a</a>'+
+        '</div>'+(i<a.length-1?hr():'')+'</div>';
+      }).join('')+
+    '</div>'+
+  '</div>';
+}
+
+function viewCommunity(){
+  return '<div class="asu" style="padding:0 0 85px">'+
+    '<div style="background:'+C.dark+';padding:24px 20px 20px">'+
+      lbl('Join the Network','color:'+C.light+';margin-bottom:6px')+
+      '<div class="sf" style="font-size:34px;font-weight:300;color:'+C.bg+';letter-spacing:-.5px">Community</div>'+
+    '</div>'+
+    '<div style="padding:14px 20px;display:flex;flex-direction:column;gap:8px">'+
+    COMM.map(function(c){
+      return '<a href="'+c.url+'" class="cc" style="text-decoration:none">'+
+        '<div style="width:36px;height:36px;background:'+C.dark+';border:1px solid '+C.darkB+';display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="color:'+C.amber+';font-size:16px">'+c.icon+'</span></div>'+
+        '<div style="flex:1;min-width:0">'+
+          '<div class="sn" style="font-size:13px;font-weight:600;color:'+C.text+';margin-bottom:2px">'+c.name+'</div>'+
+          '<div class="sm" style="font-size:10px;color:'+C.amber+';margin-bottom:2px">'+c.handle+'</div>'+
+          '<div class="sn" style="font-size:11px;color:'+C.light+'">'+c.desc+'</div>'+
+        '</div>'+
+        '<span style="color:'+C.ghost+';font-size:16px;flex-shrink:0">\u203a</span>'+
+      '</a>';
+    }).join('')+
+    '</div>'+
+    hr('margin:0 20px 20px')+
+    '<div style="padding:0 20px">'+
+      lbl('Governance','margin-bottom:12px')+
+      '<div class="sn" style="font-size:13px;color:'+C.mid+';line-height:1.7">KERNAL will transition to DAO governance after TGE. $KRN holders will vote on skill submissions, fee parameters, and treasury allocations. One token = one vote (quadratic voting in Phase 5).</div>'+
+    '</div>'+
+  '</div>';
+}
+
+function viewLeaderboard(){
+  var tabBtns=['skills','agents','builders'].map(function(t){
+    var a=S.lbTab===t;
+    return '<button onclick="setLbTab(\''+t+'\')" class="bh sn" style="padding:10px 14px;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:'+(a?C.text:C.ghost)+';border-bottom:2px solid '+(a?C.amber:'transparent')+';background:none;border-top:none;border-left:none;border-right:none;transition:all .15s">'+t.charAt(0).toUpperCase()+t.slice(1)+'</button>';
+  }).join('');
+  var rows='';
+  if(S.lbTab==='skills'){
+    rows=LB.skills.map(function(r){
+      var nc=r.rank===1?C.amber:r.rank===2?C.light:r.rank===3?'#8B6E4E':C.ghost;
+      return '<div class="lb-r">'+
+        '<div class="lb-n" style="color:'+nc+'">'+r.rank+'</div>'+
+        '<div style="flex:1;min-width:0">'+
+          '<div class="sf" style="font-size:17px;font-weight:400;color:'+C.text+'">'+r.name+'</div>'+
+          '<div class="sn" style="font-size:10px;color:'+C.light+'">'+r.cat+' \u00b7 '+r.executions+' executions</div>'+
+        '</div>'+
+        '<div style="text-align:right;flex-shrink:0"><div class="sm" style="font-size:11px;color:'+C.text+'">'+r.installs+'</div><div class="sn" style="font-size:9px;color:'+C.light+'">\u2193 installs</div></div>'+
+      '</div>';
+    }).join('');
+  }else if(S.lbTab==='agents'){
+    rows=LB.agents.map(function(r){
+      var nc=r.rank===1?C.amber:r.rank===2?C.light:r.rank===3?'#8B6E4E':C.ghost;
+      return '<div class="lb-r">'+
+        '<div class="lb-n" style="color:'+nc+'">'+r.rank+'</div>'+
+        '<div style="flex:1;min-width:0">'+
+          '<div class="sf" style="font-size:17px;font-weight:400;color:'+C.text+'">'+r.name+'</div>'+
+          '<div class="sn" style="font-size:10px;color:'+C.light+'">'+r.version+' \u00b7 '+r.skills+' skills \u00b7 '+r.executions+' exec</div>'+
+        '</div>'+
+        '<span class="sn" style="font-size:9px;font-weight:600;padding:2px 7px;background:'+(r.badge==='Official'?'rgba(184,116,32,.1)':'rgba(42,72,26,.1)')+';color:'+(r.badge==='Official'?C.amber:C.greenM)+';border:1px solid '+(r.badge==='Official'?'rgba(184,116,32,.25)':'rgba(42,72,26,.2)')+';flex-shrink:0">'+r.badge+'</span>'+
+      '</div>';
+    }).join('');
+  }else{
+    rows=LB.builders.map(function(r){
+      var nc=r.rank===1?C.amber:r.rank===2?C.light:C.ghost;
+      return '<div class="lb-r">'+
+        '<div class="lb-n" style="color:'+nc+'">'+r.rank+'</div>'+
+        '<div style="flex:1;min-width:0">'+
+          '<div class="sf" style="font-size:17px;font-weight:400;color:'+C.text+'">'+r.name+'</div>'+
+          '<div class="sn" style="font-size:10px;color:'+C.light+'">'+r.skills+' skills \u00b7 '+r.executions+' exec</div>'+
+        '</div>'+
+        '<div class="sm" style="font-size:11px;color:'+C.greenM+';flex-shrink:0">'+r.rev+'</div>'+
+      '</div>';
+    }).join('');
+  }
+  return '<div class="asu" style="padding:0 0 85px">'+
+    '<div style="background:'+C.dark+';padding:24px 20px 20px">'+
+      lbl('Rankings','color:'+C.light+';margin-bottom:6px')+
+      '<div class="sf" style="font-size:34px;font-weight:300;color:'+C.bg+';letter-spacing:-.5px">Leaderboard</div>'+
+    '</div>'+
+    '<div style="border-bottom:1px solid '+C.bg3+';padding:0 20px;display:flex">'+tabBtns+'</div>'+
+    '<div style="padding:0 20px">'+rows+'</div>'+
+  '</div>';
+}
+
+function viewArticle(){
+  if(S.artIdx!==null){
+    var a=ART[S.artIdx];
+    var body=a.secs.map(function(s,i){
+      return (s.h?'<div class="art-s">'+s.h+'</div>':'')+
+        s.b.split('\n\n').map(function(p){
+          if(!p.trim())return '';
+          if(p.startsWith('\u00b7')||p.includes('\n\u00b7')){
+            var items=p.split('\n').filter(function(x){return x.startsWith('\u00b7');});
+            return '<ul class="art-ul">'+items.map(function(li){return '<li>'+li.slice(1).trim()+'</li>';}).join('')+'</ul>';
+          }
+          return '<p class="art-p">'+p+'</p>';
+        }).join('');
+    }).join('');
+    return '<div class="asu" style="padding:0 0 85px">'+
+      '<div style="background:'+C.dark+';padding:24px 20px 20px">'+
+        '<button onclick="closeArt()" class="bh sn" style="font-size:12px;color:'+C.amber+';font-weight:500;padding:0 0 10px">\u2039 Articles</button>'+
+        lbl(a.tag+' \u00b7 '+a.read,'color:'+C.amber+';margin-bottom:10px')+
+        '<div class="sf" style="font-size:clamp(20px,4vw,28px);font-weight:300;color:'+C.bg+';line-height:1.15;letter-spacing:-.5px;margin-bottom:10px">'+a.title+'</div>'+
+        '<p class="sn" style="font-size:13px;color:rgba(255,255,255,.42);line-height:1.6;font-style:italic">'+a.intro+'</p>'+
+      '</div>'+
+      '<div style="padding:22px 20px">'+body+'</div>'+
+      '<div style="padding:0 20px;display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px">'+
+        (S.artIdx>0?'<button onclick="openArt('+(S.artIdx-1)+')" class="bh sn" style="flex:1;padding:12px;background:'+C.bg2+';border:1px solid '+C.bg3+';font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:'+C.mid+'">\u2039 Previous</button>':'')+
+        (S.artIdx<ART.length-1?'<button onclick="openArt('+(S.artIdx+1)+')" class="bh sn" style="flex:1;padding:12px;background:'+C.dark+';border:1px solid '+C.dark+';font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:'+C.bg+'">Next \u203a</button>':'')+
+      '</div>'+
+    '</div>';
+  }
+  var list=ART.map(function(a,i){
+    return '<div onclick="openArt('+i+')" style="padding:18px 0;border-bottom:1px solid '+C.bg3+';cursor:pointer" class="rh">'+
+      lbl(a.tag+' \u00b7 '+a.read,'margin-bottom:7px')+
+      '<div class="sf" style="font-size:clamp(18px,3.5vw,24px);font-weight:300;color:'+C.text+';line-height:1.2;letter-spacing:-.3px;margin-bottom:6px">'+a.title+'</div>'+
+      '<p class="sn" style="font-size:12px;color:'+C.light+';line-height:1.55">'+a.intro+'</p>'+
+    '</div>';
+  }).join('');
+  return '<div class="asu" style="padding:0 0 85px">'+
+    '<div style="padding:20px 20px 14px">'+
+      '<div class="sf" style="font-size:36px;font-weight:300;color:'+C.text+';letter-spacing:-.5px;margin-bottom:3px">Articles</div>'+
+      lbl('Writing \u00b7 2025')+hr('margin-top:14px')+
+    '</div>'+
+    '<div style="padding:0 20px">'+list+'</div>'+
+  '</div>';
+}
+
+function viewDocs(){
+  var sec=DOCS.secs.filter(function(s){return s.id===S.docSec;})[0]||DOCS.secs[0];
+  var navBtns=DOCS.secs.map(function(s){
+    return '<button onclick="setDocSec(\''+s.id+'\')" class="dn '+(s.id===S.docSec?'active':'')+'">'+s.label+'</button>';
+  }).join('');
+  var body=sec.content.map(function(c){
+    if(c.type==='h2')return '<div class="sn" style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:'+C.text+';margin:18px 0 8px">'+c.t+'</div>';
+    if(c.type==='p')return '<p class="sn" style="font-size:13px;color:'+C.mid+';line-height:1.72;margin-bottom:12px">'+c.t+'</p>';
+    if(c.type==='ul')return '<ul style="list-style:none;padding:0;margin-bottom:12px">'+c.t.map(function(li){return '<li class="sn" style="font-size:12px;color:'+C.mid+';padding-left:14px;position:relative;margin-bottom:5px;line-height:1.6"><span style="position:absolute;left:0;color:'+C.amber+'">·</span>'+li+'</li>';}).join('')+'</ul>';
+    if(c.type==='code')return '<div class="cb"><div class="sm" style="font-size:10px;line-height:2">'+c.t.map(function(l){var col=l.startsWith('#')||l.startsWith('//')?'#2E2E26':l.startsWith('$')||l.startsWith('GET')||l.startsWith('POST')?C.amber:l.match(/^\s/)?C.ghost:'#EDE8DF';return '<div style="color:'+col+'">'+(l||'\u00a0')+'</div>';}).join('')+'</div></div>';
+    return '';
+  }).join('');
+  return '<div class="asu" style="padding:0 0 85px;display:flex;flex-direction:column;min-height:0">'+
+    '<div style="padding:16px 20px 12px;border-bottom:1px solid '+C.bg3+'">'+
+      '<div class="sf" style="font-size:34px;font-weight:300;color:'+C.text+';letter-spacing:-.5px;margin-bottom:3px">Docs</div>'+
+      lbl('Reference')+
+    '</div>'+
+    '<div style="overflow-x:auto;border-bottom:1px solid '+C.bg3+';flex-shrink:0"><div class="tabs-scroll" style="padding:4px 12px;gap:2px">'+navBtns+'</div></div>'+
+    '<div style="padding:18px 20px;overflow-y:auto;flex:1">'+
+      '<div class="sf" style="font-size:24px;font-weight:400;color:'+C.text+';margin-bottom:14px;letter-spacing:-.3px">'+sec.title+'</div>'+
+      body+
+    '</div>'+
+  '</div>';
+}
+
+/* ── Mobile render ── */
+function renderMobile(){
+  var cv='';
+  if(S.view==='home')cv=viewHome();
+  else if(S.view==='skills')cv=viewSkills();
+  else if(S.view==='sd'&&S.mobSkill)cv=viewDetail(S.mobSkill);
+  else if(S.view==='token')cv=viewToken();
+  else if(S.view==='stats')cv=viewStats();
+  else if(S.view==='roadmap')cv=viewRoadmap();
+  else if(S.view==='terminal')cv=viewTerminal();
+  else if(S.view==='deploy')cv=viewDeploy();
+  else if(S.view==='sdk')cv=viewSdk();
+  else if(S.view==='leaderboard')cv=viewLeaderboard();
+  else if(S.view==='aeon')cv=viewAeon();
+  else if(S.view==='article'||S.view==='artDetail')cv=viewArticle();
+  else if(S.view==='docs')cv=viewDocs();
+  document.getElementById('app').innerHTML=
+    '<div style="background:'+C.bg+';height:100vh;display:flex;flex-direction:column;overflow:hidden">'+
+      mobNavHTML()+
+      '<div id="mob-scroll" style="flex:1;overflow-y:auto;overflow-x:hidden">'+cv+'</div>'+
+      mobTabsHTML(S.view)+
+    '</div>';
+}
+
+/* ── Desktop windows content ── */
+function deskSkills(){
+  var cats=['all','free','premium','Trading','Monitoring','DeFi','Research','Protection','Governance'];
+  var list=SK.filter(function(s){var f=S.filter==='all'||(S.filter==='free'&&s.tier==='free')||(S.filter==='premium'&&s.tier==='premium')||(s.cat===S.filter);return f;});
+  var ftabs=cats.map(function(f){var a=S.filter===f;return '<button onclick="setFilter(\''+f+'\')" style="background:none;border:none;border-bottom:2px solid '+(a?C.amber:'transparent')+';color:'+(a?C.text:C.ghost)+';padding:8px 9px;font-family:\'DM Sans\',system-ui,sans-serif;font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;transition:all .15s;cursor:pointer">'+f+'</button>';}).join('');
+  var rows=list.map(function(s){
+    var sel=S.selSkill&&S.selSkill.id===s.id;
+    return '<div>'+
+      '<button onclick="selSkillFn(\''+s.id+'\')" class="rh" style="width:100%;background:'+(sel?C.bg2:'none')+';border:none;border-left:2px solid '+(sel?C.amber:'transparent')+';padding:10px 14px;text-align:left;cursor:pointer;transition:background .13s,border-left-color .13s">'+
+        '<div style="display:flex;align-items:center;gap:7px;margin-bottom:2px"><span class="sf" style="font-size:14px;font-weight:400;color:'+C.text+'">'+s.name+'</span>'+pill(s.tier)+'</div>'+
+        '<div class="sn" style="font-size:10px;color:'+C.light+';line-height:1.4">'+(s.tagline.length>52?s.tagline.slice(0,52)+'\u2026':s.tagline)+'</div>'+
+      '</button>'+hr()+'</div>';
+  }).join('');
+  var detail=S.selSkill?function(){
+    var s=S.selSkill;
+    var riskColor={'Low':C.green,'Medium':C.amber,'High':'#B83420'}[s.risk]||C.light;
+    var deps=s.deps.map(function(d){return '<span class="sm" style="font-size:10px;padding:3px 8px;background:'+C.bg2+';border:1px solid '+C.bg3+';color:'+C.mid+'">'+d+'</span>';}).join('');
+    return '<div class="afu" style="padding:18px">'+
+      lbl(s.cat+' \u00b7 v'+s.v,'margin-bottom:4px')+
+      '<div class="sf" style="font-size:24px;font-weight:400;color:'+C.text+';margin-bottom:6px;line-height:1">' +s.name+'</div>'+
+      hr('margin-bottom:12px')+
+      '<p class="sn" style="font-size:12px;color:'+C.mid+';line-height:1.72;margin-bottom:14px">'+s.desc+'</p>'+
+      '<div style="margin-bottom:14px">'+
+        [['Installs',s.installs],['Author',s.by],['Updated',s.upd],['Risk','<span style="color:'+riskColor+'">'+s.risk+'</span>'],['Gas',s.gas]].map(function(r,i,a){
+          return '<div><div style="display:flex;justify-content:space-between;padding:7px 0">'+lbl(r[0])+'<span class="sf" style="font-size:13px;color:'+C.text+'">'+(r[1])+'</span></div>'+hr()+'</div>';
+        }).join('')+
+      '</div>'+
+      '<div style="margin-bottom:12px">'+lbl('Dependencies','margin-bottom:6px')+'<div style="display:flex;flex-wrap:wrap;gap:4px">'+deps+'</div></div>'+
+      (s.tier==='premium'
+        ?'<button onclick="showSoon()" class="bh sn" style="background:'+C.dark+';border:none;padding:9px 16px;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:'+C.bg+';display:flex;align-items:center;gap:8px"><span>Install</span><span>\u25ba</span></button>'+
+         '<div class="sn" style="margin-top:8px;padding:8px 10px;background:rgba(184,116,32,.07);border:1px solid rgba(184,116,32,.18);font-size:10px;color:'+C.amber+'">\u26a0 Requires 10M $KRN</div>'
+        :'<button onclick="installFree(\''+s.id+'\')" class="bh sn" style="background:'+C.dark+';border:none;padding:9px 16px;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:'+C.bg+';display:flex;align-items:center;gap:8px"><span>Install Skill</span><span>\u25ba</span></button>'
+      )+
+    '</div>';
+  }():'<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px">'+km(40,C.bg3,C.bg2)+lbl('Select a skill','color:'+C.ghost)+'</div>';
+  return '<div style="display:flex;height:500px">'+
+    '<div style="width:260px;border-right:1px solid '+C.bg3+';display:flex;flex-direction:column;flex-shrink:0">'+
+      '<div style="overflow-x:auto;border-bottom:1px solid '+C.bg3+';padding:0 10px;scrollbar-width:none"><div style="display:flex;min-width:max-content">'+ftabs+'</div></div>'+
+      '<div style="flex:1;overflow:auto">'+rows+'</div>'+
+    '</div>'+
+    '<div style="flex:1;overflow:auto">'+detail+'</div>'+
+  '</div>';
+}
+
+function deskStats(){
+  return '<div style="height:500px;overflow:auto;padding:18px">'+
+    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">'+
+    STATS.map(function(s){return '<div class="stc"><div class="sn" style="font-size:8px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:'+C.light+';margin-bottom:8px">'+s.l+'</div><div class="sf" style="font-size:24px;font-weight:300;color:'+C.text+';line-height:1;margin-bottom:4px">'+s.v+'</div><div class="sn" style="font-size:10px;color:'+C.light+'">'+s.sub+'</div></div>';}).join('')+
+    '</div>'+
+  '</div>';
+}
+
+function deskTerminal(){
+  var lout=S.termLines.length===0
+    ?'<div class="sm" style="font-size:10px;color:#2A2A24;line-height:2.2"><div>kernal@base:~$ Ready.</div><div>Select a skill and click Install.</div><br><span style="animation:blink 1s step-end infinite;color:'+C.amber+'">\u2588</span></div>'
+    :S.termLines.map(function(l,i){
+        var col=l.startsWith('\u2713')?'#3D9142':l.startsWith('\u2192')?C.mid:l.startsWith('$')?C.amber:'#363630';
+        return '<div class="sm" style="font-size:10px;color:'+col+';white-space:pre-wrap;animation:lineIn .10s ease '+(i*.04)+'s both">'+(l||'\u00a0')+'</div>';
+      }).join('')+'<span class="sm" style="animation:blink 1s step-end infinite;color:'+C.amber+'">\u2588</span>';
+  return '<div style="background:'+C.dark+';height:500px;overflow:auto;padding:18px">'+
+    '<div class="sm" style="font-size:9px;color:'+C.darkB+';margin-bottom:10px;letter-spacing:1px">kernal@base:~$ \u2014 session active</div>'+
+    '<div id="term-out">'+lout+'</div>'+
+  '</div>';
+}
+
+function deskToken(){
+  return '<div style="height:500px;overflow:auto;display:flex">'+
+    '<div style="width:200px;background:'+C.dark+';padding:20px 16px;flex-shrink:0;display:flex;flex-direction:column;justify-content:space-between">'+
+      '<div>'+lbl('Token','color:'+C.amber+';margin-bottom:8px')+'<div class="sf" style="font-size:40px;font-weight:300;color:'+C.bg+';letter-spacing:-1px;font-style:italic;line-height:1;margin-bottom:8px">$KRN</div>'+
+       '<div onclick="navigator.clipboard&&navigator.clipboard.writeText(\'0x974B53861d975E727305298D2718849c43046ba3\')" style="background:rgba(0,0,0,.3);border:1px solid rgba(184,116,32,.2);padding:6px 8px;cursor:pointer;margin-bottom:8px" title="Click to copy">'+
+         '<div class="sn" style="font-size:7px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:3px">CA · Base</div>'+
+         '<div class="sm" style="font-size:8px;color:'+C.amber+';word-break:break-all;line-height:1.4">0x974B53861d975E727305298D2718849c43046ba3</div>'+
+       '</div></div>'+
+      '<a href="https://basescan.org/token/0x974B53861d975E727305298D2718849c43046ba3" target="_blank" class="bh sn" style="background:transparent;border:1px solid '+C.darkB+';padding:8px 10px;font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.4);display:flex;align-items:center;justify-content:space-between;text-decoration:none"><span>View on BaseScan</span><span>\u25ba</span></a>'+
+    '</div>'+
+    '<div style="flex:1;padding:18px 20px;overflow:auto">'+
+      [['Token','$KRN',null,false],['Network','Base',null,false],['Supply','100,000,000,000',null,false],['Circulating','100,000,000,000',null,false],['Status','Live',null,true,true]].map(function(r){return srow(r[0],r[1],r[2],r[3],r[4]);}).join('')+
+      hr('margin:8px 0 12px')+lbl('Utility','margin-bottom:8px')+
+      [['10M $KRN','Access all premium skills'],['100M $KRN','Priority + early access'],['Stake $KRN','Execution fee revenue'],['0.2% fee','Per on-chain execution']].map(function(u,i,a){
+        return '<div><div style="display:flex;justify-content:space-between;padding:8px 0;gap:10px"><span class="sn" style="font-size:11px;font-weight:500;color:'+C.amber+'">'+u[0]+'</span><span class="sn" style="font-size:11px;color:'+C.light+'">'+u[1]+'</span></div>'+(i<a.length-1?hr():'')+'</div>';
+      }).join('')+
+      hr('margin:10px 0')+
+      '<div style="display:flex;flex-direction:column;gap:6px">'+
+        '<a href="https://app.uniswap.org/swap?chain=base&outputCurrency=0x974B53861d975E727305298D2718849c43046ba3" target="_blank" class="bh sn" style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:'+C.amber+';border:1px solid '+C.amber+';font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:'+C.dark+';text-decoration:none"><span>Buy $KRN on Uniswap</span><span>\u25ba</span></a>'+
+        '<a href="https://basescan.org/token/0x974B53861d975E727305298D2718849c43046ba3" target="_blank" class="bh sn" style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:transparent;border:1px solid '+C.bg3+';font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:'+C.mid+';text-decoration:none"><span>View on BaseScan</span><span>\u25ba</span></a>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
+}
+
+function deskRoadmap(){
+  return '<div style="height:500px;overflow:auto;padding:20px">'+
+    RM.map(function(ph){
+      return '<div class="tl-item '+(ph.status)+'">'+
+        '<div class="sn" style="font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:'+(ph.status==='done'?C.greenM:ph.status==='active'?C.amber:C.ghost)+';margin-bottom:3px">'+ph.q+' \u00b7 '+ph.status.toUpperCase()+'</div>'+
+        '<div class="sf" style="font-size:18px;font-weight:400;color:'+C.text+';margin-bottom:6px">'+ph.phase+': '+ph.label+'</div>'+
+        '<div style="display:flex;flex-direction:column;gap:3px">'+
+          ph.items.map(function(item){
+            return '<div class="sn" style="font-size:11px;color:'+(ph.status==='done'?C.mid:ph.status==='active'?C.text:C.ghost)+';display:flex;gap:7px"><span style="color:'+(ph.status==='done'?C.greenM:ph.status==='active'?C.amber:C.ghost)+';flex-shrink:0;margin-top:1px">'+(ph.status==='done'?'\u2713':ph.status==='active'?'\u25b8':'\u00b7')+'</span>'+item+'</div>';
+          }).join('')+
+        '</div>'+
+      '</div>';
+    }).join('')+
+  '</div>';
+}
+
+function deskLeaderboard(){
+  var tabBtns=['skills','agents','builders'].map(function(t){
+    var a=S.lbTab===t;
+    return '<button onclick="setLbTab(\''+t+'\')" style="background:none;border:none;border-bottom:2px solid '+(a?C.amber:'transparent')+';color:'+(a?C.text:C.ghost)+';padding:9px 12px;font-family:\'DM Sans\',system-ui,sans-serif;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;transition:all .15s;cursor:pointer">'+t.charAt(0).toUpperCase()+t.slice(1)+'</button>';
+  }).join('');
+  var rows='';
+  if(S.lbTab==='skills'){
+    rows=LB.skills.map(function(r){
+      var nc=r.rank===1?C.amber:r.rank===2?C.light:r.rank===3?'#8B6E4E':C.ghost;
+      return '<div class="lb-r">'+
+        '<div class="lb-n" style="color:'+nc+'">'+r.rank+'</div>'+
+        '<div style="flex:1"><div class="sf" style="font-size:15px;font-weight:400;color:'+C.text+'">'+r.name+'</div><div class="sn" style="font-size:10px;color:'+C.light+'">'+r.cat+'</div></div>'+
+        '<div style="text-align:right"><div class="sm" style="font-size:11px;color:'+C.text+'">'+r.installs+'</div><div class="sn" style="font-size:9px;color:'+C.light+'">installs</div></div>'+
+        '<div style="text-align:right;min-width:50px"><div class="sm" style="font-size:11px;color:'+C.greenM+'">'+r.rev+'</div><div class="sn" style="font-size:9px;color:'+C.light+'">rev</div></div>'+
+      '</div>';
+    }).join('');
+  }else if(S.lbTab==='agents'){
+    rows=LB.agents.map(function(r){
+      var nc=r.rank===1?C.amber:r.rank===2?C.light:r.rank===3?'#8B6E4E':C.ghost;
+      return '<div class="lb-r">'+
+        '<div class="lb-n" style="color:'+nc+'">'+r.rank+'</div>'+
+        '<div style="flex:1"><div class="sf" style="font-size:15px;font-weight:400;color:'+C.text+'">'+r.name+'</div><div class="sn" style="font-size:10px;color:'+C.light+'">'+r.version+'</div></div>'+
+        '<div style="text-align:right"><div class="sm" style="font-size:11px;color:'+C.text+'">'+r.skills+'</div><div class="sn" style="font-size:9px;color:'+C.light+'">skills</div></div>'+
+        '<span class="sn" style="font-size:8px;font-weight:600;padding:2px 6px;background:'+(r.badge==='Official'?'rgba(184,116,32,.1)':'rgba(42,72,26,.1)')+';color:'+(r.badge==='Official'?C.amber:C.greenM)+';border:1px solid '+(r.badge==='Official'?'rgba(184,116,32,.25)':'rgba(42,72,26,.2)')+'">'+r.badge+'</span>'+
+      '</div>';
+    }).join('');
+  }else{
+    rows=LB.builders.map(function(r){
+      var nc=r.rank===1?C.amber:r.rank===2?C.light:C.ghost;
+      return '<div class="lb-r">'+
+        '<div class="lb-n" style="color:'+nc+'">'+r.rank+'</div>'+
+        '<div style="flex:1"><div class="sf" style="font-size:15px;font-weight:400;color:'+C.text+'">'+r.name+'</div><div class="sn" style="font-size:10px;color:'+C.light+'">'+r.skills+' skills</div></div>'+
+        '<div class="sm" style="font-size:11px;color:'+C.greenM+'">'+r.rev+'</div>'+
+      '</div>';
+    }).join('');
+  }
+  return '<div style="height:500px;overflow:auto">'+
+    '<div style="display:flex;border-bottom:1px solid '+C.bg3+';padding:0 18px">'+tabBtns+'</div>'+
+    '<div style="padding:0 18px">'+rows+'</div>'+
+  '</div>';
+}
+
+function deskDeploy(){
+  var body=S.formSubmitted
+    ?'<div style="padding:20px 18px;background:'+C.bg2+';border-top:2px solid '+C.greenM+'"><div class="sf" style="font-size:22px;color:'+C.greenM+';margin-bottom:6px">\u2713 You\'re on the list.</div><div class="sn" style="font-size:12px;color:'+C.mid+'">We\'ll reach out before TGE. Start building at kernal.io/builder.</div></div>'
+    :'<div style="padding:16px 18px;display:flex;flex-direction:column;gap:10px">'+
+      '<div><label class="fl">Name or handle</label><input class="fi sn" id="df-name" placeholder="0xdev or @handle"/></div>'+
+      '<div><label class="fl">Wallet address</label><input class="fi sn" id="df-wallet" placeholder="0x..."/></div>'+
+      '<div><label class="fl">Skill you\'re building</label><input class="fi sn" id="df-skill" placeholder="e.g. liquidation-monitor"/></div>'+
+      '<button onclick="submitForm()" class="bh sn" style="padding:11px;background:'+C.amber+';border:1px solid '+C.amber+';font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:'+C.dark+'">Join Waitlist \u25ba</button>'+
+    '</div>';
+  return '<div style="height:500px;overflow:auto">'+
+    '<div style="padding:16px 18px;border-bottom:1px solid '+C.bg3+'">'+lbl('Submission Requirements','margin-bottom:10px')+
+    [['SKILL.md','Complete frontmatter + instructions'],['Test logs','48h dry_run, min 10 events'],['Listing fee','5,000,000 $KRN at TGE']].map(function(r,i,a){
+      return '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:'+(i<a.length-1?'1px solid '+C.bg3:'none')+';gap:12px"><span class="sn" style="font-size:11px;font-weight:600;color:'+C.text+'">'+r[0]+'</span><span class="sn" style="font-size:11px;color:'+C.light+'">'+r[1]+'</span></div>';
+    }).join('')+
+    '</div>'+
+    lbl('Early Access Waitlist','color:'+C.light+';padding:14px 18px 6px')+
+    body+
+  '</div>';
+}
+
+function deskSdk(){
+  var tabs=['aeon','claude','api'].map(function(t){
+    var a=S.sdkTab===t;
+    return '<button onclick="setSdkTab(\''+t+'\')" style="background:none;border:none;border-bottom:2px solid '+(a?C.amber:'transparent')+';color:'+(a?C.text:C.ghost)+';padding:9px 10px;font-family:\'DM Sans\',system-ui,sans-serif;font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;transition:all .15s;cursor:pointer">'+(t==='api'?'REST API':t==='claude'?'Claude Code':t.charAt(0).toUpperCase()+t.slice(1))+'</button>';
+  }).join('');
+  var lines=SDK_CODE[S.sdkTab];
+  var codeHTML=lines.map(function(l){var col=l.startsWith('#')||l.startsWith('//')?'#2E2E26':l.startsWith('$')||l.startsWith('GET')||l.startsWith('POST')?C.amber:l.match(/^\s/)?C.ghost:'#EDE8DF';return '<div style="color:'+col+'">'+(l||'\u00a0')+'</div>';}).join('');
+  return '<div style="height:500px;overflow:auto">'+
+    '<div style="display:flex;border-bottom:1px solid '+C.bg3+';padding:0 14px">'+tabs+'</div>'+
+    '<div style="background:'+C.dark+';padding:14px 16px;border-bottom:1px solid '+C.darkB+'"><div class="sm" style="font-size:10px;line-height:2">'+codeHTML+'</div></div>'+
+    '<div style="padding:14px 18px">'+
+      lbl('Resources','margin-bottom:8px')+
+      [['Skill Builder \u2192','kernal-tool.html'],['Registry GitHub \u2192','#'],['Agent Skills Spec \u2192','#']].map(function(r){
+        return '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid '+C.bg3+'"><span class="sn" style="font-size:11px;font-weight:500;color:'+C.text+'">'+r[0]+'</span><a href="'+r[1]+'" class="sm" style="font-size:10px;color:'+C.amber+';text-decoration:none">Open</a></div>';
+      }).join('')+
+    '</div>'+
+  '</div>';
+}
+
+function deskCommunity(){
+  return '<div style="height:500px;overflow:auto;display:flex;flex-wrap:wrap;align-content:start;gap:0">'+
+    COMM.map(function(c){
+      return '<a href="'+c.url+'" class="cc" style="text-decoration:none;width:50%;border-bottom:1px solid '+C.bg3+';border-right:1px solid '+C.bg3+'">'+
+        '<div style="width:32px;height:32px;background:'+C.dark+';border:1px solid '+C.darkB+';display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="color:'+C.amber+'">'+c.icon+'</span></div>'+
+        '<div style="flex:1;min-width:0"><div class="sn" style="font-size:12px;font-weight:600;color:'+C.text+';margin-bottom:1px">'+c.name+'</div><div class="sm" style="font-size:9px;color:'+C.amber+'">'+c.handle+'</div></div>'+
+      '</a>';
+    }).join('')+
+  '</div>';
+}
+
+function deskArticle(){
+  if(S.artIdx!==null){
+    var a=ART[S.artIdx];
+    var body=a.secs.map(function(s){
+      return (s.h?'<div class="art-s" style="font-size:16px">'+s.h+'</div>':'')+
+        s.b.split('\n\n').map(function(p){
+          if(!p.trim())return '';
+          if(p.startsWith('\u00b7')||p.includes('\n\u00b7')){
+            var items=p.split('\n').filter(function(x){return x.startsWith('\u00b7');});
+            return '<ul class="art-ul">'+items.map(function(li){return '<li>'+li.slice(1).trim()+'</li>';}).join('')+'</ul>';
+          }
+          return '<p class="art-p" style="font-size:12px">'+p+'</p>';
+        }).join('');
+    }).join('');
+    return '<div style="height:500px;overflow:auto;display:flex">'+
+      '<div style="width:200px;background:'+C.dark+';padding:18px 14px;flex-shrink:0;display:flex;flex-direction:column;justify-content:space-between">'+
+        '<div>'+lbl(a.tag,'color:'+C.amber+';margin-bottom:8px')+'<div class="sf" style="font-size:15px;font-weight:300;color:'+C.bg+';line-height:1.3;margin-bottom:10px">'+a.title.split(':')[0].trim()+'</div>'+
+        '<div class="sn" style="font-size:10px;color:rgba(255,255,255,.3);font-style:italic">'+a.intro+'</div></div>'+
+        '<div>'+hr('background:'+C.darkB+';margin-bottom:10px')+
+          '<button onclick="S.artIdx=null;renderDesktop()" class="bh sn" style="background:transparent;border:1px solid '+C.darkB+';padding:6px 10px;font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.3);display:flex;align-items:center;justify-content:space-between;width:100%"><span>All Articles</span><span>\u25ba</span></button>'+
+        '</div>'+
+      '</div>'+
+      '<div style="flex:1;padding:18px 20px;overflow:auto">'+body+'</div>'+
+    '</div>';
+  }
+  var list=ART.map(function(a,i){
+    return '<div onclick="openArtDesk('+i+')" style="padding:14px 0;border-bottom:1px solid '+C.bg3+';cursor:pointer" class="rh">'+
+      lbl(a.tag+' \u00b7 '+a.read,'margin-bottom:4px')+
+      '<div class="sf" style="font-size:17px;font-weight:300;color:'+C.text+';line-height:1.2;letter-spacing:-.3px">'+a.title+'</div>'+
+    '</div>';
+  }).join('');
+  return '<div style="height:500px;overflow:auto;padding:16px 18px">'+list+'</div>';
+}
+
+function deskDocs(){
+  var sec=DOCS.secs.filter(function(s){return s.id===S.docSec;})[0]||DOCS.secs[0];
+  var nav=DOCS.secs.map(function(s){return '<button onclick="setDocSec(\''+s.id+'\')" class="dn '+(s.id===S.docSec?'active':'')+'" style="font-family:\'DM Sans\',system-ui,sans-serif">'+s.label+'</button>';}).join('');
+  var body=sec.content.map(function(c){
+    if(c.type==='h2')return '<div class="sn" style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:'+C.text+';margin:14px 0 6px">'+c.t+'</div>';
+    if(c.type==='p')return '<p class="sn" style="font-size:12px;color:'+C.mid+';line-height:1.72;margin-bottom:10px">'+c.t+'</p>';
+    if(c.type==='ul')return '<ul style="list-style:none;padding:0;margin-bottom:10px">'+c.t.map(function(li){return '<li class="sn" style="font-size:11px;color:'+C.mid+';padding-left:12px;position:relative;margin-bottom:4px;line-height:1.55"><span style="position:absolute;left:0;color:'+C.amber+'">·</span>'+li+'</li>';}).join('')+'</ul>';
+    if(c.type==='code')return '<div class="cb" style="font-size:9px"><div class="sm">'+c.t.map(function(l){var col=l.startsWith('#')||l.startsWith('//')?'#2E2E26':l.startsWith('$')||l.startsWith('GET')||l.startsWith('POST')?C.amber:l.match(/^\s/)?C.ghost:'#EDE8DF';return '<div style="color:'+col+'">'+(l||'\u00a0')+'</div>';}).join('')+'</div></div>';
+    return '';
+  }).join('');
+  return '<div style="display:flex;height:500px">'+
+    '<div style="width:160px;border-right:1px solid '+C.bg3+';padding:10px 0;overflow:auto;flex-shrink:0">'+nav+'</div>'+
+    '<div style="flex:1;padding:16px 18px;overflow:auto">'+
+      '<div class="sf" style="font-size:20px;font-weight:400;color:'+C.text+';margin-bottom:12px;letter-spacing:-.3px">'+sec.title+'</div>'+
+      body+
+    '</div>'+
+  '</div>';
+}
+
+/* ── Desktop win wrapper ── */
+var DWINS={
+  skills:{l:'SKILLS.db',i:'\u25c8'},token:{l:'$KRN.token',i:'\u25c9'},
+  terminal:{l:'TERMINAL',i:'\u25b8'},stats:{l:'STATS.live',i:'\u25ca'},
+  roadmap:{l:'ROADMAP.md',i:'\u25ce'},deploy:{l:'DEPLOY.tool',i:'\u2295'},
+  sdk:{l:'SDK.kit',i:'\u2318'},
+  leaderboard:{l:'BOARD.db',i:'\u25c6'},aeon:{l:'AEON.integration',i:'\u25d0'},
+  article:{l:'ARTICLE.md',i:'\u2726'},docs:{l:'DOCS.ref',i:'\u25fb'}
+};
+
+function deskWin(wid){
+  var a=S.activeWin===wid;
+  var content='';
+  if(wid==='skills')content=deskSkills();
+  else if(wid==='token')content=deskToken();
+  else if(wid==='terminal')content=deskTerminal();
+  else if(wid==='stats')content=deskStats();
+  else if(wid==='roadmap')content=deskRoadmap();
+  else if(wid==='deploy')content=deskDeploy();
+  else if(wid==='sdk')content=deskSdk();
+  else if(wid==='leaderboard')content=deskLeaderboard();
+  else if(wid==='aeon')content=deskAeon();
+  else if(wid==='article')content=deskArticle();
+  else if(wid==='docs')content=deskDocs();
+  return '<div onclick="focusWin(\''+wid+'\')" class="win asc '+(a?'active':'')+'" style="'+(a?'border-color:#D8D0BE;box-shadow:0 2px 28px rgba(0,0,0,.08)':'')+'">'+
+    '<div class="win-tb" style="background:'+(a?C.bg2:C.bg)+'">'+
+      '<div style="display:flex;gap:6px">'+
+        '<button onclick="event.stopPropagation();closeWin(\''+wid+'\')" class="win-dot" style="background:'+(a?'#FF5F57':C.bg3)+'"></button>'+
+        '<div class="win-dot" style="background:'+(a?'#FFBD2E':C.bg3)+'"></div>'+
+        '<div class="win-dot" style="background:'+(a?'#28CA41':C.bg3)+'"></div>'+
+      '</div>'+
+      '<div class="sn" style="flex:1;text-align:center;font-size:10px;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:'+(a?C.light:C.ghost)+'">'+DWINS[wid].l+'</div>'+
+    '</div>'+
+    content+
+  '</div>';
+}
+
+/* ── Desktop render ── */
+function renderDesktop(){
+  var utc=new Date().toISOString().slice(11,19);
+  var dock=Object.keys(DWINS).map(function(id){
+    var open=S.wins.indexOf(id)>=0;
+    return '<button onclick="openWin(\''+id+'\')" class="bh sn" style="background:'+(open?C.dark:'transparent')+';border:1px solid '+(open?C.dark:C.bg3)+';color:'+(open?C.bg:C.mid)+';padding:5px 11px;font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;display:flex;align-items:center;gap:6px;transition:all .14s"><span style="font-size:10px">'+DWINS[id].i+'</span><span>'+DWINS[id].l+'</span></button>';
+  }).join('');
+  var windows=S.wins.map(function(wid){return deskWin(wid);}).join('');
+  var taskbtns=S.wins.map(function(w){
+    var a=S.activeWin===w;
+    return '<button onclick="focusWin(\''+w+'\')" class="sn" style="background:'+(a?'rgba(255,255,255,.06)':'transparent')+';border:1px solid '+(a?C.darkB:'transparent')+';color:'+(a?'#C0BAA8':'#363630')+';padding:3px 9px;font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;transition:all .12s">'+w+'</button>';
+  }).join('');
+  document.getElementById('app').innerHTML=
+    '<div style="background:'+C.bg+';min-height:100vh;color:'+C.text+';display:flex;flex-direction:column">'+
+      '<div style="height:44px;background:'+C.bg+';border-bottom:1px solid '+C.bg3+';display:flex;align-items:center;padding:0 20px;gap:16px;flex-shrink:0">'+
+        '<div style="display:flex;align-items:center;gap:10px">'+km(22,C.dark,C.amber)+'<span class="sf" style="font-size:18px;font-weight:400;color:'+C.text+';font-style:italic;letter-spacing:.5px">kernal</span></div>'+
+        '<div style="flex:1;height:1px;background:'+C.bg3+'"></div>'+
+        '<a href="kernal-tool.html" class="bh sn" style="font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:'+C.amber+';text-decoration:none;border:1px solid rgba(184,116,32,.3);padding:4px 10px">\u2692 Skill Builder</a>'+
+        lbl('Agent Skill Registry','color:'+C.ghost)+
+      '</div>'+
+      '<div style="padding:8px 20px;display:flex;gap:5px;border-bottom:1px solid '+C.bg3+';flex-wrap:wrap;flex-shrink:0">'+dock+'</div>'+
+      '<div style="flex:1;padding:14px 20px;display:flex;flex-direction:column;gap:10px;padding-bottom:52px;overflow:auto">'+windows+'</div>'+
+      '<div style="position:fixed;bottom:0;left:0;right:0;height:38px;background:'+C.dark+';border-top:1px solid '+C.darkB+';display:flex;align-items:center;padding:0 20px;gap:8px;z-index:100">'+
+        km(16,'#C0BAA8',C.amber)+
+        '<div style="width:1px;height:12px;background:'+C.darkB+'"></div>'+
+        '<div style="display:flex;gap:2px;flex:1">'+taskbtns+'</div>'+
+        '<div style="display:flex;align-items:center;gap:10px;flex-shrink:0">'+
+          '<span class="sn" style="font-size:10px;color:'+C.amber+';font-weight:500">$KRN</span>'+
+          '<span class="sn" style="font-size:10px;color:#3D9142">Live</span>'+
+          '<div style="width:1px;height:12px;background:'+C.darkB+'"></div>'+
+          '<span class="sn" style="font-size:10px;color:#363630">Base</span>'+
+          '<div style="width:1px;height:12px;background:'+C.darkB+'"></div>'+
+          '<a href="kernal-tool.html" class="bh sn" style="font-size:9px;font-weight:600;letter-spacing:1px;color:'+C.amber+';text-decoration:none;text-transform:uppercase">\u2692 Builder</a>'+
+          '<div style="width:1px;height:12px;background:'+C.darkB+'"></div>'+
+          '<button class="bh sn" style="background:transparent;border:1px solid '+C.darkB+';color:rgba(255,255,255,.3);padding:3px 9px;font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase">Connect</button>'+
+          '<span id="utc-clock" class="sm" style="font-size:9px;color:#363630;letter-spacing:1px">'+utc+'Z</span>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+}
+
+/* ── Actions ── */
+function go(v){S.view=v;if(v==='article')S.artIdx=null;renderMobile();}
+function goSkill(id){S.mobSkill=SK.filter(function(s){return s.id===id;})[0];S.view='sd';renderMobile();}
+function setFilter(f){S.filter=f;if(S.isMob)renderMobile();else renderDesktop();}
+function selSkillFn(id){S.selSkill=SK.filter(function(s){return s.id===id;})[0];renderDesktop();}
+function openWin(id){if(S.wins.indexOf(id)<0)S.wins.push(id);S.activeWin=id;renderDesktop();}
+function closeWin(id){S.wins=S.wins.filter(function(w){return w!==id;});if(S.activeWin===id)S.activeWin=S.wins.length?S.wins[S.wins.length-1]:null;renderDesktop();}
+function focusWin(id){S.activeWin=id;renderDesktop();}
+function openArt(i){S.artIdx=i;S.view='artDetail';renderMobile();}
+function openArtDesk(i){S.artIdx=i;renderDesktop();}
+function closeArt(){S.artIdx=null;S.view='article';renderMobile();}
+function setDocSec(id){S.docSec=id;if(S.isMob)renderMobile();else renderDesktop();}
+function setLbTab(t){S.lbTab=t;if(S.isMob)renderMobile();else renderDesktop();}
+function setSdkTab(t){S.sdkTab=t;if(S.isMob)renderMobile();else renderDesktop();}
+function showSoon(){var el=document.getElementById('soon-overlay');el.style.display='flex';}
+function hideSoon(){document.getElementById('soon-overlay').style.display='none';}
+function open3d(){window.open('kernal-3d.html','_blank');}
+function noop(){}
+function submitForm(){S.formSubmitted=true;if(S.isMob)renderMobile();else renderDesktop();}
+function installFree(id){
+  var skill=SK.filter(function(s){return s.id===id;})[0];
+  if(!skill||skill.tier==='premium'){showSoon();return;}
+  var lines=['$ kernal install '+skill.name,'\u2192 Resolving '+skill.name+'@'+skill.v+'...','\u2192 Free tier \u2014 no token required','\u2192 Fetching from registry.kernal.io...','\u2192 Verifying checksum (sha256)... \u2713','\u2192 Writing skills/'+skill.name+'/SKILL.md','\u2192 Registering in aeon.yml...','','\u2713 '+skill.name+' v'+skill.v+' installed successfully.','  Set enabled: true in your agent config.'];
+  S.termLines=[];
+  if(S.isMob){S.view='terminal';renderMobile();}else{if(S.wins.indexOf('terminal')<0)S.wins.push('terminal');S.activeWin='terminal';renderDesktop();}
+  lines.forEach(function(l,i){
+    setTimeout(function(){
+      S.termLines.push(l);
+      var el=document.getElementById('term-out');if(!el)return;
+      var d=document.createElement('div');d.className='sm';
+      var col=l.startsWith('\u2713')?'#3D9142':l.startsWith('\u2192')?C.mid:l.startsWith('$')?C.amber:'#363630';
+      d.style.cssText='font-size:'+(S.isMob?'11':'10')+'px;color:'+col+';white-space:pre-wrap;animation:lineIn .11s ease both';
+      d.textContent=l||'\u00a0';
+      var cur=el.querySelector('#tcur');if(cur)cur.remove();
+      el.appendChild(d);
+      var cursor=document.createElement('span');cursor.id='tcur';cursor.className='sm';
+      cursor.style.cssText='animation:blink 1s step-end infinite;color:'+C.amber;cursor.textContent='\u2588';
+      el.appendChild(cursor);
+      var p=el.parentElement;if(p)p.scrollTop=p.scrollHeight;
+    },i*140);
+  });
+}
+
+/* ── Clock + resize ── */
+setInterval(function(){
+  var el=document.getElementById('utc-clock');
+  if(el)el.textContent=new Date().toISOString().slice(11,19)+'Z';
+},1000);
+window.addEventListener('resize',function(){
+  var mob=window.innerWidth<768;
+  if(mob!==S.isMob&&S.phase==='os'){
+    S.isMob=mob;
+    if(mob)renderMobile();
+    else{if(!S.wins.length){S.wins=['skills'];S.activeWin='skills';}renderDesktop();}
+  }
+});
+
+/* ── AEON Integration data ── */
+var AEON={
+  version:'v2.4.1',
+  status:'Official Partner',
+  website:'https://aeonframework.io',
+  github:'github.com/aeon-framework/aeon',
+  skills_supported:12,
+  setup_steps:[
+    {n:1,title:'Install Aeon CLI',code:['$ npm install -g @aeon/cli','$ aeon --version','  Aeon v2.4.1']},
+    {n:2,title:'Initialize project',code:['$ mkdir my-agent && cd my-agent','$ aeon init','  ✓ Created aeon.yml','  ✓ Created skills/ directory','  ✓ Created .env.example']},
+    {n:3,title:'Install KERNAL skill',code:['$ aeon install kernal/wallet-digest','\u2192 Fetching from registry.kernal.io...','\u2192 Writing skills/wallet-digest/SKILL.md','\u2713 wallet-digest v1.2.3 installed']},
+    {n:4,title:'Configure aeon.yml',code:['agent:','  name: my-kernal-agent','  model: claude-sonnet-4-5','  rpc: ${ALCHEMY_RPC_URL}','','skills:','  - name: wallet-digest','    enabled: true','    config:','      wallets: ["0x..."]','      time_window_hours: 24','      notify_channel: telegram','','  - name: token-alert','    enabled: true','    config:','      tokens: ["0x..."]','      price_threshold_pct: 5']},
+    {n:5,title:'Run your agent',code:['$ aeon start','  [00:00] Loading 2 skills...','  [00:00] wallet-digest: scheduled 08:00 UTC','  [00:00] token-alert: polling every 15m','  [00:01] Agent online. Watching...','  ','  [08:00] wallet-digest triggered','  [08:00] \u2713 Digest sent to Telegram']}
+  ],
+  config_fields:[
+    {k:'agent.name',t:'string',d:'Unique name for your agent instance'},
+    {k:'agent.model',t:'string',d:'LLM to use: claude-sonnet-4-5 (recommended)'},
+    {k:'agent.rpc',t:'env',d:'Alchemy or Infura RPC URL for Base mainnet'},
+    {k:'agent.wallet',t:'env',d:'Private key or hardware wallet path for execution skills'},
+    {k:'skills[].name',t:'string',d:'Skill ID from KERNAL registry'},
+    {k:'skills[].enabled',t:'boolean',d:'Toggle skill on/off without removing config'},
+    {k:'skills[].config',t:'object',d:'Skill-specific config (see SKILLS.db for schema per skill)'},
+    {k:'agent.notify.telegram',t:'env',d:'Telegram bot token for alert delivery'},
+    {k:'agent.notify.discord',t:'env',d:'Discord webhook URL for alert delivery'},
+    {k:'agent.dry_run',t:'boolean',d:'Test mode — log without executing transactions'},
+    {k:'agent.max_gas_gwei',t:'integer',d:'Global gas cap — overrides per-skill settings'},
+    {k:'agent.log_level',t:'string',d:'info | debug | error'}
+  ],
+  env_vars:[
+    {k:'ALCHEMY_RPC_URL',d:'Base mainnet RPC endpoint'},
+    {k:'AGENT_PRIVATE_KEY',d:'Wallet private key (execution skills only)'},
+    {k:'TELEGRAM_BOT_TOKEN',d:'For notify-channel delivery'},
+    {k:'DISCORD_WEBHOOK_URL',d:'For Discord alerts'},
+    {k:'GROK_API_KEY',d:'For alpha-digest CT narrative (xai-api)'},
+    {k:'COINGECKO_API_KEY',d:'Optional — increases rate limits'}
+  ],
+  skill_compat:{
+    'wallet-digest':{status:'full',notes:'Scheduled. No wallet required. Telegram/Discord delivery.'},
+    'token-alert':{status:'full',notes:'Polling trigger. CoinGecko rate limits apply.'},
+    'defi-monitor':{status:'full',notes:'Reads LP state from Uniswap v3 + Aerodrome.'},
+    'yield-optimizer':{status:'full',notes:'Requires wallet-signer. Test with dry_run first.'},
+    'gas-tracker':{status:'full',notes:'Lightweight. Pairs well with any execution skill.'},
+    'sniper-skill':{status:'full',notes:'Requires wallet-signer + Flashbots RPC. High gas.'},
+    'copy-trader':{status:'full',notes:'Event trigger. Requires wallet-signer.'},
+    'alpha-digest':{status:'full',notes:'Requires GROK_API_KEY for CT narrative.'},
+    'mev-guard':{status:'full',notes:'Passive middleware. Add to any trading agent.'},
+    'arbitrage-scanner':{status:'full',notes:'Block-level polling. Intensive. Use with flash loan config.'},
+    'portfolio-rebalancer':{status:'full',notes:'Scheduled. Requires wallet-signer + CoinGecko.'},
+    'governance-voter':{status:'full',notes:'Event trigger on ProposalCreated. Requires wallet-signer.'}
+  }
+};
+
+/* ── Aeon setup step accordion state ── */
+var S_AEON_STEP=0;
+var S_AEON_TAB='setup';
+var S_AEON_COMPAT_IDX=null;
+
+/* ── Mobile: viewAeon ── */
+function viewAeon(){
+  var tabs=[
+    {id:'setup',l:'Setup'},
+    {id:'config',l:'aeon.yml'},
+    {id:'env',l:'.env'},
+    {id:'compat',l:'Skills'},
+    {id:'about',l:'About'}
+  ];
+  var tabBtns=tabs.map(function(t){
+    var a=S_AEON_TAB===t.id;
+    return '<button onclick="setAeonTab(\''+t.id+'\')" class="sn" style="flex:1;padding:9px 6px;font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:'+(a?C.text:C.ghost)+';border-bottom:2px solid '+(a?C.amber:'transparent')+';background:none;border-top:none;border-left:none;border-right:none;white-space:nowrap">'+t.l+'</button>';
+  }).join('');
+  var body='';
+  if(S_AEON_TAB==='setup'){
+    body=AEON.setup_steps.map(function(step){
+      var open=S_AEON_STEP===step.n;
+      var codeLines=step.code.map(function(l){
+        var col=l.startsWith('$')?C.amber:l.startsWith('\u2713')||l.startsWith('\u2192')?'#3D9142':l.match(/^[a-z_]+:/)||l.match(/^\s+[a-z_]+:/)?'#B87420':l.startsWith(' ')||l.startsWith('\t')?C.ghost:'#EDE8DF';
+        return '<div class="sm" style="font-size:10px;line-height:2;color:'+col+'">'+(l||'\u00a0')+'</div>';
+      }).join('');
+      return '<div style="border:1px solid '+(open?C.amber:C.bg3)+';margin-bottom:8px;overflow:hidden;transition:border-color .15s">'+
+        '<button onclick="setAeonStep('+step.n+')" style="width:100%;background:'+(open?C.bg2:C.bg)+';border:none;padding:12px 16px;text-align:left;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;transition:background .12s">'+
+          '<div style="display:flex;align-items:center;gap:10px">'+
+            '<span class="sn" style="width:22px;height:22px;border-radius:50%;background:'+(open?C.amber:C.bg3)+';display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:'+(open?C.dark:C.light)+';flex-shrink:0">'+step.n+'</span>'+
+            '<span class="sn" style="font-size:13px;font-weight:500;color:'+C.text+'">'+step.title+'</span>'+
+          '</div>'+
+          '<span style="color:'+C.ghost+';font-size:14px;transition:transform .2s;'+(open?'transform:rotate(90deg)':'')+'">›</span>'+
+        '</button>'+
+        (open?'<div style="background:#0D0D0A;padding:12px 16px;border-top:1px solid #2E2D26">'+codeLines+'</div>':'')+
+      '</div>';
+    }).join('');
+  }else if(S_AEON_TAB==='config'){
+    var configRows=AEON.config_fields.map(function(c,i,a){
+      return '<div><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:10px 0">'+
+        '<div><div class="sm" style="font-size:10px;color:'+C.amber+';margin-bottom:2px">'+c.k+'</div><div class="sn" style="font-size:11px;color:'+C.light+'">'+c.d+'</div></div>'+
+        '<span class="sn" style="font-size:9px;font-weight:600;padding:2px 6px;background:rgba(184,116,32,.08);border:1px solid rgba(184,116,32,.2);color:'+C.amber+';flex-shrink:0">'+c.t+'</span>'+
+      '</div>'+(i<a.length-1?hr():'')+'</div>';
+    }).join('');
+    var fullYml='agent:\n  name: my-kernal-agent\n  model: claude-sonnet-4-5\n  rpc: ${ALCHEMY_RPC_URL}\n  wallet: ${AGENT_PRIVATE_KEY}\n  dry_run: false\n  max_gas_gwei: 20\n  log_level: info\n  notify:\n    telegram: ${TELEGRAM_BOT_TOKEN}\n\nskills:\n  - name: wallet-digest\n    enabled: true\n    config:\n      wallets: ["0x..."]\n      time_window_hours: 24\n      notify_channel: telegram\n\n  - name: token-alert\n    enabled: true\n    config:\n      tokens: ["0x..."]\n      price_threshold_pct: 5\n      volume_multiplier: 3\n      interval_minutes: 15\n\n  - name: sniper-skill\n    enabled: false\n    config:\n      min_liquidity_eth: 1.0\n      max_spend_eth: 0.1\n      slippage_bps: 500\n      require_verified: true\n      honeypot_check: true';
+    var ymlHTML=fullYml.split('\n').map(function(l){
+      var col=l.match(/^[a-z_]+:/)?C.amber:l.match(/^\s{2}[a-z_]+:/)?'#D4962E':l.match(/^\s{4}[a-z_]+:/)?'#EDE8DF':l.match(/^\s/)?C.ghost:l.startsWith('#')?'#363630':'#EDE8DF';
+      return '<div class="sm" style="font-size:9px;line-height:1.9;color:'+col+'">'+(l||'\u00a0')+'</div>';
+    }).join('');
+    body='<div style="background:#0D0D0A;padding:14px 16px;margin-bottom:14px;border:1px solid #2E2D26">'+ymlHTML+'</div>'+
+      lbl('Config Reference','margin-bottom:10px')+configRows;
+  }else if(S_AEON_TAB==='env'){
+    var envHTML=AEON.env_vars.map(function(e,i,a){
+      return '<div><div style="padding:10px 0;display:flex;justify-content:space-between;align-items:flex-start;gap:10px">'+
+        '<div><div class="sm" style="font-size:10px;color:'+C.amber+';margin-bottom:2px">'+e.k+'</div><div class="sn" style="font-size:11px;color:'+C.light+'">'+e.d+'</div></div>'+
+      '</div>'+(i<a.length-1?hr():'')+'</div>';
+    }).join('');
+    var envFile=AEON.env_vars.map(function(e){return e.k+'=your_'+e.k.toLowerCase()+'_here';}).join('\n');
+    var envFileHTML=envFile.split('\n').map(function(l){
+      var parts=l.split('=');
+      return '<div class="sm" style="font-size:9px;line-height:2"><span style="color:'+C.amber+'">'+parts[0]+'</span><span style="color:#363630">=</span><span style="color:#3A3A32">'+parts.slice(1).join('=')+'</span></div>';
+    }).join('');
+    body='<div style="background:#0D0D0A;padding:12px 16px;margin-bottom:14px;border:1px solid #2E2D26">'+envFileHTML+'</div>'+
+      lbl('Variables Reference','margin-bottom:10px')+envHTML;
+  }else if(S_AEON_TAB==='compat'){
+    body=SK.map(function(skill,i){
+      var c=AEON.skill_compat[skill.id];
+      if(!c)return '';
+      return '<div>'+
+        '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:12px 0">'+
+          '<div style="flex:1;min-width:0">'+
+            '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">'+
+              '<span class="sf" style="font-size:15px;font-weight:400;color:'+C.text+'">'+skill.name+'</span>'+
+              pill(skill.tier)+
+            '</div>'+
+            '<div class="sn" style="font-size:11px;color:'+C.light+'">'+c.notes+'</div>'+
+          '</div>'+
+          '<span class="sn" style="font-size:8px;font-weight:600;padding:2px 7px;background:rgba(42,72,26,.1);border:1px solid rgba(42,72,26,.2);color:'+C.greenM+';flex-shrink:0">\u2713 Full</span>'+
+        '</div>'+
+        (i<SK.length-1?hr():'')+
+      '</div>';
+    }).join('');
+  }else if(S_AEON_TAB==='about'){
+    body='<div style="background:'+C.dark+';padding:18px 16px;margin-bottom:16px">'+
+        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">'+
+          '<svg width="28" height="28" viewBox="0 0 100 100"><rect width="100" height="100" rx="8" fill="#1C1C18"/><text x="50" y="67" font-size="52" text-anchor="middle" fill="#EDE8DF" font-family="serif">⊕</text></svg>'+
+          '<div><div class="sf" style="font-size:20px;font-weight:300;color:#EDE8DF;font-style:italic">Aeon</div><div class="sn" style="font-size:9px;color:rgba(255,255,255,.35);letter-spacing:1px;text-transform:uppercase">AI Agent Framework</div></div>'+
+        '</div>'+
+        '<p class="sn" style="font-size:12px;color:rgba(255,255,255,.4);line-height:1.65">Aeon is the recommended runtime for KERNAL skills. It provides native Agent Skills format support, scheduled execution, on-chain RPC connectivity, and multi-channel notification delivery.</p>'+
+      '</div>'+
+      [['Version',AEON.version],['Status',AEON.status],['Skills Supported',AEON.skills_supported+' of '+SK.length],['GitHub',AEON.github]].map(function(r,i,a){
+        return srow(r[0],String(r[1]),null,i===a.length-1);
+      }).join('')+
+      hr('margin:8px 20px 16px')+
+      '<div style="display:flex;flex-direction:column;gap:8px">'+
+        '<a href="https://aeonframework.io" target="_blank" class="bh sn" style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:'+C.dark+';border:1px solid '+C.darkB+';font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.5);text-decoration:none">\u25d0 Aeon Website \u25ba</a>'+
+        '<a href="https://'+AEON.github+'" target="_blank" class="bh sn" style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:transparent;border:1px solid '+C.bg3+';font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:'+C.mid+';text-decoration:none">\u2665 GitHub \u25ba</a>'+
+      '</div>';
+  }
+  return '<div class="asu" style="padding:0 0 85px">'+
+    '<div style="background:'+C.dark+';padding:22px 20px 18px">'+
+      lbl('Official Integration','color:'+C.amber+';margin-bottom:6px')+
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px">'+
+        '<div class="sf" style="font-size:32px;font-weight:300;color:'+C.bg+';letter-spacing:-.5px">Aeon</div>'+
+        '<span class="sn" style="font-size:8px;font-weight:600;padding:3px 8px;background:rgba(42,72,26,.15);border:1px solid rgba(61,107,40,.3);color:'+C.greenM+'">'+AEON.status+'</span>'+
+      '</div>'+
+      '<p class="sn" style="font-size:12px;color:rgba(255,255,255,.38);line-height:1.55;margin-top:6px">Connect all 12 KERNAL skills to your Aeon agent in minutes.</p>'+
+    '</div>'+
+    '<div style="border-bottom:1px solid '+C.bg3+';padding:0 20px;display:flex;overflow-x:auto;scrollbar-width:none">'+tabBtns+'</div>'+
+    '<div style="padding:16px 20px">'+body+'</div>'+
+  '</div>';
+}
+
+/* ── Aeon state setters ── */
+function setAeonTab(t){S_AEON_TAB=t;if(S.isMob)renderMobile();else renderDesktop();}
+function setAeonStep(n){S_AEON_STEP=S_AEON_STEP===n?0:n;if(S.isMob)renderMobile();else renderDesktop();}
+
+/* ── Desktop: deskAeon ── */
+function deskAeon(){
+  var tabs=[
+    {id:'setup',l:'Setup Guide'},
+    {id:'config',l:'aeon.yml'},
+    {id:'env',l:'.env'},
+    {id:'compat',l:'Skills Compat'},
+    {id:'about',l:'About Aeon'}
+  ];
+  var tabBtns=tabs.map(function(t){
+    var a=S_AEON_TAB===t.id;
+    return '<button onclick="setAeonTab(\''+t.id+'\')" style="background:none;border:none;border-bottom:2px solid '+(a?C.amber:'transparent')+';color:'+(a?C.text:C.ghost)+';padding:9px 12px;font-family:\'DM Sans\',system-ui,sans-serif;font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;transition:all .15s;cursor:pointer;white-space:nowrap">'+t.l+'</button>';
+  }).join('');
+  var content='';
+
+  if(S_AEON_TAB==='setup'){
+    var stepsLeft=AEON.setup_steps.map(function(step){
+      var open=S_AEON_STEP===step.n;
+      return '<div style="border:1px solid '+(open?C.amber:C.bg3)+';margin-bottom:6px;overflow:hidden;transition:border-color .15s">'+
+        '<button onclick="setAeonStep('+step.n+')" style="width:100%;background:'+(open?C.bg2:C.bg)+';border:none;padding:10px 12px;text-align:left;cursor:pointer;display:flex;align-items:center;gap:9px">'+
+          '<span class="sn" style="width:20px;height:20px;border-radius:50%;background:'+(open?C.amber:C.bg3)+';display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:'+(open?C.dark:C.light)+';flex-shrink:0">'+step.n+'</span>'+
+          '<span class="sn" style="font-size:11px;font-weight:500;color:'+C.text+'">'+step.title+'</span>'+
+          '<span style="margin-left:auto;color:'+C.ghost+';font-size:12px;transition:transform .2s;'+(open?'transform:rotate(90deg)':'')+'">›</span>'+
+        '</button>'+
+        (open?'<div style="background:#0D0D0A;padding:10px 14px;border-top:1px solid #2E2D26">'+
+          step.code.map(function(l){var col=l.startsWith('$')?C.amber:l.startsWith('\u2713')||l.startsWith('\u2192')?'#3D9142':l.match(/^[a-z_]+:/)||l.match(/^\s+[a-z_]+:/)?'#B87420':l.startsWith(' ')||l.startsWith('\t')?C.ghost:'#EDE8DF';return '<div class="sm" style="font-size:10px;line-height:2;color:'+col+'">'+(l||'\u00a0')+'</div>';}).join('')+
+        '</div>':'')+
+      '</div>';
+    }).join('');
+    content='<div style="display:flex;height:100%;gap:0">'+
+      '<div style="flex:1;padding:14px;overflow:auto;border-right:1px solid '+C.bg3+'">'+
+        lbl('Step by Step','margin-bottom:10px')+stepsLeft+
+      '</div>'+
+      '<div style="width:220px;flex-shrink:0;padding:14px;overflow:auto;background:'+C.bg2+'">'+
+        lbl('Quick Reference','margin-bottom:10px')+
+        '<div class="sn" style="font-size:11px;color:'+C.mid+';line-height:1.65;margin-bottom:10px">All 12 KERNAL skills work with Aeon out of the box. No plugins required — just SKILL.md files in your skills/ directory.</div>'+
+        hr('margin-bottom:10px')+
+        lbl('Requirements','margin-bottom:6px')+
+        ['Node.js 18+','npm or pnpm','Alchemy RPC (Base)','Aeon CLI v2.4.1+'].map(function(r){return '<div class="sn" style="font-size:11px;color:'+C.mid+';margin-bottom:4px;display:flex;gap:6px"><span style="color:'+C.greenM+'">✓</span>'+r+'</div>';}).join('')+
+      '</div>'+
+    '</div>';
+  }else if(S_AEON_TAB==='config'){
+    var fullYml2='agent:\n  name: my-kernal-agent\n  model: claude-sonnet-4-5\n  rpc: ${ALCHEMY_RPC_URL}\n  wallet: ${AGENT_PRIVATE_KEY}\n  dry_run: false\n  max_gas_gwei: 20\n  log_level: info\n  notify:\n    telegram: ${TELEGRAM_BOT_TOKEN}\n    discord: ${DISCORD_WEBHOOK_URL}\n\nskills:\n  - name: wallet-digest\n    enabled: true\n    config:\n      wallets: ["0x..."]\n      time_window_hours: 24\n      notify_channel: telegram\n\n  - name: token-alert\n    enabled: true\n    config:\n      tokens: ["0x..."]\n      price_threshold_pct: 5\n      volume_multiplier: 3\n      interval_minutes: 15\n\n  - name: gas-tracker\n    enabled: true\n    config:\n      alert_below_gwei: 0.05\n      track_l1_cost: true\n\n  - name: sniper-skill\n    enabled: false\n    config:\n      min_liquidity_eth: 1.0\n      max_spend_eth: 0.05\n      slippage_bps: 500\n      require_verified: true\n      honeypot_check: true\n\n  - name: mev-guard\n    enabled: true\n    config:\n      mode: flashbots\n      max_sandwich_profit_eth: 0.01\n      fallback_public: false';
+    var ymlHTML2=fullYml2.split('\n').map(function(l){var col=l.match(/^[a-z_]+:/)?C.amber:l.match(/^\s{2}[a-z_]+:/)?'#D4962E':l.match(/^\s{4}[a-z_]+:/)?'#EDE8DF':l.match(/^\s/)?C.ghost:l.startsWith('#')?'#363630':'#EDE8DF';return '<div class="sm" style="font-size:9px;line-height:1.85;color:'+col+'">'+(l||'\u00a0')+'</div>';}).join('');
+    var cfgRight=AEON.config_fields.map(function(c,i,a){
+      return '<div><div style="padding:7px 0;display:flex;justify-content:space-between;gap:8px">'+
+        '<div><div class="sm" style="font-size:9px;color:'+C.amber+'">'+c.k+'</div><div class="sn" style="font-size:10px;color:'+C.light+'">'+c.d+'</div></div>'+
+        '<span class="sn" style="font-size:8px;padding:2px 5px;background:rgba(184,116,32,.08);border:1px solid rgba(184,116,32,.15);color:'+C.amber+';flex-shrink:0;height:fit-content">'+c.t+'</span>'+
+      '</div>'+(i<a.length-1?hr():'')+'</div>';
+    }).join('');
+    content='<div style="display:flex;height:100%">'+
+      '<div style="flex:1;background:#0D0D0A;padding:14px 16px;overflow:auto">'+ymlHTML2+'</div>'+
+      '<div style="width:240px;flex-shrink:0;padding:12px;overflow:auto;border-left:1px solid '+C.bg3+'">'+lbl('Field Reference','margin-bottom:8px')+cfgRight+'</div>'+
+    '</div>';
+  }else if(S_AEON_TAB==='env'){
+    var envFile2=AEON.env_vars.map(function(e){return e.k+'=';}).join('\n');
+    var envHTML2=envFile2.split('\n').map(function(l){var k=l.split('=')[0];return '<div class="sm" style="font-size:10px;line-height:2"><span style="color:'+C.amber+'">'+k+'</span><span style="color:#2E2E26">=</span><span style="color:#1A1A14">your_value_here</span></div>';}).join('');
+    var envRef=AEON.env_vars.map(function(e,i,a){
+      return '<div><div style="padding:8px 0"><div class="sm" style="font-size:9px;color:'+C.amber+';margin-bottom:2px">'+e.k+'</div><div class="sn" style="font-size:10px;color:'+C.light+'">'+e.d+'</div></div>'+(i<a.length-1?hr():'')+'</div>';
+    }).join('');
+    content='<div style="display:flex;height:100%">'+
+      '<div style="flex:1;background:#0D0D0A;padding:14px 16px;overflow:auto">'+
+        '<div class="sm" style="font-size:9px;color:#363630;margin-bottom:10px;letter-spacing:1px"># .env — never commit to git</div>'+
+        envHTML2+
+      '</div>'+
+      '<div style="width:240px;flex-shrink:0;padding:12px;overflow:auto;border-left:1px solid '+C.bg3+'">'+lbl('Variables','margin-bottom:8px')+envRef+'</div>'+
+    '</div>';
+  }else if(S_AEON_TAB==='compat'){
+    var compatRows=SK.map(function(skill,i){
+      var c=AEON.skill_compat[skill.id];
+      if(!c)return '';
+      return '<div class="rh" style="display:flex;align-items:flex-start;gap:12px;padding:10px 14px;border-bottom:1px solid '+C.bg3+'">'+
+        '<span class="sn" style="font-size:9px;font-weight:600;padding:2px 7px;background:rgba(42,72,26,.1);border:1px solid rgba(42,72,26,.2);color:'+C.greenM+';flex-shrink:0;margin-top:2px">\u2713</span>'+
+        '<div style="flex:1;min-width:0">'+
+          '<div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">'+
+            '<span class="sf" style="font-size:14px;font-weight:400;color:'+C.text+'">'+skill.name+'</span>'+
+            pill(skill.tier)+
+          '</div>'+
+          '<div class="sn" style="font-size:10px;color:'+C.light+'">'+c.notes+'</div>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+    content='<div style="height:100%;overflow:auto">'+
+      '<div style="padding:12px 14px;border-bottom:1px solid '+C.bg3+';display:flex;align-items:center;justify-content:space-between">'+
+        lbl('All 12 Skills Supported')+
+        '<span class="sn" style="font-size:10px;font-weight:600;color:'+C.greenM+'">\u2713 12 / 12 Full Compatibility</span>'+
+      '</div>'+
+      compatRows+'</div>';
+  }else if(S_AEON_TAB==='about'){
+    content='<div style="height:100%;overflow:auto;display:flex">'+
+      '<div style="flex:1;padding:16px 18px">'+
+        '<div style="background:'+C.dark+';padding:18px;margin-bottom:16px;border-left:2px solid '+C.amber+'">'+
+          '<div class="sf" style="font-size:28px;font-weight:300;color:#EDE8DF;margin-bottom:6px;font-style:italic">Aeon Framework</div>'+
+          '<p class="sn" style="font-size:12px;color:rgba(255,255,255,.4);line-height:1.65">The recommended runtime for KERNAL skills. Native Agent Skills format support, scheduled execution, Base RPC connectivity, and multi-channel notification delivery. The only framework with full support for all 12 KERNAL skills including premium execution skills.</p>'+
+        '</div>'+
+        [['Version',AEON.version],['Partnership',AEON.status],['Skills supported',AEON.skills_supported+' / '+SK.length+' (all)'],['Execution skills','Full support with wallet-signer'],['Notification','Telegram, Discord, webhook']].map(function(r,i,a){
+          return srow(r[0],r[1],null,i===a.length-1);
+        }).join('')+
+      '</div>'+
+      '<div style="width:180px;flex-shrink:0;padding:14px;border-left:1px solid '+C.bg3+';display:flex;flex-direction:column;gap:8px">'+
+        '<a href="https://aeonframework.io" target="_blank" class="bh sn" style="display:block;padding:10px;background:'+C.dark+';border:1px solid '+C.darkB+';font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.4);text-decoration:none;text-align:center">\u25d0 Website</a>'+
+        '<a href="https://'+AEON.github+'" target="_blank" class="bh sn" style="display:block;padding:10px;background:transparent;border:1px solid '+C.bg3+';font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:'+C.mid+';text-decoration:none;text-align:center">\u2665 GitHub</a>'+
+        '<a href="kernal-tool.html" class="bh sn" style="display:block;padding:10px;background:transparent;border:1px solid rgba(184,116,32,.3);font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:'+C.amber+';text-decoration:none;text-align:center">\u2692 Builder</a>'+
+      '</div>'+
+    '</div>';
+  }
+  return '<div style="height:500px;display:flex;flex-direction:column">'+
+    '<div style="display:flex;border-bottom:1px solid '+C.bg3+';padding:0 12px;flex-shrink:0;overflow-x:auto;scrollbar-width:none">'+tabBtns+'</div>'+
+    '<div style="flex:1;overflow:hidden">'+content+'</div>'+
+  '</div>';
+}
+
+/* ── Init ── */
+startBoot();
+</script>
+</body>
+</html>
