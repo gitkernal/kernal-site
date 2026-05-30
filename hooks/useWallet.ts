@@ -6,6 +6,7 @@ interface WalletState {
   krnBalance: string | null
   tier: 'None' | 'Premium' | 'Priority'
   isConnecting: boolean
+  connectError: string | null
   connect: (type: 'metamask' | 'coinbase') => Promise<void>
   disconnect: () => void
 }
@@ -25,6 +26,7 @@ export function useWallet(): WalletState {
   const [krnBalance, setKrnBalance] = useState<string | null>(null)
   const [tier, setTier] = useState<'None' | 'Premium' | 'Priority'>('None')
   const [isConnecting, setIsConnecting] = useState(false)
+  const [connectError, setConnectError] = useState<string | null>(null)
 
   async function fetchBalanceData(addr: string) {
     try {
@@ -77,13 +79,14 @@ export function useWallet(): WalletState {
 
   const connect = useCallback(async (_type: 'metamask' | 'coinbase') => {
     if (!window.ethereum) {
-      alert('No wallet found. Install MetaMask or Coinbase Wallet.')
+      setConnectError('No wallet detected. Install MetaMask or Coinbase Wallet.')
       return
     }
     setIsConnecting(true)
+    setConnectError(null)
     try {
       const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' }) as string[]
-      if (!accounts.length) throw new Error('No accounts')
+      if (!accounts.length) throw new Error('No accounts returned')
 
       // Switch to Base (chainId 0x2105 = 8453)
       try {
@@ -103,6 +106,8 @@ export function useWallet(): WalletState {
               blockExplorerUrls: ['https://basescan.org']
             }]
           })
+        } else {
+          throw new Error('Please switch your wallet to Base Network')
         }
       }
 
@@ -111,6 +116,10 @@ export function useWallet(): WalletState {
       localStorage.setItem('kernal_wallet', addr)
       await fetchBalanceData(addr)
     } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Connection failed'
+      if (!msg.includes('rejected') && !msg.includes('denied')) {
+        setConnectError(msg)
+      }
       console.error('Connect failed:', e)
     } finally {
       setIsConnecting(false)
@@ -124,5 +133,5 @@ export function useWallet(): WalletState {
     localStorage.removeItem('kernal_wallet')
   }, [])
 
-  return { address, krnBalance, tier, isConnecting, connect, disconnect }
+  return { address, krnBalance, tier, isConnecting, connectError, connect, disconnect }
 }

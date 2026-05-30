@@ -12,6 +12,7 @@ import RoadmapWindow from '@/components/windows/RoadmapWindow'
 import ArticlesWindow from '@/components/windows/ArticlesWindow'
 import DocsWindow from '@/components/windows/DocsWindow'
 import TerminalWindow from '@/components/windows/TerminalWindow'
+import ThemeToggle from '@/components/ui/ThemeToggle'
 
 type WindowId = 'skills' | 'run' | 'submit' | 'stake' | 'token' | 'stats' | 'roadmap' | 'articles' | 'docs' | 'terminal'
 
@@ -197,11 +198,11 @@ export default function DesktopOS() {
         </div>
 
         {/* Right info */}
-        <div
-          className="flex items-center px-4 shrink-0 font-mono text-[9px]"
-          style={{ color: 'var(--ghost)' }}
-        >
-          gitkernal.xyz
+        <div className="flex items-center gap-2 px-4 shrink-0">
+          <ThemeToggle />
+          <span className="font-mono text-[9px]" style={{ color: 'var(--ghost)' }}>
+            gitkernal.xyz
+          </span>
         </div>
       </div>
 

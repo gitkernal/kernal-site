@@ -6,7 +6,7 @@ const KRN_CA = process.env.NEXT_PUBLIC_KRN_CONTRACT || '0x974B53861d975E72730529
 const KRN_UNISWAP_URL = `https://app.uniswap.org/swap?outputCurrency=${KRN_CA}&chain=base`
 
 export default function StakeTab() {
-  const { address, krnBalance, tier, isConnecting, connect, disconnect } = useWallet()
+  const { address, krnBalance, tier, isConnecting, connectError, connect, disconnect } = useWallet()
 
   const getProgress = () => {
     if (!krnBalance) return 0
@@ -80,6 +80,14 @@ export default function StakeTab() {
             >
               Connect Coinbase Wallet
             </button>
+            {connectError && (
+              <div
+                className="font-mono text-[10px] px-3 py-2 leading-relaxed"
+                style={{ background: 'rgba(184,52,32,0.15)', color: '#B83420', borderLeft: '2px solid #B83420' }}
+              >
+                ✗ {connectError}
+              </div>
+            )}
           </div>
         </div>
 
@@ -119,12 +127,12 @@ export default function StakeTab() {
       </div>
 
       <div className="border mb-4" style={{ borderColor: 'var(--bg3)' }}>
-        {[
-          ['$KRN Balance', krnBalance ? `${krnBalance} KRN` : '...'],
+        {([
+          ['$KRN Balance', krnBalance ? `${krnBalance} KRN` : '—'],
           ['$KRN Staked', '— (at TGE)'],
           ['Current Tier', tier],
           ['Pending ETH Yield', '— (at TGE)'],
-        ].map(([l, v], i, a) => (
+        ] as [string, string][]).map(([l, v], i, a) => (
           <div key={l}>
             <div className="flex items-baseline justify-between px-4 py-3">
               <span
@@ -135,9 +143,16 @@ export default function StakeTab() {
               </span>
               <span
                 className="font-serif text-[18px] font-light"
-                style={{ color: l === 'Current Tier' && v !== 'None' ? 'var(--amber)' : 'var(--text)' }}
+                style={{
+                  color: l === 'Current Tier' && v === 'Priority' ? '#D4A017'
+                    : l === 'Current Tier' && v === 'Premium' ? 'var(--amber)'
+                    : 'var(--text)'
+                }}
               >
                 {v}
+                {l === 'Current Tier' && v === 'Priority' && (
+                  <span className="font-sans text-[9px] tracking-widest uppercase ml-2" style={{ color: '#D4A017' }}>★</span>
+                )}
               </span>
             </div>
             {i < a.length - 1 && <div className="h-px" style={{ background: 'var(--bg3)' }} />}
@@ -152,14 +167,25 @@ export default function StakeTab() {
           style={{ color: 'var(--light)' }}
         >
           <span>0</span>
-          <span>10M (Premium)</span>
-          <span>100M (Priority)</span>
+          <span>10M Premium</span>
+          <span>100M Priority</span>
         </div>
-        <div className="h-1" style={{ background: 'var(--bg3)' }}>
+        <div className="relative h-1.5 rounded-sm overflow-hidden" style={{ background: 'var(--bg3)' }}>
+          {/* Premium threshold marker at 10% of 100M scale */}
+          <div className="absolute top-0 bottom-0 w-px" style={{ left: '10%', background: 'var(--bg2)', zIndex: 1 }} />
           <div
-            className="h-full transition-all"
-            style={{ width: `${getProgress()}%`, background: 'var(--amber)' }}
+            className="h-full transition-all rounded-sm"
+            style={{
+              width: `${Math.min((parseFloat((krnBalance || '0').replace(/,/g, '')) / 100_000_000) * 100, 100)}%`,
+              background: tier === 'Priority' ? '#D4A017' : 'var(--amber)'
+            }}
           />
+        </div>
+        <div className="flex justify-between font-mono text-[8px] mt-1" style={{ color: 'var(--ghost)' }}>
+          <span>{krnBalance || '0'} KRN</span>
+          <span style={{ color: tier !== 'None' ? 'var(--amber)' : 'var(--ghost)' }}>
+            {tier === 'Priority' ? '★ Priority' : tier === 'Premium' ? '● Premium' : '○ Free'}
+          </span>
         </div>
       </div>
 

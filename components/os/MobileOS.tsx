@@ -15,6 +15,7 @@ import LeaderboardTab from '@/components/tabs/LeaderboardTab'
 import ArticlesTab from '@/components/tabs/ArticlesTab'
 import DocsTab from '@/components/tabs/DocsTab'
 import type { Skill } from '@/types/skill'
+import ThemeToggle from '@/components/ui/ThemeToggle'
 
 type Tab = 'home' | 'skills' | 'run' | 'submit' | 'stake' | 'token' | 'stats' | 'roadmap' | 'leaderboard' | 'articles' | 'docs'
 
@@ -101,8 +102,11 @@ export default function MobileOS() {
             KERNAL
           </span>
         </div>
-        <div className="font-mono text-[10px] tracking-widest" style={{ color: 'var(--amber)' }}>
-          {currentTabLabel.toUpperCase()}
+        <div className="flex items-center gap-3">
+          <div className="font-mono text-[10px] tracking-widest" style={{ color: 'var(--amber)' }}>
+            {currentTabLabel.toUpperCase()}
+          </div>
+          <ThemeToggle />
         </div>
       </div>
 
