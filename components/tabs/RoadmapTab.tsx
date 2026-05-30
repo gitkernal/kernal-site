@@ -8,7 +8,7 @@ const PHASES = [
     items: [
       'KERNAL OS concept and design system',
       '12 AI skills built and tested',
-      'Anthropic API integration (claude-sonnet-4)',
+      'Anthropic API integration (claude-sonnet-4-6)',
       'Base Network on-chain reads',
       '$KRN token deployed on Base',
       'Public testnet environment',

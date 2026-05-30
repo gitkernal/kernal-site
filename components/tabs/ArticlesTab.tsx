@@ -45,7 +45,7 @@ The gate is enforced on-chain: your $KRN balance is read from the contract at ex
 
 4. **Premium gate** — If the skill is premium-tier, your $KRN balance is read directly from the Base mainnet contract using viem. No cached data.
 
-5. **Anthropic call** — The server calls claude-sonnet-4 with a skill-specific system prompt and a user prompt built from your config.
+5. **Anthropic call** — The server calls claude-sonnet-4-6 with a skill-specific system prompt and a user prompt built from your config.
 
 6. **Logging** — The execution is logged to Supabase: success/failure, token usage, duration, wallet address.
 

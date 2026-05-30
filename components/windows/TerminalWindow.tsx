@@ -35,7 +35,7 @@ Premium:  10,000,000 KRN
 Priority: 100,000,000 KRN
 Uniswap:  app.uniswap.org → Base → $KRN`,
 
-  version: 'KERNAL OS v2.0.0 | Next.js 14 | claude-sonnet-4-5-20251001 | Base Network',
+  version: 'KERNAL OS v2.0.0 | Next.js 14 | claude-sonnet-4-6 | Base Network',
 
   stats: `Platform Statistics:
 Skills:      12 live

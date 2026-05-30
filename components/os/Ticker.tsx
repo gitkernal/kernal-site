@@ -5,7 +5,7 @@ const TICKER_ITEMS = [
   'KERNAL OS v2.0.0',
   '$KRN on Base',
   '12 skills live',
-  'Powered by claude-sonnet-4',
+  'Powered by claude-sonnet-4-6',
   '0x974B...046ba3',
   'Premium: 10M $KRN',
   'Priority: 100M $KRN',

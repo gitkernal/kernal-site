@@ -130,7 +130,7 @@ Revenue distribution begins at TGE when the staking contract is deployed.`
 A: Yes. KERNAL never holds your funds. Wallet connection only reads your $KRN balance — no signing required to execute skills.
 
 **Q: Where does the AI output come from?**
-A: All skill execution calls the Anthropic API (claude-sonnet-4) server-side. The API key is never exposed to the client.
+A: All skill execution calls the Anthropic API (claude-sonnet-4-6) server-side. The API key is never exposed to the client.
 
 **Q: Can skills execute on-chain transactions?**
 A: Currently, skills are analysis and intelligence tools — they return text output. Live on-chain execution (swaps, snipes, governance votes) launches with the hosted execution environment at TGE.
@@ -142,7 +142,7 @@ A: The 5M $KRN listing fee is burned on rejection and refunded on acceptance. Th
 A: On every skill execution. There is no cached tier — your current balance is always the source of truth.
 
 **Q: What model does KERNAL use?**
-A: claude-sonnet-4-5-20251001 via the Anthropic API.`
+A: claude-sonnet-4-6 via the Anthropic API.`
   }
 ]
 
