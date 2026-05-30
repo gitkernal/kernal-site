@@ -5,14 +5,22 @@ interface StatsWindowProps {
   onClose: () => void
   onFocus: () => void
   zIndex: number
+  initialX?: number
+  initialY?: number
+  initialWidth?: number
+  initialHeight?: number
 }
 
-export default function StatsWindow({ onClose, onFocus, zIndex }: StatsWindowProps) {
+export default function StatsWindow({
+  onClose, onFocus, zIndex,
+  initialX, initialY, initialWidth, initialHeight
+}: StatsWindowProps) {
   return (
     <Window
-      title="STATS" fileExt=""
+      title="STATS"
       onClose={onClose} onFocus={onFocus} zIndex={zIndex}
-      initialX={200} initialY={70} initialWidth={440} initialHeight={560}
+      initialX={initialX} initialY={initialY}
+      initialWidth={initialWidth} initialHeight={initialHeight}
     >
       <StatsTab />
     </Window>

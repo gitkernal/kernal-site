@@ -5,14 +5,22 @@ interface DocsWindowProps {
   onClose: () => void
   onFocus: () => void
   zIndex: number
+  initialX?: number
+  initialY?: number
+  initialWidth?: number
+  initialHeight?: number
 }
 
-export default function DocsWindow({ onClose, onFocus, zIndex }: DocsWindowProps) {
+export default function DocsWindow({
+  onClose, onFocus, zIndex,
+  initialX, initialY, initialWidth, initialHeight
+}: DocsWindowProps) {
   return (
     <Window
-      title="DOCS" fileExt=""
+      title="DOCS"
       onClose={onClose} onFocus={onFocus} zIndex={zIndex}
-      initialX={180} initialY={60} initialWidth={520} initialHeight={580}
+      initialX={initialX} initialY={initialY}
+      initialWidth={initialWidth} initialHeight={initialHeight}
     >
       <DocsTab />
     </Window>

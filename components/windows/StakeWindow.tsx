@@ -5,14 +5,22 @@ interface StakeWindowProps {
   onClose: () => void
   onFocus: () => void
   zIndex: number
+  initialX?: number
+  initialY?: number
+  initialWidth?: number
+  initialHeight?: number
 }
 
-export default function StakeWindow({ onClose, onFocus, zIndex }: StakeWindowProps) {
+export default function StakeWindow({
+  onClose, onFocus, zIndex,
+  initialX, initialY, initialWidth, initialHeight
+}: StakeWindowProps) {
   return (
     <Window
       title="STAKE" fileExt=".db"
       onClose={onClose} onFocus={onFocus} zIndex={zIndex}
-      initialX={320} initialY={60} initialWidth={440} initialHeight={580}
+      initialX={initialX} initialY={initialY}
+      initialWidth={initialWidth} initialHeight={initialHeight}
     >
       <StakeTab />
     </Window>

@@ -24,12 +24,13 @@ export function useSkills(options: UseSkillsOptions = {}) {
     fetch(`/api/skills?${params}`)
       .then(r => r.json())
       .then(d => {
-        if (d.skills) setSkills(d.skills)
-        else setError(d.error || 'Failed to load skills')
+        if (d.skills && d.skills.length > 0) {
+          setSkills(d.skills)
+        }
+        // else keep SKILLS_DATA fallback already in state
       })
       .catch(() => {
         // Keep static data on network error
-        setError(null)
       })
       .finally(() => setLoading(false))
   }, [options.tier, options.category, options.search])

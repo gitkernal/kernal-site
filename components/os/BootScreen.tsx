@@ -13,7 +13,7 @@ const BOOT_LINES = [
   { text: 'Connecting to Base Network (chain: 8453)...', delay: 900 },
   { text: '✓ RPC endpoint online', delay: 1200 },
   { text: 'Loading Anthropic inference engine...', delay: 1500 },
-  { text: '✓ claude-sonnet-4-20250514 ready', delay: 1800 },
+  { text: '✓ claude-sonnet-4-5-20251001 ready', delay: 1800 },
   { text: 'Checking $KRN contract...', delay: 2100 },
   { text: '✓ 0x974B...046ba3 verified', delay: 2400 },
   { text: 'Mounting skill execution environment...', delay: 2700 },

@@ -39,7 +39,7 @@ export default function RunTab({ initialSkillId = '' }: RunTabProps) {
 
     addLog(`▸ Executing ${selectedSkillId}...`)
     addLog(`✓ Config validated (${Object.keys(config).length} params)`)
-    addLog(`✓ Calling claude-sonnet-4-20250514...`)
+    addLog(`✓ Calling claude-sonnet-4-5-20251001...`)
 
     try {
       const res = await fetch('/api/execute', {

@@ -1,5 +1,3 @@
-'use client'
-import { useState } from 'react'
 import Window from './Window'
 import RunTab from '@/components/tabs/RunTab'
 
@@ -8,14 +6,22 @@ interface RunWindowProps {
   onFocus: () => void
   zIndex: number
   initialSkillId?: string
+  initialX?: number
+  initialY?: number
+  initialWidth?: number
+  initialHeight?: number
 }
 
-export default function RunWindow({ onClose, onFocus, zIndex, initialSkillId }: RunWindowProps) {
+export default function RunWindow({
+  onClose, onFocus, zIndex, initialSkillId,
+  initialX, initialY, initialWidth, initialHeight
+}: RunWindowProps) {
   return (
     <Window
       title="RUN" fileExt=".exe"
       onClose={onClose} onFocus={onFocus} zIndex={zIndex}
-      initialX={220} initialY={80} initialWidth={500} initialHeight={620}
+      initialX={initialX} initialY={initialY}
+      initialWidth={initialWidth} initialHeight={initialHeight}
     >
       <RunTab initialSkillId={initialSkillId} />
     </Window>

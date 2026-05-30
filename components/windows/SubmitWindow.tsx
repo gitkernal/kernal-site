@@ -5,14 +5,22 @@ interface SubmitWindowProps {
   onClose: () => void
   onFocus: () => void
   zIndex: number
+  initialX?: number
+  initialY?: number
+  initialWidth?: number
+  initialHeight?: number
 }
 
-export default function SubmitWindow({ onClose, onFocus, zIndex }: SubmitWindowProps) {
+export default function SubmitWindow({
+  onClose, onFocus, zIndex,
+  initialX, initialY, initialWidth, initialHeight
+}: SubmitWindowProps) {
   return (
     <Window
       title="SUBMIT" fileExt=".md"
       onClose={onClose} onFocus={onFocus} zIndex={zIndex}
-      initialX={180} initialY={100} initialWidth={480} initialHeight={600}
+      initialX={initialX} initialY={initialY}
+      initialWidth={initialWidth} initialHeight={initialHeight}
     >
       <SubmitTab />
     </Window>

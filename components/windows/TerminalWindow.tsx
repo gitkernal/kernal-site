@@ -1,11 +1,16 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
 import Window from './Window'
+import { SKILLS_DATA } from '@/lib/skills-data'
 
 interface TerminalWindowProps {
   onClose: () => void
   onFocus: () => void
   zIndex: number
+  initialX?: number
+  initialY?: number
+  initialWidth?: number
+  initialHeight?: number
 }
 
 const BANNER = [
@@ -19,7 +24,6 @@ const COMMANDS: Record<string, string> = {
   skills        List all skills
   skills free   List free skills
   skills prem   List premium skills
-  run <id>      Show skill run instructions
   token         Show $KRN token info
   stats         Show platform statistics
   clear         Clear terminal
@@ -31,7 +35,7 @@ Premium:  10,000,000 KRN
 Priority: 100,000,000 KRN
 Uniswap:  app.uniswap.org → Base → $KRN`,
 
-  version: 'KERNAL OS v2.0.0 | Next.js 14 | claude-sonnet-4 | Base Network',
+  version: 'KERNAL OS v2.0.0 | Next.js 14 | claude-sonnet-4-5-20251001 | Base Network',
 
   stats: `Platform Statistics:
 Skills:      12 live
@@ -40,7 +44,10 @@ Executions:  ~113,110 total
 Networks:    Base, Ethereum, Arbitrum`,
 }
 
-export default function TerminalWindow({ onClose, onFocus, zIndex }: TerminalWindowProps) {
+export default function TerminalWindow({
+  onClose, onFocus, zIndex,
+  initialX, initialY, initialWidth, initialHeight
+}: TerminalWindowProps) {
   const [lines, setLines] = useState<{ text: string; type: 'output' | 'input' | 'error' }[]>(
     BANNER.map(t => ({ text: t, type: 'output' }))
   )
@@ -63,27 +70,13 @@ export default function TerminalWindow({ onClose, onFocus, zIndex }: TerminalWin
       return
     }
 
-    if (trimmed === 'skills') {
-      const { SKILLS_DATA } = require('@/lib/skills-data')
-      const output = SKILLS_DATA.map((s: { name: string; tier: string; category: string }) =>
-        `  ${s.name.padEnd(24)} [${s.tier}] ${s.category}`
+    if (trimmed === 'skills' || trimmed === 'skills free' || trimmed === 'skills prem') {
+      let data = SKILLS_DATA
+      if (trimmed === 'skills free') data = data.filter((s: { tier: string }) => s.tier === 'free')
+      if (trimmed === 'skills prem') data = data.filter((s: { tier: string }) => s.tier === 'premium')
+      const output = data.map((s: { name: string; tier: string; category: string; tagline: string }) =>
+        `  ${s.name.padEnd(26)} [${s.tier}] ${s.tagline}`
       ).join('\n')
-      setLines(prev => [...prev, { text: output, type: 'output' }])
-      return
-    }
-
-    if (trimmed === 'skills free') {
-      const { SKILLS_DATA } = require('@/lib/skills-data')
-      const output = SKILLS_DATA.filter((s: { tier: string }) => s.tier === 'free')
-        .map((s: { name: string; tagline: string }) => `  ${s.name.padEnd(24)} ${s.tagline}`).join('\n')
-      setLines(prev => [...prev, { text: output, type: 'output' }])
-      return
-    }
-
-    if (trimmed === 'skills prem') {
-      const { SKILLS_DATA } = require('@/lib/skills-data')
-      const output = SKILLS_DATA.filter((s: { tier: string }) => s.tier === 'premium')
-        .map((s: { name: string; tagline: string }) => `  ${s.name.padEnd(24)} ${s.tagline}`).join('\n')
       setLines(prev => [...prev, { text: output, type: 'output' }])
       return
     }
@@ -93,7 +86,10 @@ export default function TerminalWindow({ onClose, onFocus, zIndex }: TerminalWin
       return
     }
 
-    setLines(prev => [...prev, { text: `Command not found: ${trimmed}. Type "help" for commands.`, type: 'error' }])
+    setLines(prev => [...prev, {
+      text: `Command not found: ${trimmed}. Type "help" for commands.`,
+      type: 'error'
+    }])
   }
 
   function handleKey(e: React.KeyboardEvent) {
@@ -115,9 +111,10 @@ export default function TerminalWindow({ onClose, onFocus, zIndex }: TerminalWin
 
   return (
     <Window
-      title="TERMINAL" fileExt=""
+      title="TERMINAL"
       onClose={onClose} onFocus={onFocus} zIndex={zIndex}
-      initialX={400} initialY={120} initialWidth={500} initialHeight={400}
+      initialX={initialX} initialY={initialY}
+      initialWidth={initialWidth ?? 560} initialHeight={initialHeight ?? 380}
     >
       <div
         className="h-full flex flex-col p-3 cursor-text"
@@ -140,7 +137,10 @@ export default function TerminalWindow({ onClose, onFocus, zIndex }: TerminalWin
           ))}
           <div ref={bottomRef} />
         </div>
-        <div className="flex items-center gap-1 mt-2 pt-2" style={{ borderTop: '1px solid var(--darkB)' }}>
+        <div
+          className="flex items-center gap-1 mt-2 pt-2"
+          style={{ borderTop: '1px solid var(--darkB)' }}
+        >
           <span className="font-mono text-[11px]" style={{ color: 'var(--amber)' }}>{'>'}</span>
           <input
             ref={inputRef}

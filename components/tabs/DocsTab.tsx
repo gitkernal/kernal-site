@@ -142,7 +142,7 @@ A: The 5M $KRN listing fee is burned on rejection and refunded on acceptance. Th
 A: On every skill execution. There is no cached tier — your current balance is always the source of truth.
 
 **Q: What model does KERNAL use?**
-A: claude-sonnet-4-20250514 via the Anthropic API.`
+A: claude-sonnet-4-5-20251001 via the Anthropic API.`
   }
 ]
 

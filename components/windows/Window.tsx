@@ -1,6 +1,10 @@
 'use client'
 import { useState, useRef, useEffect, useCallback } from 'react'
 
+const TOPBAR_H = 40
+const SIDEBAR_W = 180
+const TICKER_H = 28
+
 interface WindowProps {
   title: string
   fileExt?: string
@@ -21,18 +25,18 @@ export default function Window({
   onClose,
   onFocus,
   zIndex,
-  initialX = 100,
-  initialY = 60,
-  initialWidth = 480,
-  initialHeight = 560
+  initialX = 260,
+  initialY = 70,
+  initialWidth = 680,
+  initialHeight = 520
 }: WindowProps) {
   const [pos, setPos] = useState({ x: initialX, y: initialY })
   const [size, setSize] = useState({ w: initialWidth, h: initialHeight })
   const [isMaximized, setIsMaximized] = useState(false)
   const dragRef = useRef<{ startX: number; startY: number; startPosX: number; startPosY: number } | null>(null)
-  const windowRef = useRef<HTMLDivElement>(null)
 
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+  const handleTitleMouseDown = useCallback((e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest('button')) return
     onFocus()
     dragRef.current = {
       startX: e.clientX,
@@ -48,8 +52,8 @@ export default function Window({
       const dx = e.clientX - dragRef.current.startX
       const dy = e.clientY - dragRef.current.startY
       setPos({
-        x: Math.max(0, dragRef.current.startPosX + dx),
-        y: Math.max(0, dragRef.current.startPosY + dy)
+        x: Math.max(SIDEBAR_W, dragRef.current.startPosX + dx),
+        y: Math.max(TOPBAR_H, dragRef.current.startPosY + dy)
       })
     }
     function onMouseUp() { dragRef.current = null }
@@ -61,48 +65,71 @@ export default function Window({
     }
   }, [])
 
-  const style = isMaximized
-    ? { left: 0, top: 0, width: '100vw', height: 'calc(100vh - 28px)', zIndex }
-    : { left: pos.x, top: pos.y, width: size.w, height: size.h, zIndex }
+  const maximizedStyle = {
+    left: SIDEBAR_W,
+    top: TOPBAR_H,
+    width: `calc(100vw - ${SIDEBAR_W}px)`,
+    height: `calc(100vh - ${TOPBAR_H}px - ${TICKER_H}px)`,
+    zIndex
+  }
+
+  const normalStyle = {
+    left: pos.x,
+    top: pos.y,
+    width: size.w,
+    height: size.h,
+    zIndex
+  }
+
+  const style = isMaximized ? maximizedStyle : normalStyle
 
   return (
     <div
-      ref={windowRef}
-      className="fixed flex flex-col border overflow-hidden shadow-2xl"
+      className="fixed flex flex-col overflow-hidden"
       style={{
         ...style,
         background: 'var(--bg)',
-        borderColor: 'var(--bg3)',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.18)'
+        border: '1px solid var(--bg3)',
+        boxShadow: '0 12px 40px rgba(0,0,0,0.22)',
       }}
       onMouseDown={onFocus}
     >
       {/* Title bar */}
       <div
-        className="flex items-center justify-between px-3 h-8 shrink-0 select-none border-b cursor-move"
+        className="flex items-center h-9 px-3 shrink-0 select-none border-b cursor-move relative"
         style={{ background: 'var(--bg2)', borderColor: 'var(--bg3)' }}
-        onMouseDown={handleMouseDown}
+        onMouseDown={handleTitleMouseDown}
       >
-        <div className="font-mono text-[10px] tracking-widest" style={{ color: 'var(--text)' }}>
-          {title}{fileExt && <span style={{ color: 'var(--amber)' }}>{fileExt}</span>}
-        </div>
-        <div className="flex items-center gap-1">
-          <button
-            onClick={() => setIsMaximized(m => !m)}
-            className="w-4 h-4 flex items-center justify-center text-[9px] transition-colors"
-            style={{ color: 'var(--mid)' }}
-            title={isMaximized ? 'Restore' : 'Maximize'}
-          >
-            {isMaximized ? '⊡' : '□'}
-          </button>
+        {/* Traffic light dots */}
+        <div className="flex items-center gap-1.5 shrink-0 z-10">
           <button
             onClick={onClose}
-            className="w-4 h-4 flex items-center justify-center text-[9px] transition-colors hover:text-red-400"
-            style={{ color: 'var(--mid)' }}
+            className="w-3 h-3 rounded-full transition-opacity hover:opacity-75"
+            style={{ background: '#ff5f57' }}
             title="Close"
+          />
+          <button
+            className="w-3 h-3 rounded-full cursor-default"
+            style={{ background: '#ffbd2e', opacity: 0.5 }}
+            title="Minimize"
+          />
+          <button
+            onClick={() => setIsMaximized(m => !m)}
+            className="w-3 h-3 rounded-full transition-opacity hover:opacity-75"
+            style={{ background: '#28c840' }}
+            title={isMaximized ? 'Restore' : 'Maximize'}
+          />
+        </div>
+
+        {/* Centered title — absolutely positioned so it doesn't shift with dots */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <span
+            className="font-mono text-[10px] tracking-widest"
+            style={{ color: 'var(--text)' }}
           >
-            ✕
-          </button>
+            {title}
+            {fileExt && <span style={{ color: 'var(--amber)' }}>{fileExt}</span>}
+          </span>
         </div>
       </div>
 
@@ -114,7 +141,8 @@ export default function Window({
       {/* Resize handle */}
       {!isMaximized && (
         <div
-          className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize"
+          className="absolute bottom-0 right-0 w-5 h-5 cursor-se-resize flex items-end justify-end pr-1 pb-1"
+          style={{ color: 'var(--bg3)' }}
           onMouseDown={(e) => {
             e.stopPropagation()
             const startX = e.clientX
@@ -123,8 +151,8 @@ export default function Window({
             const startH = size.h
             function onMove(ev: MouseEvent) {
               setSize({
-                w: Math.max(320, startW + ev.clientX - startX),
-                h: Math.max(200, startH + ev.clientY - startY)
+                w: Math.max(380, startW + ev.clientX - startX),
+                h: Math.max(240, startH + ev.clientY - startY)
               })
             }
             function onUp() {
@@ -134,7 +162,11 @@ export default function Window({
             window.addEventListener('mousemove', onMove)
             window.addEventListener('mouseup', onUp)
           }}
-        />
+        >
+          <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
+            <path d="M8 0L8 8L0 8" stroke="var(--bg3)" strokeWidth="1.5"/>
+          </svg>
+        </div>
       )}
     </div>
   )

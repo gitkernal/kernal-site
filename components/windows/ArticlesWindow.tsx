@@ -5,14 +5,22 @@ interface ArticlesWindowProps {
   onClose: () => void
   onFocus: () => void
   zIndex: number
+  initialX?: number
+  initialY?: number
+  initialWidth?: number
+  initialHeight?: number
 }
 
-export default function ArticlesWindow({ onClose, onFocus, zIndex }: ArticlesWindowProps) {
+export default function ArticlesWindow({
+  onClose, onFocus, zIndex,
+  initialX, initialY, initialWidth, initialHeight
+}: ArticlesWindowProps) {
   return (
     <Window
-      title="ARTICLES" fileExt=""
+      title="ARTICLES"
       onClose={onClose} onFocus={onFocus} zIndex={zIndex}
-      initialX={250} initialY={70} initialWidth={480} initialHeight={580}
+      initialX={initialX} initialY={initialY}
+      initialWidth={initialWidth} initialHeight={initialHeight}
     >
       <ArticlesTab />
     </Window>

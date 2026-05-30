@@ -5,14 +5,22 @@ interface RoadmapWindowProps {
   onClose: () => void
   onFocus: () => void
   zIndex: number
+  initialX?: number
+  initialY?: number
+  initialWidth?: number
+  initialHeight?: number
 }
 
-export default function RoadmapWindow({ onClose, onFocus, zIndex }: RoadmapWindowProps) {
+export default function RoadmapWindow({
+  onClose, onFocus, zIndex,
+  initialX, initialY, initialWidth, initialHeight
+}: RoadmapWindowProps) {
   return (
     <Window
-      title="ROADMAP" fileExt=""
+      title="ROADMAP"
       onClose={onClose} onFocus={onFocus} zIndex={zIndex}
-      initialX={160} initialY={80} initialWidth={460} initialHeight={580}
+      initialX={initialX} initialY={initialY}
+      initialWidth={initialWidth} initialHeight={initialHeight}
     >
       <RoadmapTab />
     </Window>
