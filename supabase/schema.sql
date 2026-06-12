@@ -96,6 +96,17 @@ create index if not exists idx_executions_wallet on executions(wallet_address);
 create index if not exists idx_submissions_status on submissions(status);
 create index if not exists idx_submissions_wallet on submissions(submitter_wallet);
 
+-- AI coding terminal usage (rate limiting: 10 generations / wallet / 24h)
+create table if not exists terminal_usage (
+  id             uuid primary key default gen_random_uuid(),
+  wallet_address text not null,
+  created_at     timestamptz not null default now()
+);
+create index if not exists idx_terminal_usage_wallet on terminal_usage(wallet_address);
+alter table terminal_usage enable row level security;
+create policy "terminal_usage_insert" on terminal_usage for insert with check (true);
+create policy "terminal_usage_select" on terminal_usage for select using (true);
+
 -- increment_executions RPC
 create or replace function increment_executions(skill_id_param text)
 returns void as $$

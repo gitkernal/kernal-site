@@ -1,281 +1,354 @@
 'use client'
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect } from 'react'
+import dynamic from 'next/dynamic'
+import JSZip from 'jszip'
 import { useWallet } from '@/hooks/useWallet'
-import { SKILLS_DATA } from '@/lib/skills-data'
 
-type LineType = 'output' | 'input' | 'error' | 'success' | 'banner'
-interface Line { text: string; type: LineType }
-
-const BANNER: Line[] = [
-  { text: '  ██╗  ██╗███████╗██████╗ ███╗  ██╗ █████╗ ██╗', type: 'banner' },
-  { text: '  ██║ ██╔╝██╔════╝██╔══██╗████╗ ██║██╔══██╗██║', type: 'banner' },
-  { text: '  █████╔╝ █████╗  ██████╔╝██╔██╗██║███████║██║', type: 'banner' },
-  { text: '  ██╔═██╗ ██╔══╝  ██╔══██╗██║╚████║██╔══██║██║', type: 'banner' },
-  { text: '  ██║ ╚██╗███████╗██║  ██║██║ ╚███║██║  ██║███████╗', type: 'banner' },
-  { text: '  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═╝  ╚══╝╚═╝  ╚═╝╚══════╝', type: 'banner' },
-  { text: '', type: 'output' },
-  { text: '  KERNAL OS v2.0.0  ·  Base Network  ·  claude-sonnet-4-6', type: 'output' },
-  { text: '  Type "help" for available commands.', type: 'output' },
-  { text: '', type: 'output' },
-]
-
-const MAX_HISTORY = 50
-const HISTORY_KEY = 'kernal_terminal_history'
-
-function parseCommand(input: string) {
-  const parts = input.trim().split(/\s+/)
-  const cmd = parts[0].toLowerCase()
-  const args: string[] = []
-  const flags: Record<string, string> = {}
-  let i = 1
-  while (i < parts.length) {
-    if (parts[i].startsWith('--')) {
-      const key = parts[i].slice(2)
-      const next = parts[i + 1]
-      if (next && !next.startsWith('--')) {
-        flags[key] = next
-        i += 2
-      } else {
-        flags[key] = 'true'
-        i++
-      }
-    } else {
-      args.push(parts[i])
-      i++
-    }
+// Lazy-load Sandpack so its (heavy) bundler only ships when the preview is opened.
+const Sandpack = dynamic(
+  () => import('@codesandbox/sandpack-react').then(m => m.Sandpack),
+  {
+    ssr: false,
+    loading: () => (
+      <div style={{
+        height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontFamily: 'JetBrains Mono, monospace', fontSize: 12, color: '#6B6655', background: '#0D0D0A'
+      }}>
+        Loading preview…
+      </div>
+    ),
   }
-  return { cmd, args, flags }
+)
+
+interface Message {
+  role: 'user' | 'assistant'
+  content: string
+  files?: Record<string, string>
 }
 
-interface TerminalTabProps {
-  className?: string
+interface Project {
+  framework: string
+  files: Record<string, string>
+  entryFile: string
 }
 
-export default function TerminalTab({ className = '' }: TerminalTabProps) {
-  const { address, tier, krnBalance } = useWallet()
-  const [lines, setLines] = useState<Line[]>(BANNER)
+export default function TerminalTab() {
+  const { address, tier } = useWallet()
+  const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
-  const [history, setHistory] = useState<string[]>(() => {
-    if (typeof window === 'undefined') return []
-    try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]') } catch { return [] }
-  })
-  const [histIdx, setHistIdx] = useState(-1)
-  const inputRef = useRef<HTMLInputElement>(null)
-  const bottomRef = useRef<HTMLDivElement>(null)
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [project, setProject] = useState<Project | null>(null)
+  const [view, setView] = useState<'preview' | 'code'>('preview')
+  const [activeFile, setActiveFile] = useState('')
+  const [error, setError] = useState('')
+  const [isNarrow, setIsNarrow] = useState(false)
+  const [mobileView, setMobileView] = useState<'chat' | 'workspace'>('chat')
+  const chatEndRef = useRef<HTMLDivElement>(null)
+
+  const isPremium = tier === 'Premium' || tier === 'Priority'
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [lines])
+    const onResize = () => setIsNarrow(window.innerWidth < 1024)
+    onResize()
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
 
-  const processCommand = useCallback((raw: string) => {
-    const { cmd, args, flags } = parseCommand(raw)
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
 
-    setLines(prev => [...prev, { text: `kernal@registry:~$ ${raw}`, type: 'input' }])
+  async function generate() {
+    if (!input.trim() || isGenerating) return
+    if (!address) { setError('Connect wallet first'); return }
+    if (!isPremium) { setError('Requires 10M $KRN'); return }
+    if (input.trim().length > 2000) { setError('Prompt too long (max 2000 chars)'); return }
 
-    if (cmd === 'clear') {
-      setLines(BANNER)
-      return
-    }
+    const userPrompt = input.trim()
+    setInput('')
+    setError('')
+    setMessages(prev => [...prev, { role: 'user', content: userPrompt }])
+    setIsGenerating(true)
+    if (isNarrow) setMobileView('chat')
 
-    const output = ((): Line[] => {
-      switch (cmd) {
-        case 'help':
-          return [{ type: 'output', text:
-`  Available commands:
+    // Build conversation history for iterative edits
+    const conversation = messages.map(m => ({
+      role: m.role,
+      content: m.role === 'assistant' && m.files
+        ? `Previous project: ${JSON.stringify(m.files)}`
+        : m.content
+    }))
 
-  help                      Show this help
-  skills                    List all skills
-    --tier free|premium     Filter by tier
-    --category <cat>        Filter by category
-  skill <name>              Show skill details
-  install <name>            Register skill locally
-  run <name>                Open in RUN interface
-  wallet                    Show wallet & tier info
-  stats                     Platform statistics
-  token                     $KRN token info
-  ca                        Show contract address
-  clear                     Clear terminal` }]
+    try {
+      const res = await fetch('/api/terminal/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: userPrompt, wallet_address: address, conversation })
+      })
+      const data = await res.json()
 
-        case 'skills': {
-          let data = [...SKILLS_DATA]
-          if (flags.tier) data = data.filter(s => s.tier === flags.tier)
-          if (flags.category) data = data.filter(s => s.category === flags.category)
-          if (!data.length) return [{ type: 'error', text: '  No skills match the filter.' }]
-          const rows = data.map(s =>
-            `  ${s.id.padEnd(26)} [${s.tier.padEnd(7)}]  ${s.tagline}`
-          )
-          return [{ type: 'output', text: `  ${data.length} skill${data.length !== 1 ? 's' : ''} found:\n\n${rows.join('\n')}` }]
-        }
-
-        case 'skill': {
-          const name = args.join(' ')
-          if (!name) return [{ type: 'error', text: '  Usage: skill <name>' }]
-          const s = SKILLS_DATA.find(x =>
-            x.id === name ||
-            x.id.includes(name.toLowerCase()) ||
-            x.name.toLowerCase().includes(name.toLowerCase())
-          )
-          if (!s) return [{ type: 'error', text: `  Skill not found: ${name}` }]
-          return [{ type: 'output', text:
-`  ${s.name}  v${s.version}
-  ${'─'.repeat(40)}
-  ID:         ${s.id}
-  Tier:       ${s.tier}
-  Category:   ${s.category}
-  Risk:       ${s.risk_level}
-  Networks:   ${s.compat.join(', ')}
-
-  ${s.tagline}
-
-  ${s.description}
-
-  Installs:   ${s.installs.toLocaleString()}
-  Executions: ${s.executions.toLocaleString()}` }]
-        }
-
-        case 'install': {
-          const name = args.join(' ')
-          if (!name) return [{ type: 'error', text: '  Usage: install <skill-name>' }]
-          const s = SKILLS_DATA.find(x =>
-            x.id === name || x.name.toLowerCase().includes(name.toLowerCase())
-          )
-          if (!s) return [{ type: 'error', text: `  Skill not found: ${name}` }]
-          return [
-            { type: 'output', text: `  ▸ Installing ${s.name}...` },
-            { type: 'success', text: `  ✓ Registered in local registry` },
-            { type: 'success', text: `  ✓ Config schema loaded (${s.config_schema.length} fields)` },
-            { type: 'output', text: `  ▸ Open RUN.exe → skill id: ${s.id}` },
-          ]
-        }
-
-        case 'run': {
-          const name = args.join(' ')
-          if (!name) return [{ type: 'error', text: '  Usage: run <skill-name>' }]
-          const s = SKILLS_DATA.find(x =>
-            x.id === name || x.name.toLowerCase().includes(name.toLowerCase())
-          )
-          if (!s) return [{ type: 'error', text: `  Skill not found: ${name}` }]
-          return [{ type: 'output', text: `  ▸ Open RUN.exe and select: ${s.name}` }]
-        }
-
-        case 'wallet':
-          if (!address) return [{ type: 'output', text: '  No wallet connected.\n  Open STAKE.db to connect.' }]
-          return [{ type: 'output', text:
-`  Address:  ${address}
-  Balance:  ${krnBalance || '...'} KRN
-  Tier:     ${tier}` }]
-
-        case 'stats':
-          return [{ type: 'output', text:
-`  Platform Statistics:
-  ${'─'.repeat(32)}
-  Skills live:   12
-  Installs:      ~16,904 total
-  Executions:    ~113,110 total
-  Networks:      Base, Ethereum, Arbitrum
-  Model:         claude-sonnet-4-6` }]
-
-        case 'token':
-          return [{ type: 'output', text:
-`  $KRN Token — Base Network
-  ${'─'.repeat(48)}
-  Contract:  0x974B53861d975E727305298D2718849c43046ba3
-  Premium:   10,000,000 KRN   (all premium skills)
-  Priority:  100,000,000 KRN  (priority + support)
-  Uniswap:   app.uniswap.org → Base → $KRN` }]
-
-        case 'ca':
-          return [{ type: 'success', text: '  0x974B53861d975E727305298D2718849c43046ba3' }]
-
-        default:
-          return [{ type: 'error', text: `  Command not found: ${cmd}. Type "help" for available commands.` }]
+      if (!res.ok) {
+        setError(data.message || data.error)
+        setMessages(prev => [...prev, { role: 'assistant', content: `Error: ${data.message || data.error}` }])
+      } else {
+        setProject({ framework: data.framework, files: data.files, entryFile: data.entryFile })
+        setActiveFile(Object.keys(data.files)[0])
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          content: data.explanation,
+          files: data.files
+        }])
+        if (isNarrow) setMobileView('workspace')
       }
-    })()
-
-    setLines(prev => [...prev, ...output])
-  }, [address, tier, krnBalance])
-
-  function handleKey(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === 'Enter') {
-      if (!input.trim()) return
-      processCommand(input)
-      const next = [input, ...history].slice(0, MAX_HISTORY)
-      setHistory(next)
-      try { localStorage.setItem(HISTORY_KEY, JSON.stringify(next)) } catch { /* ignore */ }
-      setHistIdx(-1)
-      setInput('')
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault()
-      const idx = Math.min(histIdx + 1, history.length - 1)
-      setHistIdx(idx)
-      setInput(history[idx] || '')
-    } else if (e.key === 'ArrowDown') {
-      e.preventDefault()
-      const idx = Math.max(histIdx - 1, -1)
-      setHistIdx(idx)
-      setInput(idx === -1 ? '' : history[idx])
-    } else if (e.key === 'c' && e.ctrlKey) {
-      setInput('')
-      setHistIdx(-1)
-    } else if (e.key === 'l' && e.ctrlKey) {
-      e.preventDefault()
-      setLines(BANNER)
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Request failed')
+    } finally {
+      setIsGenerating(false)
     }
   }
 
-  return (
+  async function downloadZip() {
+    if (!project) return
+    const zip = new JSZip()
+    Object.entries(project.files).forEach(([name, content]) => {
+      zip.file(name, content)
+    })
+    const blob = await zip.generateAsync({ type: 'blob' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'kernal-app.zip'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  // Build Sandpack files object (keys need leading slash)
+  const sandpackFiles = project ? Object.fromEntries(
+    Object.entries(project.files).map(([name, content]) => [
+      name.startsWith('/') ? name : '/' + name,
+      content
+    ])
+  ) : {}
+
+  // ── Chat panel ──
+  const chatPanel = (
     <div
-      className={`h-full flex flex-col terminal-container ${className}`}
-      onClick={() => inputRef.current?.focus()}
+      style={{
+        width: isNarrow ? '100%' : '45%',
+        display: isNarrow && mobileView !== 'chat' ? 'none' : 'flex',
+        flex: isNarrow ? 1 : undefined,
+        flexDirection: 'column',
+        borderRight: isNarrow ? 'none' : '1px solid #1E1E18',
+        minHeight: 0,
+      }}
     >
-      {/* Output */}
-      <div className="flex-1 overflow-y-auto font-mono text-[11px] leading-relaxed p-3 cursor-text select-text">
-        {lines.map((line, i) => (
-          <div
-            key={i}
-            className="whitespace-pre-wrap"
-            style={{
-              color: line.type === 'error' ? '#FF5555'
-                : line.type === 'input' ? '#B87420'
-                : '#00FF88'
-            }}
-          >
-            {line.text}
-          </div>
-        ))}
-        <div ref={bottomRef} />
+      {/* Header */}
+      <div style={{ padding: '16px 20px', borderBottom: '1px solid #1E1E18' }}>
+        <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: '#B87420', letterSpacing: 2 }}>
+          KERNAL AI CODING TERMINAL
+        </div>
+        <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: '#4A4A40', marginTop: 4 }}>
+          Powered by claude-sonnet-4-6 · Premium ($KRN)
+        </div>
       </div>
 
-      {/* Input row */}
-      <div
-        className="shrink-0 flex items-center gap-2 px-3 py-2"
-        style={{ borderTop: '1px solid #1E1E18' }}
-      >
-        <span
-          className="font-mono text-[11px] shrink-0 select-none"
-          style={{ color: '#B87420' }}
-        >
-          kernal@registry:~$
-        </span>
-        <div className="relative flex-1 flex items-center font-mono text-[11px]" style={{ color: '#00FF88' }}>
-          <span className="whitespace-pre" style={{ minHeight: '1em' }}>{input}</span>
-          <span className="terminal-cursor" style={{ color: '#00FF88' }}>█</span>
-          <input
-            ref={inputRef}
-            autoFocus
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={handleKey}
-            spellCheck={false}
-            autoComplete="off"
-            autoCapitalize="off"
-            autoCorrect="off"
-            className="absolute inset-0 w-full bg-transparent opacity-0 font-mono text-[11px] cursor-text"
-            style={{ caretColor: 'transparent' }}
-            aria-label="Terminal input"
-          />
-        </div>
+      {/* Chat messages */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '20px', minHeight: 0 }}>
+        {messages.length === 0 && (
+          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 12, color: '#00FF88', lineHeight: 1.8 }}>
+            <div>KERNAL AI Coding Terminal v1.0</div>
+            <div style={{ color: '#4A4A40', marginTop: 8 }}>
+              Describe an app and I&apos;ll build it — live preview + download.
+            </div>
+            <div style={{ color: '#4A4A40', marginTop: 12 }}>Examples:</div>
+            <div style={{ color: '#6B6655', marginTop: 4 }}>› build a pomodoro timer with dark theme</div>
+            <div style={{ color: '#6B6655' }}>› make a crypto price tracker dashboard</div>
+            <div style={{ color: '#6B6655' }}>› create a markdown note-taking app</div>
+          </div>
+        )}
+        {messages.map((m, i) => (
+          <div key={i} style={{ marginBottom: 16, fontFamily: 'JetBrains Mono, monospace', fontSize: 12 }}>
+            {m.role === 'user' ? (
+              <div>
+                <span style={{ color: '#B87420' }}>kernal@registry:~$ </span>
+                <span style={{ color: '#E8E3D8' }}>{m.content}</span>
+              </div>
+            ) : (
+              <div style={{ color: '#00FF88', lineHeight: 1.7 }}>
+                <span style={{ color: '#3D6B28' }}>✓ </span>{m.content}
+                {m.files && (
+                  <div style={{ color: '#4A4A40', marginTop: 6, fontSize: 11 }}>
+                    Created {Object.keys(m.files).length} files: {Object.keys(m.files).join(', ')}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        ))}
+        {isGenerating && (
+          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 12, color: '#B87420' }}>
+            ▸ Generating<span className="blink">█</span>
+          </div>
+        )}
+        {error && (
+          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 12, color: '#B83420', marginTop: 8 }}>
+            ✗ {error}
+          </div>
+        )}
+        <div ref={chatEndRef} />
+      </div>
+
+      {/* Input */}
+      <div style={{ padding: '16px 20px', borderTop: '1px solid #1E1E18' }}>
+        {!address ? (
+          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: '#B87420' }}>
+            Connect wallet (10M $KRN) to unlock →
+          </div>
+        ) : !isPremium ? (
+          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: '#B87420' }}>
+            Requires 10,000,000 $KRN for AI coding access
+          </div>
+        ) : (
+          <div style={{ display: 'flex', gap: 8 }}>
+            <input
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && generate()}
+              placeholder="Describe your app..."
+              maxLength={2000}
+              disabled={isGenerating}
+              style={{
+                flex: 1, background: '#141410', border: '1px solid #2E2D26',
+                color: '#E8E3D8', fontFamily: 'JetBrains Mono, monospace', fontSize: 12,
+                padding: '10px 12px', outline: 'none'
+              }}
+            />
+            <button
+              onClick={generate}
+              disabled={isGenerating}
+              style={{
+                background: '#B87420', color: '#0D0D0A', border: 'none',
+                fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 600,
+                letterSpacing: 1.5, padding: '0 18px', cursor: isGenerating ? 'default' : 'pointer',
+                textTransform: 'uppercase', opacity: isGenerating ? 0.6 : 1
+              }}
+            >
+              {isGenerating ? '...' : 'Send'}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )
+
+  // ── Workspace panel ──
+  const workspacePanel = (
+    <div
+      style={{
+        width: isNarrow ? '100%' : '55%',
+        display: isNarrow && mobileView !== 'workspace' ? 'none' : 'flex',
+        flex: isNarrow ? 1 : undefined,
+        flexDirection: 'column',
+        minHeight: 0,
+      }}
+    >
+      {project ? (
+        <>
+          {/* Workspace toolbar */}
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '12px 20px', borderBottom: '1px solid #1E1E18'
+          }}>
+            <div style={{ display: 'flex', gap: 16 }}>
+              <button onClick={() => setView('preview')} style={tabStyle(view === 'preview')}>PREVIEW</button>
+              <button onClick={() => setView('code')} style={tabStyle(view === 'code')}>CODE</button>
+            </div>
+            <button onClick={downloadZip} style={{
+              background: 'transparent', border: '1px solid #B87420', color: '#B87420',
+              fontFamily: 'DM Sans, sans-serif', fontSize: 10, fontWeight: 600, letterSpacing: 1.5,
+              padding: '6px 14px', cursor: 'pointer', textTransform: 'uppercase'
+            }}>
+              ↓ Download ZIP
+            </button>
+          </div>
+
+          {/* Preview or Code */}
+          <div style={{ flex: 1, overflow: 'hidden', minHeight: 0 }}>
+            {view === 'preview' ? (
+              <Sandpack
+                key={Object.keys(sandpackFiles).join(',')}
+                template={project.framework === 'react' ? 'react' : 'static'}
+                files={sandpackFiles}
+                options={{ showNavigator: false, showTabs: false, editorHeight: '100%', showConsole: false }}
+                theme="dark"
+              />
+            ) : (
+              <div style={{ display: 'flex', height: '100%' }}>
+                {/* File list */}
+                <div style={{ width: 180, borderRight: '1px solid #1E1E18', padding: 12, overflowY: 'auto' }}>
+                  {Object.keys(project.files).map(name => (
+                    <div key={name} onClick={() => setActiveFile(name)} style={{
+                      fontFamily: 'JetBrains Mono, monospace', fontSize: 11, padding: '6px 8px',
+                      color: activeFile === name ? '#B87420' : '#6B6655', cursor: 'pointer',
+                      background: activeFile === name ? '#141410' : 'transparent'
+                    }}>
+                      {name}
+                    </div>
+                  ))}
+                </div>
+                {/* Code content */}
+                <pre style={{
+                  flex: 1, overflow: 'auto', padding: 16, margin: 0,
+                  fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: '#E8E3D8',
+                  lineHeight: 1.6
+                }}>
+                  {project.files[activeFile]}
+                </pre>
+              </div>
+            )}
+          </div>
+        </>
+      ) : (
+        <div style={{
+          flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontFamily: 'JetBrains Mono, monospace', fontSize: 12, color: '#3D3C35'
+        }}>
+          Your app preview will appear here
+        </div>
+      )}
+    </div>
+  )
+
+  return (
+    <div style={{ display: 'flex', flexDirection: isNarrow ? 'column' : 'row', height: '100%', background: '#0D0D0A' }}>
+      {/* Mobile view toggle */}
+      {isNarrow && (
+        <div style={{ display: 'flex', borderBottom: '1px solid #1E1E18', flexShrink: 0 }}>
+          <button onClick={() => setMobileView('chat')} style={mobileTabStyle(mobileView === 'chat')}>CHAT</button>
+          <button onClick={() => setMobileView('workspace')} style={mobileTabStyle(mobileView === 'workspace')}>WORKSPACE</button>
+        </div>
+      )}
+      {chatPanel}
+      {workspacePanel}
+    </div>
+  )
+}
+
+function tabStyle(active: boolean): React.CSSProperties {
+  return {
+    background: 'transparent', border: 'none', cursor: 'pointer',
+    fontFamily: 'DM Sans, sans-serif', fontSize: 10, fontWeight: 600, letterSpacing: 1.5,
+    color: active ? '#B87420' : '#6B6655', textTransform: 'uppercase',
+    borderBottom: active ? '2px solid #B87420' : '2px solid transparent',
+    paddingBottom: 4
+  }
+}
+
+function mobileTabStyle(active: boolean): React.CSSProperties {
+  return {
+    flex: 1, background: active ? '#141410' : 'transparent', border: 'none',
+    cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', fontSize: 10, fontWeight: 600,
+    letterSpacing: 1.5, color: active ? '#B87420' : '#6B6655', textTransform: 'uppercase',
+    padding: '10px 0', borderBottom: active ? '2px solid #B87420' : '2px solid transparent'
+  }
 }
