@@ -11,7 +11,7 @@ const TICKER_ITEMS = [
   'Priority: 100M $KRN',
   'Submit your skill',
   'Earn 50% of execution fees',
-  'gitkernal.xyz',
+  'gitkernal.app',
 ]
 
 export default function Ticker() {

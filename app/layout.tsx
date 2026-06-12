@@ -5,11 +5,11 @@ import { ThemeProvider } from '@/providers/ThemeProvider'
 export const metadata: Metadata = {
   title: 'KERNAL — AI Skill OS for Base Network',
   description: 'Deploy, execute, and compose AI skills on Base Network. Powered by $KRN.',
-  metadataBase: new URL('https://gitkernal.xyz'),
+  metadataBase: new URL('https://gitkernal.app'),
   openGraph: {
     title: 'KERNAL — AI Skill OS for Base Network',
     description: 'Deploy, execute, and compose AI skills on Base Network.',
-    url: 'https://gitkernal.xyz',
+    url: 'https://gitkernal.app',
     siteName: 'KERNAL',
     locale: 'en_US',
     type: 'website',
