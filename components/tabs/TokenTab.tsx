@@ -1,7 +1,7 @@
 'use client'
 import CopyButton from '@/components/ui/CopyButton'
 
-const KRN_CA = '0x974B53861d975E727305298D2718849c43046ba3'
+const KRN_CA = '0x4B618aE486E721199F382dc1758A1DDBa284A0ab'
 
 export default function TokenTab() {
   return (

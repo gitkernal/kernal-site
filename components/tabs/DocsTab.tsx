@@ -111,7 +111,7 @@ Header: \`x-admin-secret: <secret>\``
 Tier is determined at execution time by reading your wallet's $KRN balance from the Base mainnet contract:
 
 \`\`\`
-0x974B53861d975E727305298D2718849c43046ba3
+0x4B618aE486E721199F382dc1758A1DDBa284A0ab
 \`\`\`
 
 ## Revenue Distribution

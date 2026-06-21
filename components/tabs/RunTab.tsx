@@ -110,7 +110,7 @@ export default function RunTab({ initialSkillId = '' }: RunTabProps) {
             This skill requires 10,000,000 $KRN on Base.
           </div>
           <a
-            href={`https://app.uniswap.org/swap?outputCurrency=${process.env.NEXT_PUBLIC_KRN_CONTRACT || '0x974B53861d975E727305298D2718849c43046ba3'}&chain=base`}
+            href={`https://app.uniswap.org/swap?outputCurrency=${process.env.NEXT_PUBLIC_KRN_CONTRACT || '0x4B618aE486E721199F382dc1758A1DDBa284A0ab'}&chain=base`}
             target="_blank"
             rel="noopener noreferrer"
             className="block w-full py-3 text-center font-sans text-[11px] font-semibold tracking-widest uppercase"

@@ -133,8 +133,8 @@ input,textarea,select{font-family:inherit}
     <div class="sf" style="font-size:52px;font-weight:300;color:#EDE8DF;letter-spacing:-1px;line-height:1;margin-bottom:8px;font-style:italic">Soon.</div>
     <div class="sn" style="font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#B87420;margin-bottom:18px">Premium Skill — $KRN Required</div>
     <div class="sn" style="font-size:14px;color:rgba(255,255,255,.4);line-height:1.72;margin-bottom:28px">This skill requires holding <strong style="color:#B87420">10,000,000 $KRN</strong> on Base. Buy $KRN on Uniswap to unlock all premium skills.</div>
-    <div onclick="navigator.clipboard&&navigator.clipboard.writeText('0x974B53861d975E727305298D2718849c43046ba3')" style="background:#0D0D0A;border:1px solid #2E2D26;padding:10px 14px;margin-bottom:20px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px" title="Click to copy CA">
-      <div><div style="font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#6B6655;font-family:'DM Sans',system-ui,sans-serif;margin-bottom:4px">Contract Address · Base</div><div style="font-family:'JetBrains Mono','Courier New',monospace;font-size:10px;color:#B87420;word-break:break-all">0x974B53861d975E727305298D2718849c43046ba3</div></div>
+    <div onclick="navigator.clipboard&&navigator.clipboard.writeText('0x4B618aE486E721199F382dc1758A1DDBa284A0ab')" style="background:#0D0D0A;border:1px solid #2E2D26;padding:10px 14px;margin-bottom:20px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px" title="Click to copy CA">
+      <div><div style="font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#6B6655;font-family:'DM Sans',system-ui,sans-serif;margin-bottom:4px">Contract Address · Base</div><div style="font-family:'JetBrains Mono','Courier New',monospace;font-size:10px;color:#B87420;word-break:break-all">0x4B618aE486E721199F382dc1758A1DDBa284A0ab</div></div>
       <span style="font-size:10px;color:#363630;flex-shrink:0">⎘</span>
     </div>
     <div style="display:flex;border-top:1px solid #2E2D26;padding-top:18px;margin-bottom:22px">
@@ -305,7 +305,7 @@ var ART=[
    intro:'100B supply, 0.2% execution fees, and three distinct value accrual paths for every holder type.',
    secs:[
      {h:null,b:'Token design is hard to get right. Most crypto tokens fail the alignment test: do the people who benefit from the protocol\u2019s growth actually benefit from holding the token?\n\n$KRN is designed to pass that test. Every type of participant \u2014 skill builder, agent operator, yield seeker \u2014 has a clear, on-chain mechanism for value capture.'},
-     {h:'Token Parameters',b:'Token: $KRN \u00b7 Network: Base \u00b7 Total Supply: 100,000,000,000\n\nContract: 0x974B53861d975E727305298D2718849c43046ba3\nListing fee: 5,000,000 $KRN (skill submission)\nPremium access gate: 10,000,000 $KRN\nPriority access gate: 100,000,000 $KRN\nExecution fee: 0.2% per on-chain transaction\nDev revenue split: 50% to skill developer'},
+     {h:'Token Parameters',b:'Token: $KRN \u00b7 Network: Base \u00b7 Total Supply: 100,000,000,000\n\nContract: 0x4B618aE486E721199F382dc1758A1DDBa284A0ab\nListing fee: 5,000,000 $KRN (skill submission)\nPremium access gate: 10,000,000 $KRN\nPriority access gate: 100,000,000 $KRN\nExecution fee: 0.2% per on-chain transaction\nDev revenue split: 50% to skill developer'},
      {h:'The Fee Engine',b:'Every transaction executed via a KERNAL skill carries a 0.2% fee, collected at execution time and sent to the $KRN treasury.\n\nTreasury distributes to stakers on a rolling basis, proportional to staked share, denominated in the execution token (typically ETH on Base).\n\nMore agent volume = more fees = more yield. The flywheel is clean and the direction is clear.'},
      {h:'Why 100B Supply?',b:'High supply creates accessible unit price, lowering the psychological barrier to accumulation. The gating thresholds (10M and 100M) are meaningful relative to supply without being exclusionary.\n\nAs protocol volume grows, staking yield creates organic buy pressure from yield-seekers independent of speculation.'},
      {h:'Developer Alignment',b:'Skill developers earn 50% of all execution fees their skills generate. No manual payouts, no invoices, no trust required. Revenue flows on-chain directly to the developer wallet declared in the skill\u2019s frontmatter.\n\nThis creates the strongest possible incentive to build high-quality, well-maintained skills: more usage = more revenue, permanently.'}
@@ -416,7 +416,7 @@ var DOCS={
      ]},
     {id:'token',label:'$KRN Token',title:'$KRN Token Documentation',
      content:[
-       {type:'ul',t:['Token: $KRN \u00b7 Network: Base \u00b7 Supply: 100,000,000,000','Contract: 0x974B53861d975E727305298D2718849c43046ba3','Listing fee: 5,000,000 $KRN (skill submission)','Premium gate: 10,000,000 $KRN (access all premium skills)','Priority gate: 100,000,000 $KRN (early access + priority support)']},
+       {type:'ul',t:['Token: $KRN \u00b7 Network: Base \u00b7 Supply: 100,000,000,000','Contract: 0x4B618aE486E721199F382dc1758A1DDBa284A0ab','Listing fee: 5,000,000 $KRN (skill submission)','Premium gate: 10,000,000 $KRN (access all premium skills)','Priority gate: 100,000,000 $KRN (early access + priority support)']},
        {type:'h2',t:'Execution Fee Distribution'},
        {type:'p',t:'Every on-chain execution via a KERNAL skill carries a 0.2% fee. This is split: 50% to the skill developer (auto on-chain), 50% to the $KRN staking treasury. Treasury distributes to stakers proportional to their staked share.'},
        {type:'h2',t:'Staking Mechanics'},
@@ -639,7 +639,7 @@ function startBoot(){
 /* ── Ticker ── */
 function tickerHTML(){
   var utc=new Date().toISOString().slice(11,19);
-  var msg='\u25a0 LIVE  \u00b7  '+utc+'Z  \u00b7  KERNAL v2.0.0  \u00b7  BASE NETWORK  \u00b7  12 SKILLS  \u00b7  CA: 0x974B53861d975E727305298D2718849c43046ba3  \u00b7  $KRN ON BASE  \u00b7  ';
+  var msg='\u25a0 LIVE  \u00b7  '+utc+'Z  \u00b7  KERNAL v2.0.0  \u00b7  BASE NETWORK  \u00b7  12 SKILLS  \u00b7  CA: 0x4B618aE486E721199F382dc1758A1DDBa284A0ab  \u00b7  $KRN ON BASE  \u00b7  ';
   return '<div style="background:'+C.dark+';height:28px;overflow:hidden;display:flex;align-items:center;flex-shrink:0"><div style="display:flex;animation:ticker 28s linear infinite;white-space:nowrap"><span class="sm" style="font-size:9px;color:'+C.amber+';letter-spacing:1.5px;padding-right:60px">'+msg+'</span><span class="sm" style="font-size:9px;color:'+C.amber+';letter-spacing:1.5px;padding-right:60px">'+msg+'</span></div></div>';
 }
 
@@ -696,9 +696,9 @@ function viewHome(){
         lbl('Agent Skill Registry \u00b7 Base','color:'+C.amber+';margin-bottom:10px')+
         '<div class="sf" style="font-size:54px;font-weight:300;color:'+C.bg+';line-height:1;letter-spacing:-1.5px;margin-bottom:12px;font-style:italic">kernal</div>'+
         '<div class="sn" style="font-size:13px;color:rgba(255,255,255,.38);line-height:1.6;margin-bottom:14px">Install skills into your AI agent.<br>Let it execute on-chain autonomously.</div>'+
-        '<div onclick="navigator.clipboard&&navigator.clipboard.writeText(\'0x974B53861d975E727305298D2718849c43046ba3\')" style="background:rgba(0,0,0,.25);border:1px solid rgba(184,116,32,.2);padding:7px 11px;margin-bottom:14px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px" title="Tap to copy CA">'+
+        '<div onclick="navigator.clipboard&&navigator.clipboard.writeText(\'0x4B618aE486E721199F382dc1758A1DDBa284A0ab\')" style="background:rgba(0,0,0,.25);border:1px solid rgba(184,116,32,.2);padding:7px 11px;margin-bottom:14px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px" title="Tap to copy CA">'+
           '<div><div class="sn" style="font-size:8px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:3px">CA · Base Network</div>'+
-          '<div class="sm" style="font-size:9px;color:'+C.amber+';word-break:break-all">0x974B53861d975E727305298D2718849c43046ba3</div></div>'+
+          '<div class="sm" style="font-size:9px;color:'+C.amber+';word-break:break-all">0x4B618aE486E721199F382dc1758A1DDBa284A0ab</div></div>'+
           '<span style="font-size:11px;color:rgba(255,255,255,.2);flex-shrink:0">\u2398</span>'+
         '</div>'+
         '<div style="display:flex;gap:8px">'+
@@ -812,9 +812,9 @@ function viewToken(){
       '<div style="position:relative">'+
         lbl('Token \u00b7 Base Network','color:'+C.amber+';margin-bottom:8px')+
         '<div class="sf" style="font-size:56px;font-weight:300;color:'+C.bg+';letter-spacing:-1.5px;line-height:1;margin-bottom:10px;font-style:italic">$KRN</div>'+
-        '<div onclick="navigator.clipboard&&navigator.clipboard.writeText(\'0x974B53861d975E727305298D2718849c43046ba3\')" style="background:rgba(0,0,0,.3);border:1px solid rgba(184,116,32,.25);padding:8px 12px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px" title="Tap to copy CA">'+
+        '<div onclick="navigator.clipboard&&navigator.clipboard.writeText(\'0x4B618aE486E721199F382dc1758A1DDBa284A0ab\')" style="background:rgba(0,0,0,.3);border:1px solid rgba(184,116,32,.25);padding:8px 12px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px" title="Tap to copy CA">'+
           '<div><div class="sn" style="font-size:8px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:3px">Contract Address · Base</div>'+
-          '<div class="sm" style="font-size:9px;color:'+C.amber+';word-break:break-all">0x974B53861d975E727305298D2718849c43046ba3</div></div>'+
+          '<div class="sm" style="font-size:9px;color:'+C.amber+';word-break:break-all">0x4B618aE486E721199F382dc1758A1DDBa284A0ab</div></div>'+
           '<span style="font-size:12px;color:rgba(255,255,255,.25);flex-shrink:0">\u2398</span>'+
         '</div>'+
       '</div>'+
@@ -839,8 +839,8 @@ function viewToken(){
     '</div>'+
     hr('margin:0 20px 20px')+
     '<div style="padding:0 20px;display:flex;flex-direction:column;gap:8px">'+
-      '<a href="https://app.uniswap.org/swap?chain=base&outputCurrency=0x974B53861d975E727305298D2718849c43046ba3" target="_blank" class="bh sn" style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:'+C.dark+';border:1px solid '+C.dark+';font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:'+C.bg+';text-decoration:none"><span>Buy $KRN on Uniswap</span><span style="font-size:14px;opacity:.6">\u25ba</span></a>'+
-      '<a href="https://basescan.org/token/0x974B53861d975E727305298D2718849c43046ba3" target="_blank" class="bh sn" style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:transparent;border:1px solid '+C.bg3+';font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:'+C.mid+';text-decoration:none"><span>View on BaseScan</span><span style="font-size:14px;opacity:.6">\u25ba</span></a>'+
+      '<a href="https://app.uniswap.org/swap?chain=base&outputCurrency=0x4B618aE486E721199F382dc1758A1DDBa284A0ab" target="_blank" class="bh sn" style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:'+C.dark+';border:1px solid '+C.dark+';font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:'+C.bg+';text-decoration:none"><span>Buy $KRN on Uniswap</span><span style="font-size:14px;opacity:.6">\u25ba</span></a>'+
+      '<a href="https://basescan.org/token/0x4B618aE486E721199F382dc1758A1DDBa284A0ab" target="_blank" class="bh sn" style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:transparent;border:1px solid '+C.bg3+';font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:'+C.mid+';text-decoration:none"><span>View on BaseScan</span><span style="font-size:14px;opacity:.6">\u25ba</span></a>'+
     '</div>'+
   '</div>';
 }
@@ -1222,11 +1222,11 @@ function deskToken(){
   return '<div style="height:500px;overflow:auto;display:flex">'+
     '<div style="width:200px;background:'+C.dark+';padding:20px 16px;flex-shrink:0;display:flex;flex-direction:column;justify-content:space-between">'+
       '<div>'+lbl('Token','color:'+C.amber+';margin-bottom:8px')+'<div class="sf" style="font-size:40px;font-weight:300;color:'+C.bg+';letter-spacing:-1px;font-style:italic;line-height:1;margin-bottom:8px">$KRN</div>'+
-       '<div onclick="navigator.clipboard&&navigator.clipboard.writeText(\'0x974B53861d975E727305298D2718849c43046ba3\')" style="background:rgba(0,0,0,.3);border:1px solid rgba(184,116,32,.2);padding:6px 8px;cursor:pointer;margin-bottom:8px" title="Click to copy">'+
+       '<div onclick="navigator.clipboard&&navigator.clipboard.writeText(\'0x4B618aE486E721199F382dc1758A1DDBa284A0ab\')" style="background:rgba(0,0,0,.3);border:1px solid rgba(184,116,32,.2);padding:6px 8px;cursor:pointer;margin-bottom:8px" title="Click to copy">'+
          '<div class="sn" style="font-size:7px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:3px">CA · Base</div>'+
-         '<div class="sm" style="font-size:8px;color:'+C.amber+';word-break:break-all;line-height:1.4">0x974B53861d975E727305298D2718849c43046ba3</div>'+
+         '<div class="sm" style="font-size:8px;color:'+C.amber+';word-break:break-all;line-height:1.4">0x4B618aE486E721199F382dc1758A1DDBa284A0ab</div>'+
        '</div></div>'+
-      '<a href="https://basescan.org/token/0x974B53861d975E727305298D2718849c43046ba3" target="_blank" class="bh sn" style="background:transparent;border:1px solid '+C.darkB+';padding:8px 10px;font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.4);display:flex;align-items:center;justify-content:space-between;text-decoration:none"><span>View on BaseScan</span><span>\u25ba</span></a>'+
+      '<a href="https://basescan.org/token/0x4B618aE486E721199F382dc1758A1DDBa284A0ab" target="_blank" class="bh sn" style="background:transparent;border:1px solid '+C.darkB+';padding:8px 10px;font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.4);display:flex;align-items:center;justify-content:space-between;text-decoration:none"><span>View on BaseScan</span><span>\u25ba</span></a>'+
     '</div>'+
     '<div style="flex:1;padding:18px 20px;overflow:auto">'+
       [['Token','$KRN',null,false],['Network','Base',null,false],['Supply','100,000,000,000',null,false],['Circulating','100,000,000,000',null,false],['Status','Live',null,true,true]].map(function(r){return srow(r[0],r[1],r[2],r[3],r[4]);}).join('')+
@@ -1236,8 +1236,8 @@ function deskToken(){
       }).join('')+
       hr('margin:10px 0')+
       '<div style="display:flex;flex-direction:column;gap:6px">'+
-        '<a href="https://app.uniswap.org/swap?chain=base&outputCurrency=0x974B53861d975E727305298D2718849c43046ba3" target="_blank" class="bh sn" style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:'+C.amber+';border:1px solid '+C.amber+';font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:'+C.dark+';text-decoration:none"><span>Buy $KRN on Uniswap</span><span>\u25ba</span></a>'+
-        '<a href="https://basescan.org/token/0x974B53861d975E727305298D2718849c43046ba3" target="_blank" class="bh sn" style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:transparent;border:1px solid '+C.bg3+';font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:'+C.mid+';text-decoration:none"><span>View on BaseScan</span><span>\u25ba</span></a>'+
+        '<a href="https://app.uniswap.org/swap?chain=base&outputCurrency=0x4B618aE486E721199F382dc1758A1DDBa284A0ab" target="_blank" class="bh sn" style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:'+C.amber+';border:1px solid '+C.amber+';font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:'+C.dark+';text-decoration:none"><span>Buy $KRN on Uniswap</span><span>\u25ba</span></a>'+
+        '<a href="https://basescan.org/token/0x4B618aE486E721199F382dc1758A1DDBa284A0ab" target="_blank" class="bh sn" style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:transparent;border:1px solid '+C.bg3+';font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:'+C.mid+';text-decoration:none"><span>View on BaseScan</span><span>\u25ba</span></a>'+
       '</div>'+
     '</div>'+
   '</div>';

@@ -1,7 +1,7 @@
 import { createPublicClient, http, parseUnits, formatUnits } from 'viem'
 import { base } from 'viem/chains'
 
-const KRN_CA = '0x974B53861d975E727305298D2718849c43046ba3' as `0x${string}`
+const KRN_CA = '0x4B618aE486E721199F382dc1758A1DDBa284A0ab' as `0x${string}`
 
 const KRN_ABI = [
   {

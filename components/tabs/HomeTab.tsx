@@ -93,7 +93,7 @@ export default function HomeTab({ onNavigate }: HomeTabProps) {
           className="font-mono text-[10px] break-all mb-2"
           style={{ color: 'var(--ghost)' }}
         >
-          0x974B53861d975E727305298D2718849c43046ba3
+          0x4B618aE486E721199F382dc1758A1DDBa284A0ab
         </div>
         <div className="space-y-1">
           {[

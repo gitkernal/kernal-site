@@ -2,7 +2,7 @@
 import { useWallet } from '@/hooks/useWallet'
 import KernalLogo from '@/components/os/KernalLogo'
 
-const KRN_CA = process.env.NEXT_PUBLIC_KRN_CONTRACT || '0x974B53861d975E727305298D2718849c43046ba3'
+const KRN_CA = process.env.NEXT_PUBLIC_KRN_CONTRACT || '0x4B618aE486E721199F382dc1758A1DDBa284A0ab'
 const KRN_UNISWAP_URL = `https://app.uniswap.org/swap?outputCurrency=${KRN_CA}&chain=base`
 
 export default function StakeTab() {
