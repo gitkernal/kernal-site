@@ -1,4 +1,4 @@
-import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropicClient, getModel } from '@/lib/anthropic'
 import { createClient } from '@/lib/supabase'
 import { buildSkillPrompt } from '@/lib/skill-prompts'
 import { SKILLS_DATA } from '@/lib/skills-data'
@@ -55,10 +55,10 @@ export async function POST(req: NextRequest) {
   const startTime = Date.now()
 
   try {
-    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+    const anthropic = getAnthropicClient()
 
     const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-6',
+      model: getModel(),
       max_tokens: 1500,
       system: prompt.system,
       messages: [{ role: 'user', content: prompt.user }]

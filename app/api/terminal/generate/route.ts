@@ -1,4 +1,4 @@
-import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropicClient, getModel } from '@/lib/anthropic'
 import { createClient } from '@/lib/supabase'
 import { checkPremiumAccess } from '@/lib/onchain'
 import { NextRequest, NextResponse } from 'next/server'
@@ -92,9 +92,9 @@ export async function POST(req: NextRequest) {
 
   // 5. Generate
   try {
-    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+    const anthropic = getAnthropicClient()
     const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-6',
+      model: getModel(),
       max_tokens: MAX_TOKENS,
       system: SYSTEM_PROMPT,
       messages
