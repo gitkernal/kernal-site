@@ -102,7 +102,7 @@ export default function RoadmapTab() {
                   className="font-mono text-[8px] tracking-widest uppercase px-2 py-0.5"
                   style={{
                     background: status === 'complete' ? 'var(--green)'
-                      : status === 'active' ? 'rgba(184,116,32,0.2)'
+                      : status === 'active' ? 'rgba(226,144,30,0.2)'
                       : 'var(--bg3)',
                     color: status === 'complete' ? 'var(--greenM)'
                       : status === 'active' ? 'var(--amber)'

@@ -58,7 +58,7 @@ export default function BootScreen({ onComplete }: BootScreenProps) {
       style={{ background: 'var(--dark)' }}
     >
       <div className="mb-8">
-        <KernalLogo size={48} color="#B87420" />
+        <KernalLogo size={48} color="#EAF4EF" />
       </div>
 
       <div className="font-mono text-[12px] leading-relaxed max-w-lg">

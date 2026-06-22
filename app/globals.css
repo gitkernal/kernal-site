@@ -5,20 +5,37 @@
 @tailwind utilities;
 
 :root {
-  --bg:      #EDE8DF;
-  --bg2:     #E5DED0;
-  --bg3:     #D8D0BE;
-  --dark:    #141410;
-  --darkB:   #2E2D26;
-  --dark3:   #1A1A14;
-  --text:    #1C1C17;
-  --mid:     #6B6655;
-  --light:   #9B9585;
-  --ghost:   #C0BAA8;
-  --amber:   #B87420;
-  --amberL:  #D4962E;
-  --green:   #2A481A;
-  --greenM:  #3D6B28;
+  /* Backgrounds — the mint-to-sky gradient world */
+  --bg:        #EAF4EF;   /* base — soft mint-white */
+  --bg2:       #FFFFFF;   /* cards / raised surfaces — pure white */
+  --bg3:       #DCEBE4;   /* borders / dividers — muted mint */
+  --bg-grad-1: #C5E8F0;   /* sky blue (gradient start) */
+  --bg-grad-2: #D4ECC8;   /* mint green (gradient end) */
+
+  /* Dark surfaces — always dark (terminal, code, deep panels, ticker, boot).
+     NOTE: intentionally NOT inverted in dark theme so the terminal stays dark. */
+  --dark:      #14201C;   /* deep teal-charcoal */
+  --darkB:     #243530;
+  --dark3:     #1B2723;
+
+  /* Text */
+  --text:      #16241F;   /* near-black with a green undertone */
+  --mid:       #5A6B64;
+  --light:     #8A9A93;
+  --ghost:     #B5C4BC;
+
+  /* Accent — the amber block from the logo */
+  --amber:     #E2901E;
+  --amberL:    #F0A838;
+  --amberD:    #C97D12;
+
+  /* Supporting accents (use sparingly) */
+  --sky:       #4FB3CC;   /* links, info */
+  --mint:      #4A9E6B;   /* success, free tier */
+
+  /* Legacy success vars — mapped onto mint so existing usages stay on-palette */
+  --green:     #3C7E55;
+  --greenM:    #4A9E6B;
 }
 
 * {
@@ -32,6 +49,21 @@ html, body {
   overflow: hidden;
   background-color: var(--bg);
   color: var(--text);
+}
+
+/* Signature mint-to-sky gradient backdrop. Soft and subtle — content cards sit
+   on top in pure white (--bg2). In dark theme the gradient vars are near-flat. */
+.app-bg {
+  background: linear-gradient(135deg, var(--bg-grad-1) 0%, var(--bg) 45%, var(--bg-grad-2) 100%);
+  background-attachment: fixed;
+}
+
+/* Floating white content card on the gradient */
+.content-card {
+  background: var(--bg2);
+  border: 1px solid var(--bg3);
+  border-radius: 12px;
+  box-shadow: 0 2px 16px rgba(20, 32, 28, 0.06);
 }
 
 /* Utility classes */
@@ -93,20 +125,31 @@ input, textarea, select {
 
 /* ── Dark theme ──────────────────────────────────────── */
 [data-theme="dark"] {
-  --bg:      #141410;
-  --bg2:     #1A1A14;
-  --bg3:     #2E2D26;
-  --dark:    #0D0D0A;
-  --darkB:   #1E1E18;
-  --dark3:   #111110;
-  --text:    #EDE8DF;
-  --mid:     #9B9585;
-  --light:   #6B6655;
-  --ghost:   #4A483F;
-  --amber:   #C8852A;
-  --amberL:  #D4962E;
-  --green:   #2A481A;
-  --greenM:  #4A8030;
+  --bg:        #0E1714;   /* deep teal-charcoal */
+  --bg2:       #14201C;
+  --bg3:       #233330;
+  --bg-grad-1: #14201C;   /* near-flat, very subtle */
+  --bg-grad-2: #0E1714;
+
+  /* Dark surfaces stay dark (NOT inverted) so terminal/panels remain dark. */
+  --dark:      #14201C;
+  --darkB:     #243530;
+  --dark3:     #1B2723;
+
+  --text:      #E6F0EB;
+  --mid:       #9DB0A8;
+  --light:     #6A7C74;
+  --ghost:     #3A4844;
+
+  --amber:     #F0A838;   /* slightly brighter amber for dark bg */
+  --amberL:    #F7BC58;
+  --amberD:    #E2901E;
+
+  --sky:       #6FC8DE;
+  --mint:      #5FB37F;
+
+  --green:     #4A9E6B;
+  --greenM:    #5FB37F;
 }
 
 [data-theme="dark"] .fi {

@@ -80,8 +80,8 @@ export default function DesktopOS() {
 
   return (
     <div
-      className="fixed inset-0 flex flex-col overflow-hidden"
-      style={{ background: 'var(--bg)', paddingBottom: TICKER_H }}
+      className="app-bg fixed inset-0 flex flex-col overflow-hidden"
+      style={{ paddingBottom: TICKER_H }}
     >
       {/* ── Top navbar ── */}
       <div
@@ -115,7 +115,7 @@ export default function DesktopOS() {
                   fontSize: 11,
                   letterSpacing: '1.5px',
                   color: isActive ? 'var(--amber)' : 'var(--light)',
-                  background: isActive ? 'rgba(184,116,32,0.06)' : 'transparent',
+                  background: isActive ? 'rgba(226,144,30,0.08)' : 'transparent',
                   borderBottom: isActive ? '2px solid var(--amber)' : '2px solid transparent',
                 }}
               >
@@ -156,7 +156,7 @@ export default function DesktopOS() {
                   onClick={() => navigate(page.id)}
                   className="w-full flex items-center gap-2 px-2 py-1.5 text-left mb-0.5 transition-colors"
                   style={{
-                    background: isActive ? 'rgba(184,116,32,0.12)' : 'transparent',
+                    background: isActive ? 'rgba(226,144,30,0.08)' : 'transparent',
                     borderRadius: 3,
                     borderLeft: isActive ? '2px solid var(--amber)' : '2px solid transparent',
                   }}
@@ -182,17 +182,17 @@ export default function DesktopOS() {
         {/* Main content — FULL BLEED, no window frame */}
         <main
           className="flex-1 overflow-y-auto"
-          style={{ background: isTerminal ? '#0D0D0A' : 'var(--bg)' }}
+          style={{ background: isTerminal ? '#0D0D0A' : 'transparent' }}
         >
           {isTerminal ? (
             renderPage()
           ) : (
             <div
+              className="content-card"
               style={{
                 maxWidth: 1100,
-                margin: '0 auto',
+                margin: '32px auto',
                 padding: '40px 48px',
-                minHeight: '100%',
               }}
             >
               {renderPage()}

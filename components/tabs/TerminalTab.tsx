@@ -144,7 +144,7 @@ export default function TerminalTab() {
     >
       {/* Header */}
       <div style={{ padding: '16px 20px', borderBottom: '1px solid #1E1E18' }}>
-        <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: '#B87420', letterSpacing: 2 }}>
+        <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: '#E2901E', letterSpacing: 2 }}>
           KERNAL AI CODING TERMINAL
         </div>
         <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: '#4A4A40', marginTop: 4 }}>
@@ -170,7 +170,7 @@ export default function TerminalTab() {
           <div key={i} style={{ marginBottom: 16, fontFamily: 'JetBrains Mono, monospace', fontSize: 12 }}>
             {m.role === 'user' ? (
               <div>
-                <span style={{ color: '#B87420' }}>kernal@registry:~$ </span>
+                <span style={{ color: '#E2901E' }}>kernal@registry:~$ </span>
                 <span style={{ color: '#E8E3D8' }}>{m.content}</span>
               </div>
             ) : (
@@ -186,7 +186,7 @@ export default function TerminalTab() {
           </div>
         ))}
         {isGenerating && (
-          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 12, color: '#B87420' }}>
+          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 12, color: '#E2901E' }}>
             ▸ Generating<span className="blink">█</span>
           </div>
         )}
@@ -201,11 +201,11 @@ export default function TerminalTab() {
       {/* Input */}
       <div style={{ padding: '16px 20px', borderTop: '1px solid #1E1E18' }}>
         {!address ? (
-          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: '#B87420' }}>
+          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: '#E2901E' }}>
             Connect wallet (10M $KRN) to unlock →
           </div>
         ) : !isPremium ? (
-          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: '#B87420' }}>
+          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: '#E2901E' }}>
             Requires 10,000,000 $KRN for AI coding access
           </div>
         ) : (
@@ -227,7 +227,7 @@ export default function TerminalTab() {
               onClick={generate}
               disabled={isGenerating}
               style={{
-                background: '#B87420', color: '#0D0D0A', border: 'none',
+                background: '#E2901E', color: '#0D0D0A', border: 'none',
                 fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 600,
                 letterSpacing: 1.5, padding: '0 18px', cursor: isGenerating ? 'default' : 'pointer',
                 textTransform: 'uppercase', opacity: isGenerating ? 0.6 : 1
@@ -264,7 +264,7 @@ export default function TerminalTab() {
               <button onClick={() => setView('code')} style={tabStyle(view === 'code')}>CODE</button>
             </div>
             <button onClick={downloadZip} style={{
-              background: 'transparent', border: '1px solid #B87420', color: '#B87420',
+              background: 'transparent', border: '1px solid #E2901E', color: '#E2901E',
               fontFamily: 'DM Sans, sans-serif', fontSize: 10, fontWeight: 600, letterSpacing: 1.5,
               padding: '6px 14px', cursor: 'pointer', textTransform: 'uppercase'
             }}>
@@ -289,7 +289,7 @@ export default function TerminalTab() {
                   {Object.keys(project.files).map(name => (
                     <div key={name} onClick={() => setActiveFile(name)} style={{
                       fontFamily: 'JetBrains Mono, monospace', fontSize: 11, padding: '6px 8px',
-                      color: activeFile === name ? '#B87420' : '#6B6655', cursor: 'pointer',
+                      color: activeFile === name ? '#E2901E' : '#6B6655', cursor: 'pointer',
                       background: activeFile === name ? '#141410' : 'transparent'
                     }}>
                       {name}
@@ -338,8 +338,8 @@ function tabStyle(active: boolean): React.CSSProperties {
   return {
     background: 'transparent', border: 'none', cursor: 'pointer',
     fontFamily: 'DM Sans, sans-serif', fontSize: 10, fontWeight: 600, letterSpacing: 1.5,
-    color: active ? '#B87420' : '#6B6655', textTransform: 'uppercase',
-    borderBottom: active ? '2px solid #B87420' : '2px solid transparent',
+    color: active ? '#E2901E' : '#6B6655', textTransform: 'uppercase',
+    borderBottom: active ? '2px solid #E2901E' : '2px solid transparent',
     paddingBottom: 4
   }
 }
@@ -348,7 +348,7 @@ function mobileTabStyle(active: boolean): React.CSSProperties {
   return {
     flex: 1, background: active ? '#141410' : 'transparent', border: 'none',
     cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', fontSize: 10, fontWeight: 600,
-    letterSpacing: 1.5, color: active ? '#B87420' : '#6B6655', textTransform: 'uppercase',
-    padding: '10px 0', borderBottom: active ? '2px solid #B87420' : '2px solid transparent'
+    letterSpacing: 1.5, color: active ? '#E2901E' : '#6B6655', textTransform: 'uppercase',
+    padding: '10px 0', borderBottom: active ? '2px solid #E2901E' : '2px solid transparent'
   }
 }

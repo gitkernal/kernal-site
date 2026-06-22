@@ -98,7 +98,7 @@ export default function RunTab({ initialSkillId = '' }: RunTabProps) {
       {isPremiumLocked && (
         <div
           className="border p-4 mb-4"
-          style={{ background: 'var(--dark)', borderColor: 'rgba(184,116,32,0.3)' }}
+          style={{ background: 'var(--dark)', borderColor: 'rgba(226,144,30,0.3)' }}
         >
           <div
             className="font-mono text-[10px] tracking-widest mb-2"

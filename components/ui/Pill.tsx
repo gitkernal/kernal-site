@@ -9,8 +9,8 @@ export default function Pill({ tier, className = '' }: PillProps) {
     <span
       className={`inline-block font-mono text-[8px] font-semibold tracking-widest uppercase px-2 py-0.5 ${className}`}
       style={{
-        background: isFree ? 'var(--bg3)' : 'var(--amber)',
-        color: isFree ? 'var(--mid)' : 'var(--dark)'
+        background: isFree ? 'rgba(74,158,107,0.14)' : 'var(--amber)',
+        color: isFree ? 'var(--mint)' : 'var(--dark)'
       }}
     >
       {isFree ? 'FREE' : '⬡ PREMIUM'}

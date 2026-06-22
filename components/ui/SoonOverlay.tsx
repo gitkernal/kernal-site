@@ -9,7 +9,7 @@ export default function SoonOverlay({ onClose, feature = 'This feature' }: SoonO
   return (
     <div
       className="absolute inset-0 flex items-center justify-center z-50"
-      style={{ background: 'rgba(20,20,16,0.92)', backdropFilter: 'blur(4px)' }}
+      style={{ background: 'rgba(14,23,20,0.92)', backdropFilter: 'blur(4px)' }}
     >
       <div
         className="border p-8 text-center max-w-xs mx-4"

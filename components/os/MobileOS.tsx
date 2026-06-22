@@ -88,8 +88,7 @@ export default function MobileOS() {
 
   return (
     <div
-      className="fixed inset-0 flex flex-col"
-      style={{ background: 'var(--bg)' }}
+      className="app-bg fixed inset-0 flex flex-col"
     >
       {/* Header */}
       <div
@@ -119,7 +118,7 @@ export default function MobileOS() {
       {showMore && (
         <div
           className="absolute inset-0 z-50 flex items-end"
-          style={{ background: 'rgba(20,20,16,0.8)' }}
+          style={{ background: 'rgba(14,23,20,0.6)' }}
           onClick={() => setShowMore(false)}
         >
           <div
