@@ -33,13 +33,15 @@ export function getAnthropicClient(): Anthropic {
 /**
  * Model id for the active client.
  *
- * Virtuals Compute may expose a different model identifier than the direct
- * Anthropic API, so it is overridable via VIRTUALS_MODEL. The direct-Anthropic
- * fallback uses claude-sonnet-4-6.
+ * Virtuals Compute exposes a different model identifier than the direct
+ * Anthropic API: its /v1/models ids are hyphen-separated (e.g.
+ * "anthropic-claude-sonnet-4-6"), NOT the slash form "anthropic/claude-...".
+ * Sending the slash form returns 500 "Invalid model provided". Overridable via
+ * VIRTUALS_MODEL. The direct-Anthropic fallback uses claude-sonnet-4-6.
  */
 export function getModel(): string {
   if (process.env.VIRTUALS_API_KEY) {
-    return process.env.VIRTUALS_MODEL || 'anthropic/claude-sonnet-4-5'
+    return process.env.VIRTUALS_MODEL || 'anthropic-claude-sonnet-4-6'
   }
   return 'claude-sonnet-4-6'
 }
