@@ -1,4 +1,4 @@
-import { getAnthropicClient, getModel } from '@/lib/anthropic'
+import { createMessage } from '@/lib/anthropic'
 import { createClient } from '@/lib/supabase'
 import { buildSkillPrompt } from '@/lib/skill-prompts'
 import { SKILLS_DATA } from '@/lib/skills-data'
@@ -55,10 +55,7 @@ export async function POST(req: NextRequest) {
   const startTime = Date.now()
 
   try {
-    const anthropic = getAnthropicClient()
-
-    const message = await anthropic.messages.create({
-      model: getModel(),
+    const message = await createMessage({
       max_tokens: 1500,
       system: prompt.system,
       messages: [{ role: 'user', content: prompt.user }]

@@ -1,4 +1,4 @@
-import { getAnthropicClient, getModel } from '@/lib/anthropic'
+import { createMessage } from '@/lib/anthropic'
 import { createClient } from '@/lib/supabase'
 import { checkPremiumAccess } from '@/lib/onchain'
 import { NextRequest, NextResponse } from 'next/server'
@@ -92,9 +92,7 @@ export async function POST(req: NextRequest) {
 
   // 5. Generate
   try {
-    const anthropic = getAnthropicClient()
-    const message = await anthropic.messages.create({
-      model: getModel(),
+    const message = await createMessage({
       max_tokens: MAX_TOKENS,
       system: SYSTEM_PROMPT,
       messages
